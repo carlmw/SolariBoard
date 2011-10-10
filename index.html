@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+	<style>
+	html{
+		width:100%;
+		height:100%;
+	}
+	body{
+		width:100%;
+		height:100%;
+		background-color:#000;
+		font-family:'League Gothic';
+		text-transform:uppercase;
+		color:#fff;
+		font-size:3em;
+		-webkit-transform:translateZ(0);
+	}
+	*{
+		margin:0;
+		padding:0;
+	}
+	h1{
+		position:absolute;
+		left:-9999px;
+	}
+	ol{
+		width:100%;
+		height:100%;
+		list-style-type:none;
+		font-size:3em;
+		display:-webkit-box;
+		-webkit-box-orient:vertical;
+		-webkit-box-pack:center;
+	}
+	li{
+		letter-spacing:0;
+		white-space:nowrap;
+	}
+	.set{
+		position:relative;
+		line-height:1em;
+		width:0.7em;
+		margin:0.1ex;
+		height:1em;
+		display:inline-block;
+		vertical-align:middle;
+		-webkit-perspective: 2000;
+	}
+	.wrapper span{
+		display:block;
+	}
+	.wrapper{
+		position:absolute;
+		width:100%;
+		top:0;
+		left:0;
+		display:block;
+		-webkit-transform-style:preserve-3d;
+		-webkit-transform-origin:bottom;
+		height:0.5em;
+	}
+	.wrapper>span{
+		top:0;
+		left:0;
+		position:absolute;
+		height:0.5em;
+		width:100%;
+		text-align:center;
+		overflow:hidden;
+		-webkit-backface-visibility:hidden;
+		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.3), transparent);
+	}
+	.stable{
+		background-color:green;
+	}
+	.unstable{
+		background-color:orange;
+	}
+	.failed{
+		background-color:red;
+	}
+	.back{
+		-webkit-transform:rotateX(180deg);
+	}
+	.back span{
+		position:absolute;
+		bottom:0;
+		width:100%;
+	}
+	@-webkit-keyframes flip-stable{
+		0%{ -webkit-transform:rotateX(0deg); z-index:3; }
+		25%{ -webkit-transform:rotateX(-180deg); z-index:3; }
+		99%{ -webkit-transform:rotateX(-180deg); }
+		100%{ -webkit-transform:rotateX(0deg); }
+	}
+	@-webkit-keyframes flip-stable{
+		0%{ -webkit-transform:rotateX(0deg); }
+		25%{ -webkit-transform:rotateX(0deg); z-index:3; }
+		50%{ -webkit-transform:rotateX(-180deg); z-index:3; }
+		99%{ -webkit-transform:rotateX(-180deg); }
+		100%{ -webkit-transform:rotateX(0deg); }
+	}
+	@-webkit-keyframes flip-failed{
+		0%{ -webkit-transform:rotateX(0deg); }
+		50%{ -webkit-transform:rotateX(0deg); z-index:3; }
+		75%{ -webkit-transform:rotateX(-180deg); z-index:3; }
+		99%{ -webkit-transform:rotateX(-180deg); }
+		100%{ -webkit-transform:rotateX(0deg); }
+	}
+	.animate .wrapper:nth-of-type(1){
+		-webkit-animation:flip-stable 1s infinite;
+	}
+	.animate .wrapper:nth-of-type(2){
+		-webkit-animation:flip-unstable 1s infinite;
+	}
+	.animate .wrapper:nth-of-type(3){
+		-webkit-animation:flip-failed 1s infinite;
+	}
+	</style>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+	<script src="underscore.1.2.0.js"></script>
+	<script>
+	$(function(){
+		var states = ['stable', 'unstable', 'failed'];
+		_.each($('li'), function(el){
+			var content = '',
+				subject = el.textContent.trim().split('');
+			_.each(subject, function(l, i){
+				content += '<span class="set">';
+				
+				_.each(states, function(state, i){
+					content += '<span class="wrapper">'+
+						'<span class="front '+states[i]+'">'+l+'</span>'+
+						'<span class="back ' + (states[i+1] ? states[i+1] : states[0]) + '"><span>'+l+'</span></span>'+
+					'</span>';
+				});
+				
+				content += '</span>';
+			});
+			el.innerHTML = content;
+		});
+		
+		_.each($('.set'), function(el){
+			setTimeout(function(){
+				el.className += ' animate';
+			}, (Math.random()*1000));
+		});
+	});
+	</script>
+</head>
+<body>
+	<h1>Build status</h1>
+	<ol>
+		<li>Development</li>
+		<li>Staging</li>
+		<li>Production</li>
+	</ol>
+</body>
+</html>
