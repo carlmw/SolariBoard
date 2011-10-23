@@ -13,7 +13,7 @@
 		font-family:'League Gothic';
 		text-transform:uppercase;
 		color:#fff;
-		font-size:3em;
+		font-size:2em;
 		-webkit-transform:translateZ(0);
 	}
 	*{
@@ -45,7 +45,7 @@
 		height:1em;
 		display:inline-block;
 		vertical-align:middle;
-		-webkit-perspective: 2000;
+		-webkit-perspective:500;
 	}
 	.wrapper span{
 		display:block;
@@ -58,6 +58,7 @@
 		display:block;
 		-webkit-transform-style:preserve-3d;
 		-webkit-transform-origin:bottom;
+		-webkit-transition-duration:0.3s;
 		height:0.5em;
 	}
 	.wrapper>span{
@@ -69,82 +70,83 @@
 		text-align:center;
 		overflow:hidden;
 		-webkit-backface-visibility:hidden;
+		background-color:#222;
 		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.3), transparent);
+		border-radius:2px;
 	}
-	.stable{
-		background-color:green;
-	}
-	.unstable{
-		background-color:orange;
-	}
-	.failed{
+	.red>span{
 		background-color:red;
 	}
-	.back{
-		-webkit-transform:rotateX(180deg);
+	.green>span{
+		background-color:green;
+	}
+	.orange>span{
+		background-color:orange;
+	}
+	.wrapper > .back{
+		-webkit-transform:rotate3d(1, 0, 0, 180deg);
 	}
 	.back span{
 		position:absolute;
 		bottom:0;
 		width:100%;
 	}
-	@-webkit-keyframes flip-stable{
-		0%{ -webkit-transform:rotateX(0deg); z-index:3; }
-		25%{ -webkit-transform:rotateX(-180deg); z-index:3; }
-		99%{ -webkit-transform:rotateX(-180deg); }
-		100%{ -webkit-transform:rotateX(0deg); }
-	}
-	@-webkit-keyframes flip-stable{
-		0%{ -webkit-transform:rotateX(0deg); }
-		25%{ -webkit-transform:rotateX(0deg); z-index:3; }
-		50%{ -webkit-transform:rotateX(-180deg); z-index:3; }
-		99%{ -webkit-transform:rotateX(-180deg); }
-		100%{ -webkit-transform:rotateX(0deg); }
-	}
-	@-webkit-keyframes flip-failed{
-		0%{ -webkit-transform:rotateX(0deg); }
-		50%{ -webkit-transform:rotateX(0deg); z-index:3; }
-		75%{ -webkit-transform:rotateX(-180deg); z-index:3; }
-		99%{ -webkit-transform:rotateX(-180deg); }
-		100%{ -webkit-transform:rotateX(0deg); }
-	}
-	.animate .wrapper:nth-of-type(1){
-		-webkit-animation:flip-stable 1s infinite;
-	}
-	.animate .wrapper:nth-of-type(2){
-		-webkit-animation:flip-unstable 1s infinite;
-	}
-	.animate .wrapper:nth-of-type(3){
-		-webkit-animation:flip-failed 1s infinite;
-	}
 	</style>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+	<script src="jquery-1.6.1.js"></script>
 	<script src="underscore.1.2.0.js"></script>
+	<script src="backbone.0.5.3.js"></script>
 	<script>
 	$(function(){
-		var states = ['stable', 'unstable', 'failed'];
-		_.each($('li'), function(el){
-			var content = '',
-				subject = el.textContent.trim().split('');
-			_.each(subject, function(l, i){
-				content += '<span class="set">';
-				
-				_.each(states, function(state, i){
-					content += '<span class="wrapper">'+
-						'<span class="front '+states[i]+'">'+l+'</span>'+
-						'<span class="back ' + (states[i+1] ? states[i+1] : states[0]) + '"><span>'+l+'</span></span>'+
-					'</span>';
-				});
-				
-				content += '</span>';
-			});
-			el.innerHTML = content;
-		});
+		// var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890- '.split(''),
+		var chars = 'ABCDEF'.split(''),
+			styles = ['grey'],
+			charSetHTML = '<span class="set">';
 		
-		_.each($('.set'), function(el){
-			setTimeout(function(){
-				el.className += ' animate';
-			}, (Math.random()*1000));
+		_.each(styles, function(s){
+			_.each(chars, function(c, i){
+				charSetHTML += '<span class="wrapper '+s+'">' +
+					'<span class="back"><span>' + c + '</span></span>' +
+					'<span class="front">'+ (chars[i+1] ? chars[i+1] : chars[0]) +'</span>' +
+				'</span>';
+			});
+		});
+		charSetHTML += '</span>';
+		
+		var wordHTML = _.reduce('H'.split(''), function(memo){
+			return memo + charSetHTML;
+		}, '');
+		
+		$('li').html(wordHTML).find('.set').each(function(){
+			var $wrappers = $(this).find('.wrapper'),
+				l = $wrappers.length,
+				i = 1,
+				prev = null,
+				prevPrev = null,
+				el = null,
+				next = function(){
+					if(l-i < 0){
+						i=1;
+						prev = null;
+						prevPrev = null;
+					}
+					el = $wrappers.get(l-i);
+					if(prev){
+						prev.style.webkitTransitionProperty = 'none';
+					}
+					if(prevPrev){
+						prevPrev.style.zIndex = -1;
+						prevPrev.style.webkitTransform = 'none';
+					}
+					el.style.zIndex = i;
+					el.style.webkitTransitionProperty = '-webkit-transform';
+					el.style.webkitTransform = 'rotate3d(1, 0, 0, -180deg)';
+					prevPrev = prev;
+					prev = el;
+					i++;
+				}; 
+	
+			$wrappers.bind('webkitTransitionEnd', next);
+			setTimeout(next, Math.floor(Math.random()*2000));
 		});
 	});
 	</script>
@@ -152,9 +154,7 @@
 <body>
 	<h1>Build status</h1>
 	<ol>
-		<li>Development</li>
-		<li>Staging</li>
-		<li>Production</li>
+		<li></li>
 	</ol>
 </body>
 </html>
