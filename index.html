@@ -5,6 +5,7 @@
 	html{
 		width:100%;
 		height:100%;
+		-webkit-transform:translateZ(0);
 	}
 	body{
 		width:100%;
@@ -14,7 +15,6 @@
 		text-transform:uppercase;
 		color:#fff;
 		font-size:2em;
-		-webkit-transform:translateZ(0);
 	}
 	*{
 		margin:0;
@@ -45,9 +45,8 @@
 		height:1em;
 		display:inline-block;
 		vertical-align:middle;
-		-webkit-perspective:500;
 	}
-	.wrapper span{
+	span{
 		display:block;
 	}
 	.wrapper{
@@ -55,13 +54,10 @@
 		width:100%;
 		top:0;
 		left:0;
-		display:block;
-		-webkit-transform-style:preserve-3d;
-		-webkit-transform-origin:bottom;
-		-webkit-transition-duration:0.3s;
-		height:0.5em;
+		height:1em;
+		z-index:1;
 	}
-	.wrapper>span{
+	.face{
 		top:0;
 		left:0;
 		position:absolute;
@@ -69,27 +65,45 @@
 		width:100%;
 		text-align:center;
 		overflow:hidden;
-		-webkit-backface-visibility:hidden;
 		background-color:#222;
-		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.3), transparent);
+		background-repeat:no-repeat;
+/*		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.3), transparent);*/
 		border-radius:2px;
+		-webkit-backface-visibility:hidden;
 	}
-	.red>span{
-		background-color:red;
+	.container{
+		-webkit-perspective:500;
 	}
-	.green>span{
-		background-color:green;
+	.flip{
+		position:absolute;
+		width:100%;
+		top:0;
+		left:0;
+		height:1em;
+		z-index:10;
+		display:block;
+		-webkit-transition-property:none;
+		-webkit-transform-style:preserve-3d;
+		-webkit-transition-duration:0.5s;
 	}
-	.orange>span{
-		background-color:orange;
+	.bottom{
+		top:0.5em;
 	}
-	.wrapper > .back{
+	.back{
+		height:0.5em;
 		-webkit-transform:rotate3d(1, 0, 0, 180deg);
 	}
-	.back span{
+	.front{
+		height:0.5em;
+	}
+	.face span{
 		position:absolute;
 		bottom:0;
 		width:100%;
+	}
+	.animating .flip{
+		-webkit-transition-property:-webkit-transform;
+		-webkit-transform:rotate3d(1, 0, 0, -180deg);
 	}
 	</style>
 	<script src="jquery-1.6.1.js"></script>
@@ -97,16 +111,24 @@
 	<script src="backbone.0.5.3.js"></script>
 	<script>
 	$(function(){
-		// var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890- '.split(''),
-		var chars = 'ABCDEF'.split(''),
+		var chars = 'AB'.split(''),
+		// var chars = 'ABCDEF'.split(''),
 			styles = ['grey'],
+			docEl = document.documentElement,
 			charSetHTML = '<span class="set">';
 		
 		_.each(styles, function(s){
 			_.each(chars, function(c, i){
-				charSetHTML += '<span class="wrapper '+s+'">' +
-					'<span class="back"><span>' + c + '</span></span>' +
-					'<span class="front">'+ (chars[i+1] ? chars[i+1] : chars[0]) +'</span>' +
+				var next = (chars[i+1] ? chars[i+1] : chars[0]);
+				charSetHTML += '<span class="wrapper ' + s + '">' +
+					'<span class="top face char-' + c + '">' + c + '</span>' +
+					'<span class="bottom face char-' + next + '"><span>' + next + '</span></span>' +
+					'<span class="container">' +
+						'<span class="flip">' +
+							'<span class="back face char-' + c + '"><span>' + c + '</span></span>' +
+							'<span class="front face char-' + next + '">' + next + '</span>' +
+						'</span>' +
+					'</span>' + 
 				'</span>';
 			});
 		});
@@ -120,33 +142,20 @@
 			var $wrappers = $(this).find('.wrapper'),
 				l = $wrappers.length,
 				i = 1,
-				prev = null,
-				prevPrev = null,
-				el = null,
+				$el = null,
+				$lastEl = null,
 				next = function(){
-					if(l-i < 0){
-						i=1;
-						prev = null;
-						prevPrev = null;
+					$el = $wrappers.eq(l-i);
+					$el.show().addClass('animating');
+					if($lastEl){
+						// $el.hide().removeClass('animating');
 					}
-					el = $wrappers.get(l-i);
-					if(prev){
-						prev.style.webkitTransitionProperty = 'none';
-					}
-					if(prevPrev){
-						prevPrev.style.zIndex = -1;
-						prevPrev.style.webkitTransform = 'none';
-					}
-					el.style.zIndex = i;
-					el.style.webkitTransitionProperty = '-webkit-transform';
-					el.style.webkitTransform = 'rotate3d(1, 0, 0, -180deg)';
-					prevPrev = prev;
-					prev = el;
+					$lastEl = $el;
 					i++;
 				}; 
 	
-			$wrappers.bind('webkitTransitionEnd', next);
-			setTimeout(next, Math.floor(Math.random()*2000));
+			// $wrappers.bind('webkitTransitionEnd', next);
+			setTimeout(next, Math.round(Math.random()*1));
 		});
 	});
 	</script>
