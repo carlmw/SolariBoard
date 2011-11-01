@@ -56,6 +56,8 @@
 		left:0;
 		height:1em;
 		z-index:1;
+		left:-9999px;
+		-webkit-transform:translateZ(0);
 	}
 	.face{
 		top:0;
@@ -67,8 +69,8 @@
 		overflow:hidden;
 		background-color:#222;
 		background-repeat:no-repeat;
-/*		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.3), transparent);*/
 		border-radius:2px;
+		text-shadow:#000 0 -2px 0;
 		-webkit-backface-visibility:hidden;
 	}
 	.container{
@@ -83,27 +85,48 @@
 		z-index:10;
 		display:block;
 		-webkit-transition-property:none;
+		-webkit-transition-timing-function:ease-out;
 		-webkit-transform-style:preserve-3d;
-		-webkit-transition-duration:0.5s;
+		-webkit-transition-duration:0.2s;
+	}
+	.top{
+		border-bottom:1px solid #000;
 	}
 	.bottom{
 		top:0.5em;
 	}
 	.back{
 		height:0.5em;
+		background-color:#333;
 		-webkit-transform:rotate3d(1, 0, 0, 180deg);
+		-webkit-transition-property:none;
+		-webkit-transition-duration:1s;
 	}
 	.front{
 		height:0.5em;
+		background-color:#222;
+		-webkit-transition-property:none;
+		-webkit-transition-duration:1s;
 	}
 	.face span{
 		position:absolute;
 		bottom:0;
 		width:100%;
 	}
+	.animating{
+		left:0;
+	}
 	.animating .flip{
 		-webkit-transition-property:-webkit-transform;
 		-webkit-transform:rotate3d(1, 0, 0, -180deg);
+	}
+	.animating .back{
+		background-color:#222;
+		-webkit-transition-property:background-color;
+	}
+	.animating .front{
+		background-color:#000;
+		-webkit-transition-property:background-color;
 	}
 	</style>
 	<script src="jquery-1.6.1.js"></script>
@@ -111,8 +134,7 @@
 	<script src="backbone.0.5.3.js"></script>
 	<script>
 	$(function(){
-		var chars = 'AB'.split(''),
-		// var chars = 'ABCDEF'.split(''),
+		var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456790'.split(''),
 			styles = ['grey'],
 			docEl = document.documentElement,
 			charSetHTML = '<span class="set">';
@@ -134,28 +156,32 @@
 		});
 		charSetHTML += '</span>';
 		
-		var wordHTML = _.reduce('H'.split(''), function(memo){
+		var wordHTML = _.reduce('HERPDERP'.split(''), function(memo){
 			return memo + charSetHTML;
 		}, '');
 		
 		$('li').html(wordHTML).find('.set').each(function(){
-			var $wrappers = $(this).find('.wrapper'),
+			var $set = $(this),
+				$wrappers = $(this).find('.wrapper'),
 				l = $wrappers.length,
 				i = 1,
 				$el = null,
 				$lastEl = null,
 				next = function(){
-					$el = $wrappers.eq(l-i);
-					$el.show().addClass('animating');
-					if($lastEl){
-						// $el.hide().removeClass('animating');
+					if(l-i === 0){
+						i = 1;
 					}
+					if($lastEl){
+						$lastEl.removeClass('animating');
+					}
+					$el = $wrappers.eq(l-i);
+					$el.addClass('animating');
 					$lastEl = $el;
 					i++;
 				}; 
 	
-			// $wrappers.bind('webkitTransitionEnd', next);
-			setTimeout(next, Math.round(Math.random()*1));
+			$wrappers.bind('webkitTransitionEnd', next);
+			setTimeout(next, Math.round(Math.random() * 2048));
 		});
 	});
 	</script>
@@ -163,6 +189,8 @@
 <body>
 	<h1>Build status</h1>
 	<ol>
+		<li></li>
+		<li></li>
 		<li></li>
 	</ol>
 </body>

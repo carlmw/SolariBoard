@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+	<script src="jquery-1.6.1.js"></script>
+	<script src="underscore.1.2.0.js"></script>
+	<script src="backbone.0.5.3.js"></script>
+	<script src="Three.js"></script>
+	<script src="Tween.js"></script>
+	<script>
+	$(function(){
+
+		function loadImage( path ) {
+			var image = document.createElement( 'img' );
+			var texture = new THREE.Texture( image, THREE.UVMapping )
+
+			image.onload = function () { texture.needsUpdate = true; };
+			image.src = path;
+
+			return texture;
+		};
+		
+		var img = document.createElement('img'),
+			SPRITEWIDTH,
+			SPRITEHEIGHT;
+		img.onload = function(){
+			document.body.appendChild(img);
+			SPRITEWIDTH = img.clientWidth;
+			SPRITEHEIGHT = img.clientHeight;
+			document.body.removeChild(img);
+			init();
+		};
+		img.src = 'chars.png';
+
+		function init(){
+			var canvas = document.createElement('canvas'),
+				ctx = canvas.getContext("2d");
+			canvas.width = SPRITEWIDTH;
+			canvas.height = SPRITEHEIGHT;
+			document.body.appendChild(canvas);
+			ctx.drawImage(img, 0, 0);
+			
+			var imgData = ctx.getImageData(0, 0, 100, 100);
+
+			var WIDTH = window.innerWidth,
+				DEG2RAD = 3.141593 / 180,
+				HEIGHT = window.innerHeight,
+				VIEW_ANGLE = 45,
+				ASPECT = (WIDTH / HEIGHT),
+				NEAR = -2000,
+				FAR = 1000,
+				$container = $('#container'),
+				renderer = new THREE.WebGLRenderer,
+				camera = new THREE.OrthographicCamera(
+					window.innerWidth / - 2,
+					window.innerWidth / 2,
+					window.innerHeight / 2,
+					window.innerHeight / - 2,
+					NEAR,
+					FAR),
+				scene = new THREE.Scene;
+	
+			// Start the renderer
+			renderer.setSize(WIDTH, HEIGHT);
+	
+			$container.append(renderer.domElement);
+	
+			// Render our cube
+			var FLAPWIDTH = 80, FLAPHEIGHT = 80, FLAPDEPTH = 2,
+				texture = new THREE.DataTexture(new Uint8Array(imgData.data), 100, 100),
+				pointLight = new THREE.PointLight(0xFFFFFF),
+				material = new THREE.MeshLambertMaterial({
+					map: texture
+				});
+				
+			texture.needsUpdate = true;
+			console.log(texture);
+			
+			pointLight.position.x = window.innerWidth / 2;
+			pointLight.position.y = 0;
+			pointLight.position.z = 1000;
+			scene.add(pointLight);
+		
+			// Pull the camera back
+			camera.position.x = window.innerWidth / 2 - FLAPWIDTH;
+			camera.position.y = -window.innerHeight / 2 + (FLAPHEIGHT * 2);
+			camera.position.z = 0;
+
+			var flaps = [],
+				addFlap = function(x, y){
+					var wrapper = new THREE.Object3D(),
+						flapWrapper = new THREE.Object3D(),
+						top = new THREE.Mesh(
+							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
+							material),
+						bottom = new THREE.Mesh(
+							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
+							material),
+						flap = new THREE.Mesh(
+							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
+							material);
+			
+					flap.position.y = FLAPHEIGHT / 2;
+					flapWrapper.position.y = FLAPHEIGHT / 2;
+					bottom.position.y = FLAPHEIGHT;
+					wrapper.position.x = x;
+					wrapper.position.y = y;
+					flapWrapper.add(flap);
+					wrapper.add(flapWrapper);
+					wrapper.add(top);
+					wrapper.add(bottom);
+					scene.add(wrapper);
+				
+					flaps.push(flapWrapper);
+				};
+	
+			var render = function(){
+				renderer.render(scene, camera);
+			};
+		
+			var drawRow = function(y){
+				var i = 0,
+					x = 0;
+				while(i < 14){
+					addFlap(x, y);
+					x += FLAPWIDTH + 16;
+					i++;
+				}
+			};
+		
+			var i = 0,
+				y = 0;
+			while(i < 4){
+				drawRow(y);
+				y -= FLAPHEIGHT * 2 + 16;
+				i++;
+			}
+		
+			render();
+			// Tween it
+			TWEEN.start();
+		
+			var rotation = {
+					x: 0
+				},
+				update = function(){
+					flaps.forEach(function(flapWrapper){
+						flapWrapper.rotation.x = rotation.x;
+					});
+					render();
+				};
+			
+			var flip = new TWEEN.Tween(rotation).
+				to({x: 180 * DEG2RAD}, 2000).
+				onUpdate(update).
+				onComplete(function(){
+					rotation.x = 0;
+				});
+			
+			flip.chain(flip);
+			flip.start();
+		};
+	});
+	</script>
+	<style>
+	*{
+		margin:0;
+		padding:0;
+	}
+	</style>
+</head>
+<body>
+	<div id="container"></div>
+</body>
+</html>
