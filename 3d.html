@@ -32,24 +32,24 @@
 			document.body.appendChild(canvas);
 			ctx.drawImage(img, 0, 0);
 							
-			var x = 0,
-				faces = {},
-				faceSize = SPRITEHEIGHT / 2;
+			var faces = {},
+				faceSize = SPRITEHEIGHT / 2,
+				x = 0;
 			
 			// Collect the top and bottom segments of characters from our sprite
 			chars.forEach(function(char, i){
 				var top = ctx.getImageData(x, 0, faceSize, faceSize),
-					bottom = ctx.getImageData(x, faceSize, faceSize, faceSize),
+					bottom = ctx.getImageData((x === 0) ? SPRITEWIDTH - faceSize : x - faceSize, faceSize, faceSize, faceSize),
 					upper = new THREE.DataTexture(new Uint8Array(top.data), faceSize, faceSize),
 					lower = new THREE.DataTexture(new Uint8Array(bottom.data), faceSize, faceSize);
 					
 					upper.needsUpdate = lower.needsUpdate = true;
 					
 				faces[char] = {
-					top: new THREE.MeshLambertMaterial({
+					topMaterial: new THREE.MeshLambertMaterial({
 						map: upper
 					}),
-					bottom: new THREE.MeshLambertMaterial({
+					bottomMaterial: new THREE.MeshLambertMaterial({
 						map: lower
 					})
 				};
@@ -67,9 +67,18 @@
 					
 					back.needsUpdate = true;
 				
-				faces[char].back = new THREE.MeshLambertMaterial({
-					map: back
-				});
+				var prev = chars[i-1] ? chars[i-1] : chars[chars.length-1];
+				
+				faces[char].flipperMaterials = [
+					null,
+					null,
+					null,
+					null,
+					faces[prev].topMaterial,
+					new THREE.MeshLambertMaterial({
+						map: back
+					})
+				];
 			});
 			document.body.removeChild(canvas);
 			canvas = null;
@@ -97,7 +106,7 @@
 			$container.append(renderer.domElement);
 	
 			// Render our cube
-			var FLAPWIDTH = 80, FLAPHEIGHT = 80, FLAPDEPTH = 2,
+			var FLAPWIDTH = 80, FLAPHEIGHT = 80, FLAPDEPTH = 0,
 				pointLight = new THREE.PointLight(0xFFFFFF);
 			
 			pointLight.position.x = window.innerWidth / 2;
@@ -116,13 +125,13 @@
 						flapWrapper = new THREE.Object3D(),
 						top = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.B.top),
+							faces.B.topMaterial),
 						bottom = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.A.bottom),
+							faces.B.bottomMaterial),
 						flap = new THREE.Mesh(
-							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.B.back);
+							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH, 1, 1, 1, faces.B.flipperMaterials),
+							new THREE.MeshFaceMaterial());
 			
 					flap.position.y = FLAPHEIGHT / 2;
 					flapWrapper.position.y = FLAPHEIGHT / 2;
@@ -135,7 +144,7 @@
 					wrapper.add(bottom);
 					scene.add(wrapper);
 				
-					flaps.push(flapWrapper);
+					return flaps.push(flapWrapper);
 				};
 	
 			var render = function(){
@@ -175,7 +184,7 @@
 				};
 			
 			var flip = new TWEEN.Tween(rotation).
-				to({x: 180 * DEG2RAD}, 2000).
+				to({x: 180 * DEG2RAD}, 300).
 				onUpdate(update).
 				onComplete(function(){
 					rotation.x = 0;
