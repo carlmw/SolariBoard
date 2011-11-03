@@ -8,20 +8,11 @@
 	<script src="Tween.js"></script>
 	<script>
 	$(function(){
-
-		function loadImage( path ) {
-			var image = document.createElement( 'img' );
-			var texture = new THREE.Texture( image, THREE.UVMapping )
-
-			image.onload = function () { texture.needsUpdate = true; };
-			image.src = path;
-
-			return texture;
-		};
-		
-		var img = document.createElement('img'),
+		var DEG2RAD = Math.PI / 180,
+			img = document.createElement('img'),
 			SPRITEWIDTH,
 			SPRITEHEIGHT;
+			
 		img.onload = function(){
 			document.body.appendChild(img);
 			SPRITEWIDTH = img.clientWidth;
@@ -44,7 +35,8 @@
 			var x = 0,
 				faces = {},
 				faceSize = SPRITEHEIGHT / 2;
-				
+			
+			// Collect the top and bottom segments of characters from our sprite
 			chars.forEach(function(char, i){
 				var top = ctx.getImageData(x, 0, faceSize, faceSize),
 					bottom = ctx.getImageData(x, faceSize, faceSize, faceSize),
@@ -63,9 +55,26 @@
 				};
 				x += faceSize;
 			});
-
+			
+			// Now flip the canvas and retrieve the back of each character flipper
+			ctx.translate(SPRITEWIDTH, SPRITEHEIGHT);
+			ctx.scale(-1, -1);
+			ctx.drawImage(img, 0, 0);
+			chars.forEach(function(char, i){
+				x -= faceSize;
+				var flip = ctx.getImageData(x, 0, faceSize, faceSize),
+					back = new THREE.DataTexture(new Uint8Array(flip.data), faceSize, faceSize);
+					
+					back.needsUpdate = true;
+				
+				faces[char].back = new THREE.MeshLambertMaterial({
+					map: back
+				});
+			});
+			document.body.removeChild(canvas);
+			canvas = null;
+			
 			var WIDTH = window.innerWidth,
-				DEG2RAD = 3.141593 / 180,
 				HEIGHT = window.innerHeight,
 				VIEW_ANGLE = 45,
 				ASPECT = (WIDTH / HEIGHT),
@@ -113,7 +122,7 @@
 							faces.A.bottom),
 						flap = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.A.top);
+							faces.B.back);
 			
 					flap.position.y = FLAPHEIGHT / 2;
 					flapWrapper.position.y = FLAPHEIGHT / 2;
