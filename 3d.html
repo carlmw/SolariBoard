@@ -32,14 +32,37 @@
 		img.src = 'chars.png';
 
 		function init(){
-			var canvas = document.createElement('canvas'),
+			var chars = 'ABCDE'.split(''),
+				canvas = document.createElement('canvas'),
 				ctx = canvas.getContext("2d");
+				
 			canvas.width = SPRITEWIDTH;
 			canvas.height = SPRITEHEIGHT;
 			document.body.appendChild(canvas);
 			ctx.drawImage(img, 0, 0);
-			
-			var imgData = ctx.getImageData(0, 0, 100, 100);
+							
+			var x = 0,
+				faces = {},
+				faceSize = SPRITEHEIGHT / 2;
+				
+			chars.forEach(function(char, i){
+				var top = ctx.getImageData(x, 0, faceSize, faceSize),
+					bottom = ctx.getImageData(x, faceSize, faceSize, faceSize),
+					upper = new THREE.DataTexture(new Uint8Array(top.data), faceSize, faceSize),
+					lower = new THREE.DataTexture(new Uint8Array(bottom.data), faceSize, faceSize);
+					
+					upper.needsUpdate = lower.needsUpdate = true;
+					
+				faces[char] = {
+					top: new THREE.MeshLambertMaterial({
+						map: upper
+					}),
+					bottom: new THREE.MeshLambertMaterial({
+						map: lower
+					})
+				};
+				x += faceSize;
+			});
 
 			var WIDTH = window.innerWidth,
 				DEG2RAD = 3.141593 / 180,
@@ -66,14 +89,7 @@
 	
 			// Render our cube
 			var FLAPWIDTH = 80, FLAPHEIGHT = 80, FLAPDEPTH = 2,
-				texture = new THREE.DataTexture(new Uint8Array(imgData.data), 100, 100),
-				pointLight = new THREE.PointLight(0xFFFFFF),
-				material = new THREE.MeshLambertMaterial({
-					map: texture
-				});
-				
-			texture.needsUpdate = true;
-			console.log(texture);
+				pointLight = new THREE.PointLight(0xFFFFFF);
 			
 			pointLight.position.x = window.innerWidth / 2;
 			pointLight.position.y = 0;
@@ -91,17 +107,17 @@
 						flapWrapper = new THREE.Object3D(),
 						top = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							material),
+							faces.B.top),
 						bottom = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							material),
+							faces.A.bottom),
 						flap = new THREE.Mesh(
 							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							material);
+							faces.A.top);
 			
 					flap.position.y = FLAPHEIGHT / 2;
 					flapWrapper.position.y = FLAPHEIGHT / 2;
-					bottom.position.y = FLAPHEIGHT;
+					top.position.y = FLAPHEIGHT;
 					wrapper.position.x = x;
 					wrapper.position.y = y;
 					flapWrapper.add(flap);
