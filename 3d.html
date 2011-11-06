@@ -23,7 +23,7 @@
 		img.src = 'chars.png';
 
 		function init(){
-			var chars = 'ABCDE'.split(''),
+			var chars = 'ABCDEFGHIJ'.split(''),
 				canvas = document.createElement('canvas'),
 				ctx = canvas.getContext("2d");
 				
@@ -121,30 +121,52 @@
 
 			var flaps = [],
 				addFlap = function(x, y){
-					var wrapper = new THREE.Object3D(),
-						flapWrapper = new THREE.Object3D(),
-						top = new THREE.Mesh(
-							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.B.topMaterial),
-						bottom = new THREE.Mesh(
-							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-							faces.B.bottomMaterial),
-						flap = new THREE.Mesh(
-							new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH, 1, 1, 1, faces.B.flipperMaterials),
-							new THREE.MeshFaceMaterial());
-			
-					flap.position.y = FLAPHEIGHT / 2;
-					flapWrapper.position.y = FLAPHEIGHT / 2;
-					top.position.y = FLAPHEIGHT;
-					wrapper.position.x = x;
-					wrapper.position.y = y;
-					flapWrapper.add(flap);
-					wrapper.add(flapWrapper);
-					wrapper.add(top);
-					wrapper.add(bottom);
-					scene.add(wrapper);
-				
-					return flaps.push(flapWrapper);
+					var sets = [];
+					
+					chars.forEach(function(c){
+						var wrapper = new THREE.Object3D(),
+							flapWrapper = new THREE.Object3D(),
+							top = new THREE.Mesh(
+								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
+								faces[c].topMaterial),
+							bottom = new THREE.Mesh(
+								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
+								faces[c].bottomMaterial),
+							flap = new THREE.Mesh(
+								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH, 1, 1, 1, faces[c].flipperMaterials),
+								new THREE.MeshFaceMaterial());
+							
+						flap.position.y = FLAPHEIGHT / 2;
+						flapWrapper.position.y = FLAPHEIGHT / 2;
+						top.position.y = FLAPHEIGHT;
+						wrapper.position.x = x;
+						wrapper.position.y = y;
+						
+						top.visible = bottom.visible = flap.visible = false;
+						top.needsUpdate = bottom.needsUpdate = flap.needsUpdate = true;
+						
+						wrapper._flap = flap;
+						wrapper._flapWrapper = flapWrapper;
+						wrapper._top = top;
+						wrapper._bottom = bottom;
+						
+						flapWrapper.add(flap);
+						wrapper.add(flapWrapper);
+						wrapper.add(top);
+						wrapper.add(bottom);
+						scene.add(wrapper);
+						
+						sets[c] = wrapper;
+					});
+					var active = sets[chars[0]];
+					active._top.visible = active._bottom.visible = active._flap.visible = true;
+					
+					return {
+						i: 0,
+						max: chars.length - 1,
+						active: active,
+						sets: sets
+					};
 				};
 	
 			var render = function(){
@@ -155,8 +177,8 @@
 				var i = 0,
 					x = 0;
 				while(i < 14){
-					addFlap(x, y);
-					x += FLAPWIDTH + 16;
+					flaps.push(addFlap(x, y));
+					x += FLAPWIDTH + 8;
 					i++;
 				}
 			};
@@ -177,8 +199,20 @@
 					x: 0
 				},
 				update = function(){
-					flaps.forEach(function(flapWrapper){
-						flapWrapper.rotation.x = rotation.x;
+					flaps.forEach(function(flap){
+						var active = flap.active;
+						active._flapWrapper.rotation.x = rotation.x;
+						if(rotation.x == (180 * DEG2RAD)){
+							active._top.visible = active._bottom.visible = active._flap.visible = false;
+							active._top.needsUpdate = active._bottom.needsUpdate = active._flap.needsUpdate = true;
+							active._flapWrapper.rotation.x = 0;
+							flap.i = flap.i >= flap.max ? 0 : flap.i + 1;
+							active = flap.active = flap.sets[chars[flap.i]];
+
+							active._top.visible = active._bottom.visible = active._flap.visible = true;
+							active._top.needsUpdate = active._bottom.needsUpdate = active._flap.needsUpdate = true;
+
+						}
 					});
 					render();
 				};
@@ -199,6 +233,9 @@
 	*{
 		margin:0;
 		padding:0;
+	}
+	body{
+		background:#000;
 	}
 	</style>
 </head>
