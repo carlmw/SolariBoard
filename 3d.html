@@ -142,7 +142,6 @@
 						wrapper.position.x = x;
 						wrapper.position.y = y;
 						
-						top.visible = bottom.visible = flap.visible = false;
 						top.needsUpdate = bottom.needsUpdate = flap.needsUpdate = true;
 						
 						wrapper._flap = flap;
@@ -154,7 +153,6 @@
 						wrapper.add(flapWrapper);
 						wrapper.add(top);
 						wrapper.add(bottom);
-						scene.add(wrapper);
 						
 						sets[c] = wrapper;
 					});
@@ -176,7 +174,7 @@
 			var drawRow = function(y){
 				var i = 0,
 					x = 0;
-				while(i < 4){
+				while(i < 14){
 					flaps.push(addFlap(x, y));
 					x += FLAPWIDTH + 8;
 					i++;
@@ -185,7 +183,7 @@
 		
 			var i = 0,
 				y = 0;
-			while(i < 2){
+			while(i < 4){
 				drawRow(y);
 				y -= FLAPHEIGHT * 2 + 16;
 				i++;
@@ -203,15 +201,11 @@
 						var active = flap.active;
 						active._flapWrapper.rotation.x = rotation.x;
 						if(rotation.x == (180 * DEG2RAD)){
-							active._top.visible = active._bottom.visible = active._flap.visible = false;
-							active._top.needsUpdate = active._bottom.needsUpdate = active._flap.needsUpdate = true;
+							scene.remove(active);
 							active._flapWrapper.rotation.x = 0;
 							flap.i = flap.i >= flap.max ? 0 : flap.i + 1;
 							active = flap.active = flap.sets[chars[flap.i]];
-
-							active._top.visible = active._bottom.visible = active._flap.visible = true;
-							active._top.needsUpdate = active._bottom.needsUpdate = active._flap.needsUpdate = true;
-
+							scene.add(active);
 						}
 					});
 					render();
