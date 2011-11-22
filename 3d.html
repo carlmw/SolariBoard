@@ -20,10 +20,10 @@
 			document.body.removeChild(img);
 			init();
 		};
-		img.src = 'chars.png';
+		img.src = 'chars.jpg';
 
 		function init(){
-			var chars = 'ABCDEFGHIJ'.split(''),
+			var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''),
 				canvas = document.createElement('canvas'),
 				ctx = canvas.getContext("2d");
 				
@@ -39,7 +39,7 @@
 			// Collect the top and bottom segments of characters from our sprite
 			chars.forEach(function(char, i){
 				var top = ctx.getImageData(x, 0, faceSize, faceSize),
-					bottom = ctx.getImageData((x === 0) ? SPRITEWIDTH - faceSize : x - faceSize, faceSize, faceSize, faceSize),
+					bottom = ctx.getImageData((x === 0) ? faceSize * (chars.length - 1) : x - faceSize, faceSize, faceSize, faceSize),
 					upper = new THREE.DataTexture(new Uint8Array(top.data), faceSize, faceSize),
 					lower = new THREE.DataTexture(new Uint8Array(bottom.data), faceSize, faceSize);
 					
@@ -176,7 +176,7 @@
 			var drawRow = function(y){
 				var i = 0,
 					x = 0;
-				while(i < 14){
+				while(i < 4){
 					flaps.push(addFlap(x, y));
 					x += FLAPWIDTH + 8;
 					i++;
@@ -185,7 +185,7 @@
 		
 			var i = 0,
 				y = 0;
-			while(i < 4){
+			while(i < 2){
 				drawRow(y);
 				y -= FLAPHEIGHT * 2 + 16;
 				i++;
@@ -218,7 +218,7 @@
 				};
 			
 			var flip = new TWEEN.Tween(rotation).
-				to({x: 180 * DEG2RAD}, 300).
+				to({x: 180 * DEG2RAD}, 200).
 				onUpdate(update).
 				onComplete(function(){
 					rotation.x = 0;
