@@ -5,11 +5,13 @@
 	<script src="underscore.1.2.0.js"></script>
 	<script src="backbone.0.5.3.js"></script>
 	<script src="Three.js"></script>
+	<script src="stats.js"></script>
 	<script src="Tween.js"></script>
 	<script>
 	$(function(){
 		var DEG2RAD = Math.PI / 180,
 			img = document.createElement('img'),
+			stats,
 			SPRITEWIDTH,
 			SPRITEHEIGHT;
 			
@@ -53,6 +55,7 @@
 						map: lower
 					})
 				};
+				
 				x += faceSize;
 			});
 			
@@ -99,10 +102,11 @@
 					NEAR,
 					FAR),
 				scene = new THREE.Scene;
-	
+			
 			// Start the renderer
 			renderer.setSize(WIDTH, HEIGHT);
-	
+			renderer.setClearColorHex(0x111111, 1);
+			
 			$container.append(renderer.domElement);
 	
 			// Render our cube
@@ -124,14 +128,14 @@
 					var sets = [];
 					
 					chars.forEach(function(c){
-						var wrapper = new THREE.Object3D(),
-							flapWrapper = new THREE.Object3D(),
+						var wrapper = new THREE.Object3D,
+							flapWrapper = new THREE.Object3D,
 							top = new THREE.Mesh(
-								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-								faces[c].topMaterial),
+								new THREE.PlaneGeometry(FLAPWIDTH, FLAPHEIGHT),
+								[faces[c].topMaterial]),
 							bottom = new THREE.Mesh(
-								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH),
-								faces[c].bottomMaterial),
+								new THREE.PlaneGeometry(FLAPWIDTH, FLAPHEIGHT),
+								[faces[c].bottomMaterial]),
 							flap = new THREE.Mesh(
 								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH, 1, 1, 1, faces[c].flipperMaterials),
 								new THREE.MeshFaceMaterial());
@@ -142,23 +146,18 @@
 						wrapper.position.x = x;
 						wrapper.position.y = y;
 						
-						top.needsUpdate = bottom.needsUpdate = flap.needsUpdate = true;
-						
-						wrapper._flap = flap;
 						wrapper._flapWrapper = flapWrapper;
-						wrapper._top = top;
-						wrapper._bottom = bottom;
+						
+						wrapper.add(top);
+						wrapper.add(bottom);
 						
 						flapWrapper.add(flap);
 						wrapper.add(flapWrapper);
-						wrapper.add(top);
-						wrapper.add(bottom);
 						
 						sets[c] = wrapper;
 					});
 					var active = sets[chars[0]];
-					active._top.visible = active._bottom.visible = active._flap.visible = true;
-					
+
 					return {
 						i: 0,
 						max: chars.length - 1,
@@ -188,7 +187,12 @@
 				y -= FLAPHEIGHT * 2 + 16;
 				i++;
 			}
-		
+			
+			var stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild(stats.domElement);
+			
 			render();
 			// Tween it
 			TWEEN.start();
@@ -209,10 +213,11 @@
 						}
 					});
 					render();
+					stats.update();
 				};
 			
 			var flip = new TWEEN.Tween(rotation).
-				to({x: 180 * DEG2RAD}, 200).
+				to({x: 180 * DEG2RAD}, 2000).
 				onUpdate(update).
 				onComplete(function(){
 					rotation.x = 0;
