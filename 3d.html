@@ -142,12 +142,15 @@
 							
 						flap.position.y = FLAPHEIGHT / 2;
 						flapWrapper.position.y = FLAPHEIGHT / 2;
+						flapWrapper.position.z = 2;
 						top.position.y = FLAPHEIGHT;
+						top.position.z = 1;
+						bottom.position.z = 1;
 						wrapper.position.x = x;
 						wrapper.position.y = y;
 						
 						wrapper._flapWrapper = flapWrapper;
-						
+						wrapper._flap = flap;
 						wrapper.add(top);
 						wrapper.add(bottom);
 						
@@ -173,7 +176,7 @@
 			var drawRow = function(y){
 				var i = 0,
 					x = 0;
-				while(i < 14){
+				while(i < 12){
 					flaps.push(addFlap(x, y));
 					x += FLAPWIDTH + 8;
 					i++;
@@ -200,27 +203,28 @@
 			var rotation = {
 					x: 0
 				},
+				MAX_X = 180 * DEG2RAD,
+				flapLoop = function(flap){
+					flap.active._flapWrapper.rotation.x = rotation.x;
+				},
+				completeLoop = function(flap){
+					scene.remove(flap.active);
+					flap.i = flap.i >= flap.max ? 0 : flap.i + 1;
+					flap.active = flap.sets[chars[flap.i]];
+					scene.add(flap.active);
+				},
 				update = function(){
-					flaps.forEach(function(flap){
-						var active = flap.active;
-						active._flapWrapper.rotation.x = rotation.x;
-						if(rotation.x == (180 * DEG2RAD)){
-							scene.remove(active);
-							active._flapWrapper.rotation.x = 0;
-							flap.i = flap.i >= flap.max ? 0 : flap.i + 1;
-							active = flap.active = flap.sets[chars[flap.i]];
-							scene.add(active);
-						}
-					});
+					flaps.forEach(flapLoop);
 					render();
 					stats.update();
 				};
 			
 			var flip = new TWEEN.Tween(rotation).
-				to({x: 180 * DEG2RAD}, 2000).
+				to({x: MAX_X}, 200).
 				onUpdate(update).
 				onComplete(function(){
 					rotation.x = 0;
+					flaps.forEach(completeLoop);
 				});
 			
 			flip.chain(flip);
