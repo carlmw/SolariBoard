@@ -1,14 +1,11 @@
 <!doctype html>
 <html>
 <head>
-	<script src="jquery-1.6.1.js"></script>
-	<script src="underscore.1.2.0.js"></script>
-	<script src="backbone.0.5.3.js"></script>
 	<script src="Three.js"></script>
 	<script src="stats.js"></script>
 	<script src="Tween.js"></script>
 	<script>
-	$(function(){
+	window.addEventListener('load', function(){
 		var DEG2RAD = Math.PI / 180,
 			img = document.createElement('img'),
 			stats,
@@ -92,7 +89,7 @@
 				ASPECT = (WIDTH / HEIGHT),
 				NEAR = -2000,
 				FAR = 1000,
-				$container = $('#container'),
+				domContainer = document.getElementById('container'),
 				renderer = new THREE.WebGLRenderer,
 				camera = new THREE.OrthographicCamera(
 					window.innerWidth / - 2,
@@ -107,7 +104,7 @@
 			renderer.setSize(WIDTH, HEIGHT);
 			renderer.setClearColorHex(0x111111, 1);
 			
-			$container.append(renderer.domElement);
+			domContainer.appendChild(renderer.domElement);
 	
 			// Render our cube
 			var FLAPWIDTH = 80, FLAPHEIGHT = 80, FLAPDEPTH = 0,
@@ -132,10 +129,10 @@
 							flapWrapper = new THREE.Object3D,
 							top = new THREE.Mesh(
 								new THREE.PlaneGeometry(FLAPWIDTH, FLAPHEIGHT),
-								[faces[c].topMaterial]),
+								faces[c].topMaterial),
 							bottom = new THREE.Mesh(
 								new THREE.PlaneGeometry(FLAPWIDTH, FLAPHEIGHT),
-								[faces[c].bottomMaterial]),
+								faces[c].bottomMaterial),
 							flap = new THREE.Mesh(
 								new THREE.CubeGeometry(FLAPWIDTH, FLAPHEIGHT, FLAPDEPTH, 1, 1, 1, faces[c].flipperMaterials),
 								new THREE.MeshFaceMaterial());
@@ -175,18 +172,24 @@
 		
 			var drawRow = function(y){
 				var i = 0,
-					x = 0;
-				while(i < 12){
-					flaps.push(addFlap(x, y));
+					x = 0,
+					flap,
+					row = [];
+				while(i < 14){
+					flap = addFlap(x, y);
+					flaps.push(flap);
+					row.push(flap)
 					x += FLAPWIDTH + 8;
 					i++;
 				}
+				return row;
 			};
 		
 			var i = 0,
-				y = 0;
+				y = 0,
+				rows = [];
 			while(i < 4){
-				drawRow(y);
+				rows.push(drawRow(y));
 				y -= FLAPHEIGHT * 2 + 16;
 				i++;
 			}
@@ -205,9 +208,16 @@
 				},
 				MAX_X = 180 * DEG2RAD,
 				flapLoop = function(flap){
+					if(flap.wedged) return;
 					flap.active._flapWrapper.rotation.x = rotation.x;
 				},
 				completeLoop = function(flap){
+					if(flap.currentChar == flap.i){
+						flap.wedged = true;
+						return
+					}else{
+						flap.wedged = false;
+					}
 					scene.remove(flap.active);
 					flap.i = flap.i >= flap.max ? 0 : flap.i + 1;
 					flap.active = flap.sets[chars[flap.i]];
@@ -220,7 +230,7 @@
 				};
 			
 			var flip = new TWEEN.Tween(rotation).
-				to({x: MAX_X}, 200).
+				to({x: MAX_X}, 160).
 				onUpdate(update).
 				onComplete(function(){
 					rotation.x = 0;
@@ -229,6 +239,21 @@
 			
 			flip.chain(flip);
 			flip.start();
+			
+			window.setSolariMessage = function(msg){
+				var i = 0;
+				msg.forEach(function(line){
+					if(rows[i]){
+						var j = 0;
+						rows[i].forEach(function(flap){
+							var ch = chars.indexOf(line[j]);
+							flap.currentChar = ch != -1 ? ch : chars.length - 1;
+							j++;
+						})
+					}
+					i++;
+				});
+			};
 		};
 	});
 	</script>
