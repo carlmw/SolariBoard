@@ -1,4 +1,4 @@
-var Flap = Backbone.View.extend({
+var SolariFlap = Backbone.View.extend({
 	i: 0,
 	initialize: function(textureSet, x, y){
 		var sets = [],

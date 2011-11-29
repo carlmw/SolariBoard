@@ -4,6 +4,7 @@ var Solari = Backbone.View.extend({
 	NEAR: -2000,
 	FAR: 1000,
 	flaps: [],
+	rows: [],
  	initialize: function(){
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
@@ -40,8 +41,11 @@ var Solari = Backbone.View.extend({
 		this.renderer.render(this.scene, this.camera);
 		if(this.showStats) this.stats.update();
 	},
-	add: function(flap){
-		this.flaps.push(flap);
+	add: function(row){
+		this.rows.push(row);
+		this.flaps = this.flaps.concat(row.flaps);
+		
+		return this;
 	},
 	displayStats: function(){
 		this.showStats = true;
