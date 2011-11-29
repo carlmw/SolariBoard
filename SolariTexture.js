@@ -1,5 +1,5 @@
-var TextureSet = function(src, chars, faceWidth, faceHeight){};
-TextureSet.prototype = _.extend({
+var SolariTexture = function(src, chars, faceWidth, faceHeight){};
+SolariTexture.prototype = _.extend({
 	loaded: false,
 	chars: [],
 	faces: {},
