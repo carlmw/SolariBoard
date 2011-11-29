@@ -1,8 +1,13 @@
 var TextureSet = function(src, chars, faceWidth, faceHeight){};
 TextureSet.prototype = _.extend({
 	loaded: false,
+	chars: [],
 	faces: {},
 	load: function(src, chars, faceWidth, faceHeight){
+		this.chars = chars;
+		this.faceWidth = faceWidth;
+		this.faceHeight = faceHeight;
+		
 		var self = this;
 		this.loadSprite(src, function(img){
 			self.faces = self.extractTextures(img, chars, faceWidth, faceHeight);
