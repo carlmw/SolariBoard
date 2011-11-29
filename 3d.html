@@ -12,17 +12,27 @@
 	<script src="SolariFlap.js"></script>
 	<script src="Solari.js"></script>
 	<script>
-	var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split('');
+	(function(){
 	new SolariTexture().bind('load', function(){
 		var board = new Solari,
-			row = new SolariRow();
-			
-		row.add(new SolariFlap(this, 100, -100));
-		board.add(row);
-		document.getElementById('container').appendChild(board.el);
+			row,
+			textureSet = this;
+		
+		$('#container').append(board.el);
+		
+		_(4).times(function(){
+			row = new SolariRow(board.y);
+			_(14).times(function(){
+				row.add(textureSet);
+			});
+			board.add(row);
+		});
+		
 		board.displayStats();
 		board.start();
-	}).load('chars.jpg', chars, 80, 80);
+	}).load('chars.jpg', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''), 80, 80);
+	
+	})();
 	</script>
 	<style>
 	*{

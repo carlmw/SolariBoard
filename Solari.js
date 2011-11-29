@@ -5,6 +5,7 @@ var Solari = Backbone.View.extend({
 	FAR: 1000,
 	flaps: [],
 	rows: [],
+	y: 0,
  	initialize: function(){
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
@@ -31,8 +32,8 @@ var Solari = Backbone.View.extend({
 		this.scene.add(this.pointLight);
 	
 		// Pull the camera back
-		this.camera.position.x = window.innerWidth / 2;
-		this.camera.position.y = -window.innerHeight / 2;
+		this.camera.position.x = window.innerWidth / 2 - 40;
+		this.camera.position.y = -window.innerHeight / 2 + 120;
 		this.camera.position.z = 0;
 		
 		this.el = this.renderer.domElement;
@@ -44,7 +45,7 @@ var Solari = Backbone.View.extend({
 	add: function(row){
 		this.rows.push(row);
 		this.flaps = this.flaps.concat(row.flaps);
-		
+		this.y += row.height + 10;
 		return this;
 	},
 	displayStats: function(){
