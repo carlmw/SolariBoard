@@ -1,8 +1,8 @@
 var SolariRow = Backbone.View.extend({
-	flaps: [],
 	x: 0,
 	height: 0,
 	initialize: function(y){
+		this.flaps = [];
 		this.y = y||0;
 	},
 	add: function(textureSet){
@@ -12,5 +12,10 @@ var SolariRow = Backbone.View.extend({
 		this.flaps.push(flap);
 		
 		return this;
+	},
+	setChars: function(chars){
+		_.each(this.flaps, function(flap, i){
+			flap.setChar(chars[i]);
+		});
 	}
 });

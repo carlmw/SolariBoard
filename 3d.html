@@ -30,6 +30,10 @@
 		
 		board.displayStats();
 		board.start();
+		
+		setTimeout(function(){
+			board.setMessage(['HI THERE', 'YOU SMELL', 'OF TOMATO SOUP', 'LOL']);
+		}, 5000);
 	}).load('chars.jpg', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''), 80, 80);
 	
 	})();

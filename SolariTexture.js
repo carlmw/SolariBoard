@@ -7,6 +7,7 @@ SolariTexture.prototype = _.extend({
 		this.chars = chars;
 		this.faceWidth = faceWidth;
 		this.faceHeight = faceHeight;
+		this.max = chars.length - 1;
 		
 		var self = this;
 		this.loadSprite(src, function(img){
