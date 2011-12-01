@@ -1,1 +1,0 @@
-A Solari board style build monitor/display
