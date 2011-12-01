@@ -15,7 +15,7 @@ var SolariRow = Backbone.View.extend({
 	},
 	setChars: function(chars){
 		_.each(this.flaps, function(flap, i){
-			flap.setChar(chars[i]);
+			flap.setChar(chars[i] ? chars[i] : ' ');
 		});
 	}
 });

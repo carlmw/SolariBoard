@@ -14,8 +14,8 @@
 	<script>
 	(function(){
 	new SolariTexture().bind('load', function(){
-		var board = new Solari,
-			row,
+		var board = window.Board = new Solari;
+		var row,
 			textureSet = this;
 		
 		$('#container').append(board.el);

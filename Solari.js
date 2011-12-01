@@ -94,7 +94,9 @@ var Solari = Backbone.View.extend({
 	},
 	setMessage: function(msg){
 		_.each(this.rows, function(row, i){
-			row.setChars(msg[i]);
+			row.setChars(msg[i] ? msg[i] : ' ');
 		});
+		
+		return this;
 	}
 });
