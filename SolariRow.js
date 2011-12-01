@@ -1,7 +1,7 @@
 var SolariRow = Backbone.View.extend({
 	x: 0,
 	height: 0,
-	initialize: function(y){
+	initialize: function(y, scene){
 		this.flaps = [];
 		this.y = y||0;
 	},

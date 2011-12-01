@@ -45,6 +45,11 @@ var Solari = Backbone.View.extend({
 	add: function(row){
 		this.rows.push(row);
 		this.flaps = this.flaps.concat(row.flaps);
+		
+		var self = this;
+		_.each(row.flaps, function(flap){
+			self.scene.add(flap.wrapper);
+		});
 		this.y += row.height + 10;
 		return this;
 	},
@@ -66,18 +71,10 @@ var Solari = Backbone.View.extend({
 			MAX_X = 180 * this.DEG2RAD,
 			flapLoop = function(flap){
 				if(flap.wedged) return;
-				flap.active._flapWrapper.rotation.x = rotation.x;
+				flap.wrapper._flapWrapper.rotation.x = rotation.x;
 			},
 			completeLoop = function(flap){
-				if(flap.currentChar === flap.i){
-					flap.wedged = true;
-				}else{
-					flap.wedged = false;
-					self.scene.remove(flap.active);
-					flap.i = flap.i >= flap.textureSet.max ? 0 : flap.i + 1;
-					flap.active = flap.sets[flap.textureSet.chars[flap.i]];
-					self.scene.add(flap.active);
-				}
+				flap.next();
 			},
 			update = function(){
 				flaps.forEach(flapLoop);
