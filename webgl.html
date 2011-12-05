@@ -1,16 +1,16 @@
 <!doctype html>
 <html>
 <head>
-	<script src="jquery.js"></script>
-	<script src="underscore.js"></script>
-	<script src="backbone.js"></script>
-	<script src="Three.js"></script>
-	<script src="stats.js"></script>
-	<script src="Tween.js"></script>
-	<script src="SolariTexture.js"></script>
-	<script src="SolariRow.js"></script>
-	<script src="SolariFlap.js"></script>
-	<script src="Solari.js"></script>
+	<script src="lib/jquery.js"></script>
+	<script src="lib/underscore.js"></script>
+	<script src="lib/backbone.js"></script>
+	<script src="lib/Three.js"></script>
+	<script src="lib/stats.js"></script>
+	<script src="lib/Tween.js"></script>
+	<script src="src/SolariTexture.js"></script>
+	<script src="src/SolariRow.js"></script>
+	<script src="src/SolariFlap.js"></script>
+	<script src="src/Solari.js"></script>
 	<script>
 	(function(){
 	new SolariTexture().bind('load', function(){
@@ -32,9 +32,9 @@
 		board.start();
 		
 		setTimeout(function(){
-			board.setMessage(['HI THERE', 'YOU SMELL LIKE', 'TOMATO SOUP', 'LOL']);
+			board.setMessage(['', '', '', '']);
 		}, 100);
-	}).load('chars.jpg', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''), 80, 80);
+	}).load('img/chars.jpg', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''), 80, 80);
 	
 	})();
 	</script>
@@ -47,6 +47,7 @@
 		background:#000;
 	}
 	</style>
+	<script src="plugins/jenkins.js"></script>
 </head>
 <body>
 	<div id="container"></div>

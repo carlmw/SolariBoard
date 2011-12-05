@@ -82,7 +82,7 @@ var Solari = Backbone.View.extend({
 			};
 		
 		var flip = new TWEEN.Tween(rotation).
-			to({x: MAX_X}, 160).
+			to({x: MAX_X}, 100).
 			onUpdate(update).
 			onComplete(function(){
 				rotation.x = 0;
