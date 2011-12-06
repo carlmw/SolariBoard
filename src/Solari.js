@@ -1,3 +1,15 @@
+String.prototype.rpad = function(padString, length){
+	var str = this;
+    while (str.length < length){
+        str = str + padString;
+	}
+    return str;
+};
+String.prototype.truncate = function(length){
+	this.length = length;
+    return this;
+};
+
 var Solari = Backbone.View.extend({
 	DEG2RAD: Math.PI / 180,
 	VIEW_ANGLE: 45,

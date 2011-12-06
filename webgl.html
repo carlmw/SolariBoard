@@ -13,28 +13,29 @@
 	<script src="src/Solari.js"></script>
 	<script>
 	(function(){
+	var board = window.Board = new Solari;
 	new SolariTexture().bind('load', function(){
-		var board = window.Board = new Solari;
-		var row,
-			textureSet = this;
+		var alphaSet = this;
+		new SolariTexture().bind('load', function(){
+			var row,
+				statusSet = this;
 		
-		$('#container').append(board.el);
+			$('#container').append(board.el);
 		
-		_(4).times(function(){
-			row = new SolariRow(board.y);
-			_(14).times(function(){
-				row.add(textureSet);
+			_(6).times(function(){
+				row = new SolariRow(board.y);
+				
+				_(14).times(function(){
+					row.add(alphaSet);
+				});
+				row.add(statusSet);
+				board.add(row);
 			});
-			board.add(row);
-		});
 		
-		board.displayStats();
-		board.start();
-		
-		setTimeout(function(){
-			board.setMessage(['', '', '', '']);
-		}, 100);
-	}).load('img/chars.jpg', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789-. '.split(''), 80, 80);
+			board.displayStats();
+			board.start();
+		}).load('img/statuses.png', 'SFUB'.split(''), 360, 63);
+	}).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
 	
 	})();
 	</script>
