@@ -16,9 +16,10 @@
 				output.pop();
 			}
 			
-			var projectName = lines[data.project][1].substring(0, 9) + ' #' + data.number;
+			var projectNumber = ' #' + data.number,
+				projectName = lines[data.project][1].substring(0, 14 - projectNumber.length);
 			
-			output.unshift(projectName.rpad(' ', 14) + data.result[0]);
+			output.unshift(projectName.rpad(' ', 14 - projectNumber.length) + projectNumber + data.result[0]);
 			
 			Board.setMessage(output);
 		};
@@ -27,7 +28,6 @@
 		var data = JSON.parse(msg.data);
 		
 		render(data);
-		// Board.rows[lines[data.project][0]].setChars(lines[data.project][1]);
 	};
 	
 	_.each(lines, function(line, project){
