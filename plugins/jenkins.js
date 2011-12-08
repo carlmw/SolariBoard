@@ -28,4 +28,8 @@
 		
 		render(data);
 	};
+	
+	Board.bind('start', function(){
+		Board.setMessage(output);
+	});
 })();
