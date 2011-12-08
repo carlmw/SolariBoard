@@ -15,10 +15,10 @@ var Solari = Backbone.View.extend({
 	VIEW_ANGLE: 45,
 	NEAR: -2000,
 	FAR: 1000,
-	flaps: [],
-	rows: [],
-	y: 0,
  	initialize: function(){
+		this.flaps = [];
+		this.rows = [];
+		this.y = 0;
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
 		this.aspect = this.width / this.height;
@@ -34,18 +34,15 @@ var Solari = Backbone.View.extend({
 		this.scene = new THREE.Scene;
 		
 		this.renderer.setSize(this.width, this.height);
-		this.renderer.setClearColorHex(0x111111, 1);
 
 		this.pointLight = new THREE.PointLight(0xFFFFFF);
 		
 		this.pointLight.position.x = window.innerWidth / 2;
-		this.pointLight.position.y = 0;
-		this.pointLight.position.z = 1000;
+		this.pointLight.position.y = -200;
+		this.pointLight.position.z = 600;
 		this.scene.add(this.pointLight);
 	
 		// Pull the camera back
-		this.camera.position.x = window.innerWidth / 2 - 40;
-		this.camera.position.y = -window.innerHeight / 2 + 120;
 		this.camera.position.z = 0;
 		
 		this.el = this.renderer.domElement;
@@ -63,6 +60,10 @@ var Solari = Backbone.View.extend({
 			self.scene.add(flap.wrapper);
 		});
 		this.y += row.height + 10;
+		
+		this.camera.position.x = (row.x - 10) / 2;
+		this.camera.position.y = -((row.y - (row.height/2)) / 2);
+
 		return this;
 	},
 	displayStats: function(){
