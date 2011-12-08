@@ -104,6 +104,8 @@ var Solari = Backbone.View.extend({
 		
 		flip.chain(flip);
 		flip.start();
+		
+		this.trigger('start');
 	},
 	setMessage: function(msg){
 		_.each(this.rows, function(row, i){
