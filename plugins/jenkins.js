@@ -43,7 +43,6 @@
     	};
 	};
 	
-	setInterval(connect, 5000);
     connect();
 	
 	Board.bind('start', function(){
