@@ -1,15 +1,18 @@
 (function(){
 	const HOST = 'dev-hson-1';
 	const ZONZAHOST = 'dev-jen1';
-	const CHARCOUNT = 16;
+	const CHARCOUNT = 20;
 	var ws = new WebSocket('ws://' + HOST + ':8082/jenkins'),
 	    ws2 = new WebSocket('ws://' + ZONZAHOST + ':8081/jenkins'),
 		output = JSON.parse(localStorage.getItem('messages'))||[],
 		lines = {
 			'fidodevelopment': 'FIDODEV',
 			'fidotesting': 'FIDOTEST',
-			'kerby-server': 'KERBY SVR',
-			'Zonza': 'ZONZA'
+			'kerby-server': 'KERBYSVR',
+			'kerby-fido-integration': 'KERBYFIDOINT',
+			'Zonza': 'ZONZA',
+			'ZonzaRest': 'ZONZAREST',
+			'ZonzaSelenium': 'ZONZASELENIUM'
 		},
 		render = function(data){
 			if(!lines[data.project]) return;
