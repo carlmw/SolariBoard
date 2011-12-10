@@ -22,15 +22,10 @@ window.requestAnimFrame = (function(callback){
 })();
 
 var Solari = Backbone.View.extend({
-	DEG2RAD: Math.PI / 180,
-    SPEED: 801.0,
 	VIEW_ANGLE: 45,
 	NEAR: -2000,
 	FAR: 1000,
  	initialize: function(){
-        this.MAX_X = 180 * this.DEG2RAD;
-        this.SPEED = this.SPEED * this.DEG2RAD / 1000.0;
-
 		this.flaps = [];
 		this.rows = [];
 		this.y = 0;
@@ -73,7 +68,9 @@ var Solari = Backbone.View.extend({
 
 		var self = this;
 		_.each(row.flaps, function(flap){
-			self.scene.add(flap.wrapper);
+            _.each(flap.objToRender, function(obj) {
+			    self.scene.add(obj);
+            });
 		});
 		this.y += row.height + 10;
 
@@ -93,18 +90,7 @@ var Solari = Backbone.View.extend({
 		var i, flaps = this.flaps;
 
         for (i=0; i<flaps.length; i++) {
-            var flap = flaps[i],
-                x = flap.wrapper._flapWrapper.rotation.x;
-
-            if (flap.wedged) continue;
-
-            x += diff * this.SPEED;
-
-            flap.wrapper._flapWrapper.rotation.x = x;
-            if (x > this.MAX_X) {
-                flap.wrapper._flapWrapper.rotation.x = 0;
-                flap.next();
-            }
+            flaps[i].update(diff);
         }
     },
 	start: function(){

@@ -1,12 +1,12 @@
+var DEG2RAD =  Math.PI / 180,
+    SPEED = 900.0;
+
 var SolariFlap = Backbone.View.extend({
-	i: 0,
+    MAX_X: 180 * DEG2RAD,
+
 	initialize: function(textureSet, x, y){
-		var sets = [],
-			faces = textureSet.faces,
-			flapWidth = textureSet.faceWidth,
+		var flapWidth = textureSet.faceWidth,
 			flapHeight = textureSet.faceHeight,
-			wrapper = new THREE.Object3D,
-			flapWrapper = new THREE.Object3D,
 			top = new THREE.Mesh(
 				new THREE.PlaneGeometry(flapWidth, flapHeight),
 				textureSet.spriteMaterial),
@@ -19,7 +19,11 @@ var SolariFlap = Backbone.View.extend({
                     textureSet.spriteMaterial,
                     textureSet.spriteMaterial
                 ]),
-				new THREE.MeshFaceMaterial());
+				new THREE.MeshFaceMaterial()),
+            varia = 1.1 - Math.random() * 0.2;
+
+        this.SPEED = SPEED * DEG2RAD / 1000.0 * varia;
+
 
 		this.textureSet = textureSet;
         this.top_g = top.geometry;
@@ -27,27 +31,16 @@ var SolariFlap = Backbone.View.extend({
         this.flap_g = flap.geometry;
         this.top_g.dynamic = this.bottom_g.dynamic = this.flap_g.dynamic = true;
 
-		flap.position.y = flapHeight / 2;
-		flapWrapper.position.y = flapHeight / 2;
-		flapWrapper.position.z = 2;
-		top.position.y = flapHeight;
-		top.position.z = 1;
-		bottom.position.z = 1;
-		wrapper.position.x = x;
-		wrapper.position.y = y;
+        bottom.position = new THREE.Vector3(x, y, 0);
+        top.position = new THREE.Vector3(x, y + flapHeight, 0);
+        flap.position = new THREE.Vector3(0.5, flapHeight/2, 1);
 
-		wrapper._flapWrapper = flapWrapper;
-		wrapper._flap = flap;
-		wrapper._top = top;
-		wrapper._bottom = bottom;
-		wrapper.add(top);
-		wrapper.add(bottom);
+        this.flapWrapper = new THREE.Object3D;
+        this.flapWrapper.position = new THREE.Vector3(x, y + flapHeight/2, 1);
+        this.flapWrapper.add(flap);
 
-		flapWrapper.add(flap);
-		wrapper.add(flapWrapper);
+        this.objToRender = [top, bottom, this.flapWrapper];
 
-		this.wrapper = wrapper;
-		this.activeMaterials = textureSet.faces[textureSet.chars[0]];
 		this.i = 0;
         this.setUpTextures(textureSet.max, 0);
 	},
@@ -77,20 +70,20 @@ var SolariFlap = Backbone.View.extend({
 
             var prev = this.i;
 			this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-
             this.setUpTextures(prev, this.i);
-			//this.activeMaterials = this.textureSet.faces[this.textureSet.chars[this.i]];
-
-			//this.wrapper._top.materials[0] = this.textureSet.spriteMaterial;
-            //this.activeMaterials.topMaterial;
-			//this.wrapper._bottom.materials[0] = this.textureSet.spriteMaterial;
-            //this.activeMaterials.bottomMaterial;
-
-			//var flipperMaterials = this.activeMaterials.flipperMaterials;
-
-			//_.each(this.wrapper._flap.geometry.faces, function(face, i){
-			//	face.materials[0] = flipperMaterials[i];
-			//});
 		}
-	}
+	},
+    update: function(diff) {
+        x = this.flapWrapper.rotation.x;
+        if (this.wedged) return;
+
+        x += diff * this.SPEED;
+
+        this.flapWrapper.rotation.x = x;
+        if (x > this.MAX_X) {
+            this.flapWrapper.rotation.x = 0;
+            this.next();
+        }
+    }
+
 });
