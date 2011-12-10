@@ -38,6 +38,7 @@ var Solari = Backbone.View.extend({
 		this.height = window.innerHeight;
 		this.aspect = this.width / this.height;
 		this.renderer = new THREE.WebGLRenderer;
+        this.renderer.sortObjects = false;
 		this.camera = new THREE.OrthographicCamera(
 			window.innerWidth / - 2,
 			window.innerWidth / 2,
