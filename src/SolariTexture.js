@@ -20,12 +20,10 @@ SolariTexture.prototype = _.extend({
             map: THREE.ImageUtils.loadTexture(ops.src)
         });
 
-        this.buildUVs(ops);
-		//this.loadSprite(src, function(img){
-		//	self.faces = self.extractTextures(img, chars, faceWidth, faceHeight);
-		//	//self.trigger('load');
-		//});
 
+        this.UV = this.buildUVs(ops);
+
+        // this is only to make sure the image is loaded
         var img = new Image();
         img.onload = function() {
             self.trigger('load');
@@ -34,74 +32,38 @@ SolariTexture.prototype = _.extend({
 
 	},
     buildUVs: function(ops) {
-    /* For each character build a set of 4 UV coords */
-        var self = this;
+    /* For each character part build a set of 4 UV coords */
+        var self = this,
+            UV = {};
 
+        var x = 0,
+            y = 0,
+            stepX = (1.0 / this.chars.length),
+            stepY = 0.5;
 
+        this.chars.forEach(function(ch, i) {
 
+            UV[i] = {
+                top: [
+                    new THREE.UV( x, y),
+                    new THREE.UV( x, y + stepY),
+                    new THREE.UV( x + stepX, y + stepY),
+                    new THREE.UV( x + stepX, y )
+                ],
+                bottom: [
+                    new THREE.UV( x, y + stepY),
+                    new THREE.UV( x, y + 2*stepY),
+                    new THREE.UV( x + stepX, y + 2*stepY),
+                    new THREE.UV( x + stepX, y + stepY )
+                ],
+                back: [
+                    new THREE.UV( x + stepX, y + 2*stepY),
+                    new THREE.UV( x + stepX, y + stepY ),
+                    new THREE.UV( x, y + stepY),
+                    new THREE.UV( x, y + 2*stepY)
+            ]};
+            x += stepX;
+        });
+        return UV;
     }
-/*
-	extractTextures: function(img, chars, faceWidth, faceHeight, callback){
-		var canvas = document.createElement('canvas'),
-			ctx = canvas.getContext("2d"),
-			faces = {};
-
-		document.body.appendChild(img);
-		canvas.width = img.clientWidth;
-		canvas.height = img.clientHeight;
-		document.body.appendChild(canvas);
-		ctx.drawImage(img, 0, 0);
-
-		var x = 0;
-		chars.forEach(function(ch, i){
-			var top = ctx.getImageData(x, 0, faceWidth, faceHeight),
-				bottom = ctx.getImageData((x === 0) ? faceWidth * (chars.length - 1) : x - faceWidth, faceHeight, faceWidth, faceHeight),
-				upper = new THREE.DataTexture(new Uint8Array(top.data), faceWidth, faceHeight),
-				lower = new THREE.DataTexture(new Uint8Array(bottom.data), faceWidth, faceHeight);
-
-				upper.needsUpdate = lower.needsUpdate = true;
-
-			faces[ch] = {
-				topMaterial: new THREE.MeshLambertMaterial({
-					map: upper
-				}),
-				bottomMaterial: new THREE.MeshLambertMaterial({
-					map: lower
-				})
-			};
-
-			x += faceWidth;
-		});
-
-		// Now flip the canvas and retrieve the back of each character flipper
-		ctx.translate(img.clientWidth, img.clientHeight);
-		ctx.scale(-1, -1);
-		ctx.drawImage(img, 0, 0);
-		chars.forEach(function(ch, i){
-			x -= faceWidth;
-			var flip = ctx.getImageData(x, 0, faceWidth, faceHeight),
-				back = new THREE.DataTexture(new Uint8Array(flip.data), faceWidth, faceHeight),
-				prev = chars[i-1] ? chars[i-1] : chars[chars.length-1];
-
-				back.needsUpdate = true;
-
-			faces[ch].flipperMaterials = [
-				null,
-				null,
-				null,
-				null,
-				faces[prev].topMaterial,
-				new THREE.MeshLambertMaterial({
-					map: back
-				})
-			];
-		});
-
-		// Tidy up
-		document.body.removeChild(img);
-		document.body.removeChild(canvas);
-		img = canvas = ctx = null;
-
-		return faces;
-	}*/
 }, Backbone.Events);

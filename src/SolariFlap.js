@@ -21,6 +21,12 @@ var SolariFlap = Backbone.View.extend({
                 ]),
 				new THREE.MeshFaceMaterial());
 
+		this.textureSet = textureSet;
+        this.top_g = top.geometry;
+        this.bottom_g = bottom.geometry;
+        this.flap_g = flap.geometry;
+        this.top_g.dynamic = this.bottom_g.dynamic = this.flap_g.dynamic = true;
+
 		flap.position.y = flapHeight / 2;
 		flapWrapper.position.y = flapHeight / 2;
 		flapWrapper.position.z = 2;
@@ -41,10 +47,23 @@ var SolariFlap = Backbone.View.extend({
 		wrapper.add(flapWrapper);
 
 		this.wrapper = wrapper;
-		this.textureSet = textureSet;
 		this.activeMaterials = textureSet.faces[textureSet.chars[0]];
 		this.i = 0;
+        this.setUpTextures(textureSet.max, 0);
 	},
+    setUpTextures: function(from, to) {
+        /* Setting up the coming character. */
+        var current = this.textureSet.UV[from],
+            next = this.textureSet.UV[to];
+
+        this.top_g.faceVertexUvs[0][0] = next.top;
+        this.bottom_g.faceVertexUvs[0][0] = current.bottom;
+        this.flap_g.faceVertexUvs[0][4] = current.top;
+        this.flap_g.faceVertexUvs[0][5] = next.back;
+
+        this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
+    },
+
 	setChar: function(ch){
 		var i = this.textureSet.chars.indexOf(ch);
 		this.currentChar = i != -1 ? i : this.textureSet.max;
@@ -55,12 +74,16 @@ var SolariFlap = Backbone.View.extend({
 			this.wedged = true;
 		}else{
 			this.wedged = false;
+
+            var prev = this.i;
 			this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
+
+            this.setUpTextures(prev, this.i);
 			//this.activeMaterials = this.textureSet.faces[this.textureSet.chars[this.i]];
 
-			this.wrapper._top.materials[0] = this.textureSet.spriteMaterial;
+			//this.wrapper._top.materials[0] = this.textureSet.spriteMaterial;
             //this.activeMaterials.topMaterial;
-			this.wrapper._bottom.materials[0] = this.textureSet.spriteMaterial;
+			//this.wrapper._bottom.materials[0] = this.textureSet.spriteMaterial;
             //this.activeMaterials.bottomMaterial;
 
 			//var flipperMaterials = this.activeMaterials.flipperMaterials;

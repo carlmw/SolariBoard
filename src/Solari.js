@@ -23,7 +23,7 @@ window.requestAnimFrame = (function(callback){
 
 var Solari = Backbone.View.extend({
 	DEG2RAD: Math.PI / 180,
-    SPEED: 100.0,
+    SPEED: 801.0,
 	VIEW_ANGLE: 45,
 	NEAR: -2000,
 	FAR: 1000,
