@@ -9,14 +9,18 @@ var SolariFlap = Backbone.View.extend({
 			flapWrapper = new THREE.Object3D,
 			top = new THREE.Mesh(
 				new THREE.PlaneGeometry(flapWidth, flapHeight),
-				faces[textureSet.chars[0]].topMaterial),
+				textureSet.spriteMaterial),
 			bottom = new THREE.Mesh(
 				new THREE.PlaneGeometry(flapWidth, flapHeight),
-				faces[textureSet.chars[0]].bottomMaterial),
+				textureSet.spriteMaterial),
 			flap = new THREE.Mesh(
-				new THREE.CubeGeometry(flapWidth, flapHeight, 0, 1, 1, 1, faces[textureSet.chars[0]].flipperMaterials),
+				new THREE.CubeGeometry(flapWidth, flapHeight, 0, 1, 1, 1, [
+                    null, null, null, null,
+                    textureSet.spriteMaterial,
+                    textureSet.spriteMaterial
+                ]),
 				new THREE.MeshFaceMaterial());
-				
+
 		flap.position.y = flapHeight / 2;
 		flapWrapper.position.y = flapHeight / 2;
 		flapWrapper.position.z = 2;
@@ -25,17 +29,17 @@ var SolariFlap = Backbone.View.extend({
 		bottom.position.z = 1;
 		wrapper.position.x = x;
 		wrapper.position.y = y;
-		
+
 		wrapper._flapWrapper = flapWrapper;
 		wrapper._flap = flap;
 		wrapper._top = top;
 		wrapper._bottom = bottom;
 		wrapper.add(top);
 		wrapper.add(bottom);
-		
+
 		flapWrapper.add(flap);
 		wrapper.add(flapWrapper);
-		
+
 		this.wrapper = wrapper;
 		this.textureSet = textureSet;
 		this.activeMaterials = textureSet.faces[textureSet.chars[0]];
@@ -52,14 +56,18 @@ var SolariFlap = Backbone.View.extend({
 		}else{
 			this.wedged = false;
 			this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-			this.activeMaterials = this.textureSet.faces[this.textureSet.chars[this.i]];
-			this.wrapper._top.materials[0] = this.activeMaterials.topMaterial;
-			this.wrapper._bottom.materials[0] = this.activeMaterials.bottomMaterial;
-			
-			var flipperMaterials = this.activeMaterials.flipperMaterials;
-			_.each(this.wrapper._flap.geometry.faces, function(face, i){
-				face.materials[0] = flipperMaterials[i];
-			});
+			//this.activeMaterials = this.textureSet.faces[this.textureSet.chars[this.i]];
+
+			this.wrapper._top.materials[0] = this.textureSet.spriteMaterial;
+            //this.activeMaterials.topMaterial;
+			this.wrapper._bottom.materials[0] = this.textureSet.spriteMaterial;
+            //this.activeMaterials.bottomMaterial;
+
+			//var flipperMaterials = this.activeMaterials.flipperMaterials;
+
+			//_.each(this.wrapper._flap.geometry.faces, function(face, i){
+			//	face.materials[0] = flipperMaterials[i];
+			//});
 		}
 	}
 });
