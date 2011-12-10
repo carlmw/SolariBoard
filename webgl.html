@@ -32,20 +32,8 @@
 			});
 
 			Board.start();
-        }).load({
-            src: 'img/statuses.png',
-            chars: 'SFUBC '.split(''),
-            faceWidth: 360,
-            srcWidth: 1366,
-            srcHeight: 64
-        });
-    }).load({
-        src: 'img/chars.png',
-        chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''),
-        faceWidth: 70,
-        srcHeight: 63,
-        srcWidth: 1366
-    });
+        }).load('img/statuses.png', 'SFUBC '.split(''), 360, 64);
+    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
 
 	})();
 	</script>

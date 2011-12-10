@@ -3,38 +3,31 @@ SolariTexture.prototype = _.extend({
 	loaded: false,
 	chars: [],
 	faces: {},
-	load: function(ops){
-        var src = ops.src,
-            chars = ops.chars,
-            faceWidth = ops.faceWidth,
-            faceHeight = ops.srcHeight;
-
+	load: function(src, chars, faceWidth, faceHeight){
 		this.chars = chars;
 		this.faceWidth = faceWidth;
 		this.faceHeight = faceHeight;
 		this.max = chars.length - 1;
 
-		var self = this;
-
-        self.spriteMaterial = new THREE.MeshLambertMaterial({
-            map: THREE.ImageUtils.loadTexture(ops.src)
+        this.spriteMaterial = new THREE.MeshLambertMaterial({
+            map: THREE.ImageUtils.loadTexture(src)
         });
 
 
-        this.UV = this.buildUVs(ops);
+        this.UV = this.buildUVs();
 
         // this is only to make sure the image is loaded
-        var img = new Image();
+        var self = this,
+            img = new Image();
         img.onload = function() {
             self.trigger('load');
         };
-        img.src = ops.src;
+        img.src = src;
 
 	},
     buildUVs: function(ops) {
     /* For each character part build a set of 4 UV coords */
-        var self = this,
-            UV = {};
+        var UV = {};
 
         var x = 0,
             y = 0,
