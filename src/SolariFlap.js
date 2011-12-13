@@ -20,7 +20,7 @@ var SolariFlap = Backbone.View.extend({
                     textureSet.spriteMaterial
                 ]),
 				new THREE.MeshFaceMaterial()),
-            varia = 1.1 - Math.random() * 0.2;
+            varia = 1.05 - Math.random() * 0.1;
 
         this.SPEED = SPEED * DEG2RAD / 1000.0 * varia;
 
@@ -56,25 +56,25 @@ var SolariFlap = Backbone.View.extend({
 
         this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
     },
+    setChar: function(ch){
+        var i = this.textureSet.chars.indexOf(ch);
+        this.currentChar = i != -1 ? i : this.textureSet.max;
+        this.wedged = this.currentChar == this.i;
+        return this;
+    },
+    next: function(){
+        this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
+        var next = (this.i+1>this.textureSet.max) ? 0 : this.i + 1;
+        this.setUpTextures(this.i, next);
 
-	setChar: function(ch){
-		var i = this.textureSet.chars.indexOf(ch);
-		this.currentChar = i != -1 ? i : this.textureSet.max;
-		return this;
-	},
-	next: function(){
-		if(this.currentChar === this.i){
-			this.wedged = true;
-		}else{
-			this.wedged = false;
-
-            var prev = this.i;
-			this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-            this.setUpTextures(prev, this.i);
-		}
-	},
+        if(this.currentChar === this.i){
+            this.wedged = true;
+    	}else{
+    		this.wedged = false;
+    	}
+    },
     update: function(diff) {
-        x = this.flapWrapper.rotation.x;
+        var x = this.flapWrapper.rotation.x;
         if (this.wedged) return;
 
         x += diff * this.SPEED;
@@ -85,5 +85,4 @@ var SolariFlap = Backbone.View.extend({
             this.next();
         }
     }
-
 });
