@@ -30,6 +30,7 @@ var SolariFlap = Backbone.View.extend({
 		this.y = y;
 		this.textureSet = textureSet;
 		this.top = top;
+
         this.top_g = top.geometry;
 		this.bottom = bottom
         this.bottom_g = bottom.geometry;
@@ -68,7 +69,6 @@ var SolariFlap = Backbone.View.extend({
         this.wedged = this.currentChar == this.i;
         return this;
     },
-	
     next: function(){
         this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
         var next = (this.i+1>this.textureSet.max) ? 0 : this.i + 1;
@@ -82,7 +82,7 @@ var SolariFlap = Backbone.View.extend({
     },
     update: function(diff) {
         var x = this.flapWrapper.rotation.x;
-        if (this.wedged) return true;
+        if (this.wedged) return;
 
         x += diff * this.SPEED;
 
