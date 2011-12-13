@@ -105,15 +105,17 @@ var Solari = Backbone.View.extend({
             lastTime = new Date().getTime();
 
         if (!this.stats) this.displayStats();
-
         function animate(lastTime){
             // update
             var time = new Date().getTime();
             var timeDiff = time - lastTime;
             lastTime = time;
             // render
+
             self.anim = ! self.update(timeDiff);
-            self.stats.update();
+            if (self.stats) self.stats.update();
+            self.update(timeDiff);
+
             self.render();
 
             // request new frame
