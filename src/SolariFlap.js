@@ -56,7 +56,6 @@ var SolariFlap = Backbone.View.extend({
 
         this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
     },
-
     setChar: function(ch){
         var i = this.textureSet.chars.indexOf(ch);
         this.currentChar = i != -1 ? i : this.textureSet.max;
@@ -88,5 +87,4 @@ var SolariFlap = Backbone.View.extend({
         }
         return false;
     }
-
 });
