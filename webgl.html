@@ -6,7 +6,6 @@
 	<script src="lib/backbone.js"></script>
 	<script src="lib/Three.js"></script>
 	<script src="lib/stats.js"></script>
-	<script src="lib/Tween.js"></script>
 	<script src="src/SolariTexture.js"></script>
 	<script src="src/SolariRow.js"></script>
 	<script src="src/SolariFlap.js"></script>
@@ -19,12 +18,12 @@
 		new SolariTexture().bind('load', function(){
 			var row,
 				statusSet = this;
-		
+
 			$('#container').append(board.el);
-		
+
 			_(8).times(function(){
 				row = new SolariRow(board.y);
-				
+
 				_(20).times(function(){
 					row.add(alphaSet);
 				});
@@ -33,9 +32,9 @@
 			});
 
 			Board.start();
-		}).load('img/statuses.png', 'SFUBC '.split(''), 360, 63);
-	}).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
-	
+        }).load('img/statuses.png', 'SFUBC '.split(''), 360, 64);
+    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
+
 	})();
 	</script>
 	<style>
