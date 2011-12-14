@@ -118,14 +118,14 @@ var Solari = Backbone.View.extend({
 	},
     flapToRender: function(flap){
         this.scene.add(flap);
-        this.flaps.push(flap);
     },
     rowAdded: function(row){
+        this.rows.push(row);
+        this.flaps = this.flaps.concat(row.flaps);
+
         this.y += row.height + 10;
 
         this.camera.position.x = (row.x - 10) / 2;
         this.camera.position.y = -((row.y - (row.height/2)) / 2);
-
-        this.rows.push(row);
     }
 });
