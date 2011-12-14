@@ -24,7 +24,7 @@
 			$('#container').append(board.el);
 
 			jenkinsScreen = new SolariScreen('jenkins');
-
+			board.add(jenkinsScreen);
 			_(8).times(function(){
 				row = new SolariRow(board.y);
 
@@ -34,7 +34,6 @@
 				row.add(statusSet);
 				jenkinsScreen.add(row);
 			});
-			board.add(jenkinsScreen);
 
 			Board.start();
         }).load('img/statuses.png', 'SFUBC '.split(''), 360, 64);
