@@ -26,8 +26,9 @@ var Solari = Backbone.View.extend({
 	NEAR: -2000,
 	FAR: 1000,
  	initialize: function(){
-		this.flaps = [];
-		this.rows = [];
+        this.screens = [];
+        this.rows = [];
+        this.flaps = [];
 		this.y = 0;
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
@@ -57,25 +58,16 @@ var Solari = Backbone.View.extend({
 		this.camera.position.z = 0;
 
 		this.el = this.renderer.domElement;
+        _.bindAll(this, 'flapToRender', 'rowAdded');
 	},
 	render: function(){
 		this.renderer.render(this.scene, this.camera);
 		if(this.showStats) this.stats.update();
 	},
-	add: function(row){
-		this.rows.push(row);
-		this.flaps = this.flaps.concat(row.flaps);
-
-		var self = this;
-		_.each(row.flaps, function(flap){
-            _.each(flap.objToRender, function(obj) {
-			    self.scene.add(obj);
-            });
-		});
-		this.y += row.height + 10;
-
-		this.camera.position.x = (row.x - 10) / 2;
-		this.camera.position.y = -((row.y - (row.height/2)) / 2);
+	add: function(scr){
+        this.screens.push(scr);
+        scr.bind('rowAdded', this.rowAdded);
+        scr.bind('flapToRender', this.flapToRender);
 
 		return this;
 	},
@@ -123,5 +115,17 @@ var Solari = Backbone.View.extend({
 		});
 
 		return this;
-	}
+	},
+    flapToRender: function(flap){
+        this.scene.add(flap);
+        this.flaps.push(flap);
+    },
+    rowAdded: function(row){
+        this.y += row.height + 10;
+
+        this.camera.position.x = (row.x - 10) / 2;
+        this.camera.position.y = -((row.y - (row.height/2)) / 2);
+
+        this.rows.push(row);
+    }
 });
