@@ -1,5 +1,5 @@
 var DEG2RAD =  Math.PI / 180,
-    SPEED = 900.0;
+    SPEED = 1400.0;
 
 var SolariFlap = Backbone.View.extend({
     MAX_X: 180 * DEG2RAD,
