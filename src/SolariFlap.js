@@ -42,7 +42,7 @@ var SolariFlap = Backbone.View.extend({
         this.objToRender = [top, bottom, this.flapWrapper];
 
 		this.i = 0;
-        this.setUpTextures(textureSet.max, 0);
+        this.setUpTextures(0, 1);
 	},
     setUpTextures: function(from, to) {
         /* Setting up the coming character. */
