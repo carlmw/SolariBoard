@@ -11,7 +11,10 @@
 			'kerby-fido-integration': 'KERBYFIDOINT',
 			'Zonza': 'ZONZA',
 			'ZonzaRest': 'ZONZAREST',
-			'ZonzaSelenium': 'ZONZASELENIUM'
+			'ZonzaSelenium': 'ZONZASELENIUM',
+			'Skellington': 'SKELLINGTON',
+			'Selenium_Tests': 'FIDOSELENIUM',
+			'kerby-ui': 'KERBYUI'
 		},
 		render = function(data){
 			if(!lines[data.project]) return;
@@ -29,7 +32,6 @@
 		};
 	
 	var connect = function(){
-	    
 	    if(ws) ws.close();
 	    if(ws2) ws2.close();
 	    
@@ -41,6 +43,11 @@
 
     		render(data);
     	};
+    	
+    	setInterval(function(){
+    	    ws.send('ping');
+    	    ws2.send('pong');
+    	}, 5000);
 	};
 	
     connect();
