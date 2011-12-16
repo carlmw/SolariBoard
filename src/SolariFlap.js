@@ -82,7 +82,7 @@ var SolariFlap = Backbone.View.extend({
     },
     update: function(diff) {
         var x = this.flapWrapper.rotation.x;
-        if (this.wedged) return;
+        if (this.wedged) return true;
 
         x += diff * this.SPEED;
 
