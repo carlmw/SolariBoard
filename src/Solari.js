@@ -90,10 +90,10 @@ var Solari = Backbone.View.extend({
     update: function(diff) {
         var i,
             flaps = this.flaps,
-            done=true;
+            done = true;
 
         for (i=0; i<flaps.length; i++) {
-            done &= flaps[i].update(diff);
+            done = flaps[i].update(diff) && done;
         }
         return done;
     },
@@ -101,7 +101,8 @@ var Solari = Backbone.View.extend({
         var self = this,
             lastTime = new Date().getTime();
 
-        self.displayStats();
+        if (!this.stats) this.displayStats();
+
         function animate(lastTime){
             // update
             var time = new Date().getTime();
@@ -113,9 +114,16 @@ var Solari = Backbone.View.extend({
             self.render();
 
             // request new frame
-            if (self.anim) requestAnimFrame(function(){
+            if (self.anim) { 
+                requestAnimFrame(function(){
                 animate(lastTime);
-            });
+                }); 
+            } else {
+                setTimeout(function() {
+                    animate((new Date().getTime()));
+                }, 2000)
+            }
+
         }
         animate(lastTime);
 
@@ -125,7 +133,6 @@ var Solari = Backbone.View.extend({
 		_.each(this.rows, function(row, i){
 			row.setChars(msg[i] ? msg[i] : ' ');
 		});
-        if (!this.anim) this.start();
 		return this;
 	}
 });
