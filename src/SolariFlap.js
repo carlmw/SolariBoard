@@ -75,7 +75,7 @@ var SolariFlap = Backbone.View.extend({
     },
     update: function(diff) {
         var x = this.flapWrapper.rotation.x;
-        if (this.wedged) return;
+        if (this.wedged) return true;
 
         x += diff * this.SPEED;
 
@@ -85,5 +85,6 @@ var SolariFlap = Backbone.View.extend({
             this.next();
             if (this.wedged && (Math.random()>0.995)) { this.next(); this.wedged=false; }
         }
+        return false;
     }
 });
