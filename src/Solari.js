@@ -148,5 +148,11 @@ var Solari = Backbone.View.extend({
         this.bind('start', plugin.start);
     },
     screenUpdated: function(){
+        var scr = this.screens[0],
+            matrix = scr.getMatrix();
+        _.each(this.rows, function(row, i){
+            matrix_row = matrix[i].join('');
+            row.setChars(matrix_row);
+        });
     }
 });
