@@ -26,6 +26,7 @@ var Solari = Backbone.View.extend({
 	NEAR: -2000,
 	FAR: 1000,
  	initialize: function(){
+        this.animate = false;
 		this.flaps = [];
 		this.rows = [];
         this.screens = [];
@@ -90,31 +91,43 @@ var Solari = Backbone.View.extend({
 		document.body.appendChild(this.stats.domElement);
 	},
     update: function(diff) {
-		var i, flaps = this.flaps;
+        var i,
+            flaps = this.flaps,
+            done = true;
 
         for (i=0; i<flaps.length; i++) {
-            flaps[i].update(diff);
+            done = flaps[i].update(diff) && done;
         }
+        return done;
     },
 	start: function(){
         var self = this,
             lastTime = new Date().getTime();
 
-        // self.displayStats();
+        if (!this.stats) this.displayStats();
+
         function animate(lastTime){
             // update
             var time = new Date().getTime();
             var timeDiff = time - lastTime;
             lastTime = time;
             // render
-            self.update(timeDiff);
-            // self.stats.update();
+
+            self.anim = ! self.update(timeDiff);
+            self.stats.update();
             self.render();
 
             // request new frame
-            requestAnimFrame(function(){
+            if (self.anim) { 
+                requestAnimFrame(function(){
                 animate(lastTime);
-            });
+                }); 
+            } else {
+                setTimeout(function() {
+                    animate((new Date().getTime()));
+                }, 2000)
+            }
+
         }
         animate(lastTime);
 
@@ -124,7 +137,6 @@ var Solari = Backbone.View.extend({
 		_.each(this.rows, function(row, i){
 			row.setChars(msg[i] ? msg[i] : ' ');
 		});
-
 		return this;
 	},
     registerPlugin: function(plugin){
