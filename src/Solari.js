@@ -143,8 +143,9 @@ var Solari = Backbone.View.extend({
         var scr = SolariScreen;
         scr.init(this.rows.length, this.rows[0].flaps.length);
         scr.bind('screenUpdated', this.screenUpdated);
-        plugin.init(scr);
         this.screens.push(scr);
+        plugin.init(scr);
+        this.bind('start', plugin.start);
     },
     screenUpdated: function(){
     }
