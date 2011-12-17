@@ -1,4 +1,7 @@
-var SolariPlugin = _.extend({
+SolariPlugin = function(){
+}
+
+_.extend(SolariPlugin.prototype,{
     init: function(scr){
         this.scr = scr;
     },

@@ -12,7 +12,6 @@
 	<script src="src/SolariScreen.js"></script>
 	<script src="src/Solari.js"></script>
 	<script src="src/SolariPlugin.js"></script>
-	<script src="plugins/console.js"></script>
 	<script>
 	var consolePlugin;
 	(function(){
@@ -34,8 +33,6 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			consolePlugin = ConsolePlugin;
-			board.registerPlugin(consolePlugin);
 			Board.start();
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
     }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
