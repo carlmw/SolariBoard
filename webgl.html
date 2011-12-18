@@ -12,7 +12,6 @@
 	<script src="src/SolariScreen.js"></script>
 	<script src="src/Solari.js"></script>
 	<script src="src/SolariPlugin.js"></script>
-	<script src="plugins/console.js"></script>
 	<script src="plugins/jenkins.js"></script>
 	<script>
 	var consolePlugin;
@@ -35,8 +34,6 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			consolePlugin = ConsolePlugin;
-			// board.registerPlugin(consolePlugin);
 			var jenkinsPlugin = JenkinsPlugin;
 			board.registerPlugin(jenkinsPlugin);
 			Board.start();
