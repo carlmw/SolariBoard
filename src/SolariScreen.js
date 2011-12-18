@@ -11,12 +11,6 @@ Array.matrix = function(m, n, initial) {
 };
 SolariScreen = _.extend({
     init: function(rows, columns){
-        this.matrix = Array.matrix(rows, columns, '');
-    },
-    getMatrix: function(){
-        return this.matrix;
-    },
-    setMatrix: function(matrix){
-        this.matrix = matrix;
+        this.matrix = Array.matrix(rows, columns, ' ');
     }
 }, Backbone.Events);

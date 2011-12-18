@@ -10,14 +10,18 @@ JenkinsPlugin = _.extend({
     },
     init: function(scr){
         SolariPlugin.prototype.init.call(this, scr);
+        if(this.ws) this.ws.close();
+        this.ws = new WebSocket('ws://dev-hson-1:8082/jenkins');
     },
     start: function(){
-        var scr = this.scr,
-            matrix = scr.getMatrix(),
-            keys = _.keys(this.repos);
+        var self = this,
+            scr = this.scr,
+            matrix = scr.matrix,
+            repos = this.repos,
+            keys = _.keys(repos);
         _.each(matrix, function(row, i){
             if (i < keys.length) {
-                var repoName = this.repos[keys[i]];
+                var repoName = repos[keys[i]];
                 _.each(row, function(flap, i){
                     if (i < repoName.length) {
                         row[i] = repoName[i];                        
@@ -25,8 +29,14 @@ JenkinsPlugin = _.extend({
                 });
             }
         }, this);
-        scr.setMatrix(matrix);
         this.updateScreen();
+        var render = function(data){
+            self.updateScreen();
+        };
+        this.ws.onmessage = function(msg) {
+            var data = JSON.parse(msg.data);
+            render(data);
+        }
     },
     updateScreen: function(){
         this.scr.trigger('screenUpdated');

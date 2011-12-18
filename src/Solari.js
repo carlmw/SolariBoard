@@ -149,7 +149,7 @@ var Solari = Backbone.View.extend({
     },
     screenUpdated: function(){
         var scr = this.screens[0],
-            matrix = scr.getMatrix();
+            matrix = scr.matrix;
         _.each(this.rows, function(row, i){
             matrix_row = matrix[i].join('');
             row.setChars(matrix_row);
