@@ -44,11 +44,24 @@ JenkinsPlugin = _.extend({
             for(i = 0; i < buildNo.length; i++) {
                 var c = (row.length - 1) - (buildNo.length - i);
                 row[c] = buildNo[i];
+            if(row){
+                row[row.length - 1] = data.result[0];
+                for(i = 0; i < buildNo.length; i++) {
+                    var c = (row.length - 1) - (buildNo.length - i);
+                    row[c] = buildNo[i];
+                }
+                self.updateScreen();
             }
-            self.updateScreen();
         };
         this.ws.onmessage = this.ws2.onmessage = function(msg) {
+        _.each(keys, function(key){
+            if (storedMessage = JSON.parse(localStorage.getItem(key))){
+                render(storedMessage);
+            }
+        }, this);
+        this.updateScreen();
             var data = JSON.parse(msg.data);
+            localStorage.setItem(data.project, msg.data);
             render(data);
         };
         setInterval(function(){
