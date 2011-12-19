@@ -15,7 +15,7 @@
 			'Skellington': 'SKELLINGTON',
 			'Selenium_Tests': 'FIDOSELENIUM',
 			'kerby-ui': 'KERBYUI',
-			'fidotestingdeployment', 'FIDOTESTDEPLOY'
+			'fidotestingdeployment': 'FIDOTESTDEPLOY'
 		},
 		render = function(data){
 			if(!lines[data.project]) return;
