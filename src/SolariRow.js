@@ -8,7 +8,7 @@ var SolariRow = Backbone.View.extend({
 	add: function(textureSet){
 		var flap = new SolariFlap(textureSet, this.x + (textureSet.faceWidth / 2), -this.y);
 		this.height = Math.max(this.height, textureSet.faceHeight * 2);
-		this.x += textureSet.faceWidth + 6;
+		this.x += textureSet.faceWidth;
 		this.flaps.push(flap);
 		
 		return this;

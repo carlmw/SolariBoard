@@ -24,8 +24,11 @@ var SolariFlap = Backbone.View.extend({
 
         this.SPEED = SPEED * DEG2RAD / 1000.0 * varia;
 
-
-        this.textureSet = textureSet;
+		this.width = flapWidth;
+		this.height = flapHeight;
+		this.x = x;
+		this.y = y;
+		this.textureSet = textureSet;
         this.top_g = top.geometry;
         this.bottom_g = bottom.geometry;
         this.flap_g = flap.geometry;

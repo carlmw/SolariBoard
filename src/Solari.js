@@ -32,6 +32,8 @@ var Solari = Backbone.View.extend({
 		this.y = 0;
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
+		this.boardWidth = 0;
+		this.boardHeight = 0;
 		this.aspect = this.width / this.height;
 		this.renderer = new THREE.WebGLRenderer;
         this.renderer.sortObjects = false;
@@ -76,9 +78,12 @@ var Solari = Backbone.View.extend({
 			    self.scene.add(obj);
             });
 		});
-		this.y += row.height + 10;
-
-		this.camera.position.x = (row.x - 10) / 2;
+		this.y += row.height;
+		
+		this.boardWidth = Math.max(this.boardWidth, row.x);
+		this.boardHeight += row.height;
+		
+		this.camera.position.x = (row.x) / 2;
 		this.camera.position.y = -((row.y - (row.height/2)) / 2);
 
 		return this;
@@ -143,5 +148,41 @@ var Solari = Backbone.View.extend({
         if (!this.anim) this.start();
 
 		return this;
+	},
+	setImage: function(src, w, h){
+		// Create a texture from the incoming image data
+		var texture = new THREE.MeshLambertMaterial({
+            map: THREE.ImageUtils.loadTexture(src)
+        });
+
+		// Now we have our texture we'll work out the x, y to start painting from
+		var boardWidth = this.boardWidth,
+			boardHeight = this.boardHeight,
+			centerX = this.boardWidth / 2,
+			centerY = this.boardHeight /2,
+			startLeft = Math.round((boardWidth - w) / 2),
+			startTop = Math.round((boardHeight - h) / 2),
+			endLeft = startLeft + w,
+			endTop = startTop + h;
+			
+		// console.log(startX + ' - ' + startY);
+		
+		// Now we need to work out which flaps we'll be drawing on
+		var targetFlaps = _.filter(this.flaps, function(flap){
+			// Convert the positions of the flaps to top and left relative to the board
+			// console.log(flap.height + ' - ' + Math.abs(flap.y) + ' - ' + centerY);
+			// console.log(flap.width + ' - ' + flap.x + ' - ' + centerX);
+			var top = Math.abs(flap.y),
+				left = (flap.x - (flap.width / 2));
+				
+			console.log(left + ' ' + top)
+			// console.log((flap.top) + ' -- ' + (flap.y));
+			return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
+		});
+		
+		_.each(targetFlaps, function(flap){
+			flap.setChar('T');
+		});
+		console.log(targetFlaps.length);
 	}
 });
