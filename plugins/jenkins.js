@@ -20,11 +20,11 @@ JenkinsPlugin = _.extend({
     },
     start: function(){
         var self = this,
-            scr = this.scr,
-            matrix = scr.matrix,
+            matrix = this.scr.matrix,
             repos = this.repos,
             keys = _.keys(repos);
         this.rowMap = {};
+        //Set the inital values of the screen
         _.each(matrix, function(row, i){
             if (i < keys.length) {
                 var repoName = repos[keys[i]];
@@ -36,9 +36,11 @@ JenkinsPlugin = _.extend({
                 });
             }
         }, this);
+
         var render = function(data){
             var row = self.rowMap[data.project],
                 buildNo = '#' + data.number;
+            //Just in case a websocket call comes in we don't have a repo for
             if(row){
                 row[row.length - 1] = data.result[0];
                 for(i = 0; i < buildNo.length; i++) {
@@ -48,17 +50,23 @@ JenkinsPlugin = _.extend({
                 self.updateScreen();
             }
         };
+
+        //Playback stored cache data
         _.each(keys, function(key){
             if (storedMessage = JSON.parse(localStorage.getItem(key))){
                 render(storedMessage);
             }
         }, this);
+
         this.updateScreen();
+
         this.ws.onmessage = this.ws2.onmessage = function(msg) {
             var data = JSON.parse(msg.data);
             localStorage.setItem(data.project, msg.data);
             render(data);
         };
+
+        //Keep-alive for websocket
         setInterval(function(){
             self.ws.send('ping');
             self.ws2.send('pong');
