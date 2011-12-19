@@ -19,18 +19,27 @@ JenkinsPlugin = _.extend({
             matrix = scr.matrix,
             repos = this.repos,
             keys = _.keys(repos);
+        this.rowMap = {};
         _.each(matrix, function(row, i){
             if (i < keys.length) {
                 var repoName = repos[keys[i]];
+                this.rowMap[keys[i]] = row;
                 _.each(row, function(flap, i){
                     if (i < repoName.length) {
-                        row[i] = repoName[i];                        
+                        row[i] = repoName[i];
                     }
                 });
             }
         }, this);
         this.updateScreen();
         var render = function(data){
+            var row = self.rowMap[data.project],
+                buildNo = '#' + data.number;
+            row[row.length - 1] = data.result[0];
+            for(i = 0; i < buildNo.length; i++) {
+                var c = (row.length - 1) - (buildNo.length - i);
+                row[c] = buildNo[i];
+            }
             self.updateScreen();
         };
         this.ws.onmessage = function(msg) {
