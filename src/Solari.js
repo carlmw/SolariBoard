@@ -155,34 +155,30 @@ var Solari = Backbone.View.extend({
             map: THREE.ImageUtils.loadTexture(src)
         });
 
-		// Now we have our texture we'll work out the x, y to start painting from
+		// Now we have our texture we'll work out the top and left from which to start 
+		// and end paint.
 		var boardWidth = this.boardWidth,
 			boardHeight = this.boardHeight,
-			centerX = this.boardWidth / 2,
-			centerY = this.boardHeight /2,
 			startLeft = Math.round((boardWidth - w) / 2),
 			startTop = Math.round((boardHeight - h) / 2),
 			endLeft = startLeft + w,
 			endTop = startTop + h;
-			
-		// console.log(startX + ' - ' + startY);
 		
 		// Now we need to work out which flaps we'll be drawing on
 		var targetFlaps = _.filter(this.flaps, function(flap){
-			// Convert the positions of the flaps to top and left relative to the board
-			// console.log(flap.height + ' - ' + Math.abs(flap.y) + ' - ' + centerY);
-			// console.log(flap.width + ' - ' + flap.x + ' - ' + centerX);
+			// Get the left and right of the flap relative to the board
 			var top = Math.abs(flap.y),
 				left = (flap.x - (flap.width / 2));
 				
-			console.log(left + ' ' + top)
-			// console.log((flap.top) + ' -- ' + (flap.y));
 			return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
 		});
 		
 		_.each(targetFlaps, function(flap){
 			flap.setChar('T');
 		});
-		console.log(targetFlaps.length);
+		
+		// Now generate our UV's, this will be fun
+		
+		
 	}
 });
