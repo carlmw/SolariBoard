@@ -6,12 +6,16 @@ JenkinsPlugin = _.extend({
         'kerby-fido-integration': 'KERBYFIDOINT',
         'Zonza': 'ZONZA',
         'ZonzaRest': 'ZONZAREST',
-        'ZonzaSelenium': 'ZONZASELENIUM'
+        'ZonzaSelenium': 'ZONZASELENIUM',
+        'Skellington': 'SKELLINGTON',
+        'Selenium_Tests': 'FIDOSELENIUM',
+        'kerby-ui': 'KERBYUI'
     },
     init: function(scr){
         SolariPlugin.prototype.init.call(this, scr);
         if(this.ws) this.ws.close();
         this.ws = new WebSocket('ws://dev-hson-1:8082/jenkins');
+        this.ws2 = new WebSocket('ws://dev-jen1:8081/jenkins');
     },
     start: function(){
         var self = this,
@@ -42,10 +46,14 @@ JenkinsPlugin = _.extend({
             }
             self.updateScreen();
         };
-        this.ws.onmessage = function(msg) {
+        this.ws.onmessage = this.ws2.onmessage = function(msg) {
             var data = JSON.parse(msg.data);
             render(data);
-        }
+        };
+        setInterval(function(){
+            self.ws.send('ping');
+            self.ws2.send('pong');
+        }, 5000);
     },
     updateScreen: function(){
         this.scr.trigger('screenUpdated');
