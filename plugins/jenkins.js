@@ -14,7 +14,8 @@
 			'ZonzaSelenium': 'ZONZASELENIUM',
 			'Skellington': 'SKELLINGTON',
 			'Selenium_Tests': 'FIDOSELENIUM',
-			'kerby-ui': 'KERBYUI'
+			'kerby-ui': 'KERBYUI',
+			'fidotestingdeployment', 'FIDOTESTDEPLOY'
 		},
 		render = function(data){
 			if(!lines[data.project]) return;
