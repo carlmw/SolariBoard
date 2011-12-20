@@ -42,10 +42,10 @@
 		
 		document.body.appendChild(img);
 		img.onload = function(){
-			Board.setImage(img.src, img.clientWidth, img.clientHeight); // this will become our texture
+			Board.setImage(img, img.clientWidth, img.clientHeight); // this will become our texture
 			document.body.removeChild(img);
 		};
-		img.src= 'pug9.jpg';
+		img.src= 'pug.jpg';
 		
 	}, 500);
 

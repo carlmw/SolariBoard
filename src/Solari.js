@@ -149,12 +149,7 @@ var Solari = Backbone.View.extend({
 
 		return this;
 	},
-	setImage: function(src, w, h){
-		// Create a texture from the incoming image data
-		var texture = new THREE.MeshLambertMaterial({
-            map: THREE.ImageUtils.loadTexture(src)
-        });
-
+	setImage: function(img, w, h){
 		// Now we have our texture we'll work out the top and left from which to start 
 		// and end paint.
 		var boardWidth = this.boardWidth,
@@ -175,7 +170,7 @@ var Solari = Backbone.View.extend({
 				// Get the left and right of the flap relative to the board
 				var top = flap.relativeTop = Math.abs(flap.y),
 					left = flap.relativeLeft = (flap.x - (flap.width / 2));
-					
+				
 				return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
 			});
 			
@@ -224,6 +219,29 @@ var Solari = Backbone.View.extend({
 			};
 			x += stepX;
 		});
+		
+		// Take the incoming image and center it on a canvas of our target size
+		var canvas = document.createElement('canvas'),
+			ctx = canvas.getContext('2d'),
+			left = (targetWidth - w) / 2,
+			top = (targetHeight - h) / 2;
+		
+		canvas.width = targetWidth;
+		canvas.height = targetHeight;
+
+		ctx.fillStyle = "rgb(200,0,0)";  
+		ctx.fillRect (0, 0, targetWidth, targetHeight);
+		ctx.drawImage(img, left, top, w, h);
+		
+		document.body.appendChild(canvas);
+		// Create a texture from the incoming image data
+		var map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, targetWidth, targetHeight).data), targetWidth, targetHeight),
+			texture = new THREE.MeshLambertMaterial({
+	            map: map
+	        });
+	
+		map.needsUpdate = true;
+		
 		
 		// Pugify
 		_.each(targetFlaps, function(flap, i){
