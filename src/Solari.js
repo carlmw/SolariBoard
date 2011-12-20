@@ -167,18 +167,53 @@ var Solari = Backbone.View.extend({
 		// Now we need to work out which flaps we'll be drawing on
 		var targetFlaps = _.filter(this.flaps, function(flap){
 			// Get the left and right of the flap relative to the board
-			var top = Math.abs(flap.y),
-				left = (flap.x - (flap.width / 2));
-				
+			var top = flap.relativeTop = Math.abs(flap.y),
+				left = flap.relativeLeft = (flap.x - (flap.width / 2));
+			
 			return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
 		});
-		
-		_.each(targetFlaps, function(flap){
-			flap.setChar('T');
-		});
+
 		
 		// Now generate our UV's, this will be fun
+		var UV = [],
+			x = 0,
+			y = 0,
+			stepX = 1.0 / 4,
+			stepY = 1.0 / 4;
+			
+		_.each(targetFlaps, function(flap, i){
+			console.log(x + ' - ' + y);
+			console.log(i);
+			if(i > 0 && i % 4 === 0){
+				x = 0;
+				y += (stepY * 2);
+			}
+			UV[i] = {
+				top: [
+                    new THREE.UV(x, y),
+                    new THREE.UV(x, y + stepY),
+                    new THREE.UV(x + stepX, y + stepY),
+                    new THREE.UV(x + stepX, y)
+                ],
+                bottom: [
+	                new THREE.UV(x, y + stepY),
+	                new THREE.UV(x, y + (stepY * 2)),
+	                new THREE.UV(x + stepX, y + (stepY * 2)),
+	                new THREE.UV(x + stepX, y + stepY)
+                ],
+                back: [
+	                new THREE.UV(x, y),
+	                new THREE.UV(x, y + stepY),
+	                new THREE.UV(x + stepX, y + stepY),
+	                new THREE.UV(x + stepX, y)
+				]
+			};
+			x += stepX;
+		});
 		
-		
+		// Pugify
+		_.each(targetFlaps, function(flap, i){
+			flap.repaint(texture, UV[i]);
+		});
 	}
 });

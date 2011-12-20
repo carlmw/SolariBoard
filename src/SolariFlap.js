@@ -29,8 +29,11 @@ var SolariFlap = Backbone.View.extend({
 		this.x = x;
 		this.y = y;
 		this.textureSet = textureSet;
+		this.top = top;
         this.top_g = top.geometry;
+		this.bottom = bottom
         this.bottom_g = bottom.geometry;
+		this.flap = flap;
         this.flap_g = flap.geometry;
         this.top_g.dynamic = this.bottom_g.dynamic = this.flap_g.dynamic = true;
 
@@ -85,9 +88,25 @@ var SolariFlap = Backbone.View.extend({
         this.flapWrapper.rotation.x = x;
         if (x > this.MAX_X) {
             this.flapWrapper.rotation.x = 0;
-            this.next();
+            if(!this.pugified) this.next();
             if (this.wedged && (Math.random()>0.995)) { this.next(); this.wedged=false; }
         }
         return false;
-    }
+    },
+	repaint: function(material, uv){
+		// console.log(material)
+		// this.top_g.faces[0].materials[0] = material;
+		// this.top_g.map = material.map;
+		// this.bottom_g.faces[0].materials[0].map = material;
+		// this.flap_g.faces[0].materials[0].map = material;
+		this.wedged = true;
+		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material
+        this.top_g.faceVertexUvs[0][0] = uv.top;
+        this.bottom_g.faceVertexUvs[0][0] = uv.bottom;
+        this.flap_g.faceVertexUvs[0][4] = uv.top;
+        this.flap_g.faceVertexUvs[0][5] = uv.back;
+        this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
+		this.pugified = true;
+		// this.wedged = true;
+	}
 });
