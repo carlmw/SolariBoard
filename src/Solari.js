@@ -164,7 +164,21 @@ var Solari = Backbone.View.extend({
 			targetRows = [],
 			targetWidth = 0,
 			targetHeight = 0;
-			
+		
+		var drawReference = function(x, y, w, h){
+			var d = document.createElement('div');
+			d.style.border='1px solid red';
+			d.style.width = w + 'px';
+			d.style.height = h + 'px';
+			d.style.position = 'absolute';
+			d.style.zIndex = 1000;
+			d.style.top = y + 'px';
+			d.style.left = x + 'px';
+			document.body.appendChild(d);	
+		};
+		
+		drawReference(startLeft, startTop, boardWidth, boardHeight);
+		
 		_.each(this.rows, function(row){
 			var rowFlaps = _.filter(row.flaps, function(flap){
 				// Get the left and right of the flap relative to the board
@@ -190,7 +204,7 @@ var Solari = Backbone.View.extend({
 			x = 0,
 			y = 0,
 			stepX = 1.0 / rowLength,
-			stepY = 1.0 / rowLength;
+			stepY = 1.0 / (targetRows.length * 2);
 			
 		_.each(targetFlaps, function(flap, i){
 			if(i > 0 && i % rowLength === 0){
@@ -225,11 +239,10 @@ var Solari = Backbone.View.extend({
 			ctx = canvas.getContext('2d'),
 			left = (targetWidth - w) / 2,
 			top = (targetHeight - h) / 2;
-		
 		canvas.width = targetWidth;
 		canvas.height = targetHeight;
 
-		ctx.fillStyle = "rgb(200,0,0)";  
+		ctx.fillStyle = "rgb(200,200,0)";  
 		ctx.fillRect (0, 0, targetWidth, targetHeight);
 		ctx.drawImage(img, left, top, w, h);
 		
