@@ -202,10 +202,10 @@ var Solari = Backbone.View.extend({
 	                new THREE.UV(x + stepX, y + stepY)
                 ],
                 back: [
-	                new THREE.UV(x, y),
-	                new THREE.UV(x, y + stepY),
-	                new THREE.UV(x + stepX, y + stepY),
-	                new THREE.UV(x + stepX, y)
+                	new THREE.UV( x + stepX, y + 2*stepY),
+                	new THREE.UV( x + stepX, y + stepY ),
+                	new THREE.UV( x, y + stepY),
+                	new THREE.UV( x, y + 2*stepY)
 				]
 			};
 			x += stepX;

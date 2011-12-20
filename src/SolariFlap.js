@@ -99,7 +99,7 @@ var SolariFlap = Backbone.View.extend({
 		// this.top_g.map = material.map;
 		// this.bottom_g.faces[0].materials[0].map = material;
 		// this.flap_g.faces[0].materials[0].map = material;
-		this.wedged = true;
+		// this.wedged = true;
 		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material
         this.top_g.faceVertexUvs[0][0] = uv.top;
         this.bottom_g.faceVertexUvs[0][0] = uv.bottom;
