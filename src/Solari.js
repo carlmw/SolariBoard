@@ -165,26 +165,40 @@ var Solari = Backbone.View.extend({
 			endTop = startTop + h;
 		
 		// Now we need to work out which flaps we'll be drawing on
-		var targetFlaps = _.filter(this.flaps, function(flap){
-			// Get the left and right of the flap relative to the board
-			var top = flap.relativeTop = Math.abs(flap.y),
-				left = flap.relativeLeft = (flap.x - (flap.width / 2));
+		var targetFlaps = [],
+			targetRows = [],
+			targetWidth = 0,
+			targetHeight = 0;
 			
-			return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
+		_.each(this.rows, function(row){
+			var rowFlaps = _.filter(row.flaps, function(flap){
+				// Get the left and right of the flap relative to the board
+				var top = flap.relativeTop = Math.abs(flap.y),
+					left = flap.relativeLeft = (flap.x - (flap.width / 2));
+					
+				return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
+			});
+			
+			if(rowFlaps.length > 0){
+				targetHeight += (rowFlaps[0].height * 2);
+				targetFlaps = targetFlaps.concat(rowFlaps);
+				targetRows.push(rowFlaps);
+			}
 		});
-
+		targetWidth = _.reduce(targetRows[0], function(memo, flap){ return memo + flap.width }, 0);
+		
+		console.log(targetWidth + ' ' + targetHeight);
 		
 		// Now generate our UV's, this will be fun
 		var UV = [],
+			rowLength = targetRows[0].length,
 			x = 0,
 			y = 0,
-			stepX = 1.0 / 4,
-			stepY = 1.0 / 4;
+			stepX = 1.0 / rowLength,
+			stepY = 1.0 / rowLength;
 			
 		_.each(targetFlaps, function(flap, i){
-			console.log(x + ' - ' + y);
-			console.log(i);
-			if(i > 0 && i % 4 === 0){
+			if(i > 0 && i % rowLength === 0){
 				x = 0;
 				y += (stepY * 2);
 			}
@@ -202,10 +216,10 @@ var Solari = Backbone.View.extend({
 	                new THREE.UV(x + stepX, y + stepY)
                 ],
                 back: [
-                	new THREE.UV( x + stepX, y + 2*stepY),
+                	new THREE.UV( x + stepX, y + (2 * stepY)),
                 	new THREE.UV( x + stepX, y + stepY ),
                 	new THREE.UV( x, y + stepY),
-                	new THREE.UV( x, y + 2*stepY)
+                	new THREE.UV( x, y + (2 * stepY))
 				]
 			};
 			x += stepX;
