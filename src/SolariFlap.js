@@ -101,10 +101,10 @@ var SolariFlap = Backbone.View.extend({
 		// this.flap_g.faces[0].materials[0].map = material;
 		// this.wedged = true;
 		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material
-        this.top_g.faceVertexUvs[0][0] = uv.top;
-        this.bottom_g.faceVertexUvs[0][0] = uv.bottom;
-        this.flap_g.faceVertexUvs[0][4] = uv.top;
-        this.flap_g.faceVertexUvs[0][5] = uv.back;
+        this.top_g.faceVertexUvs[0][0] = uv.top;//
+        this.bottom_g.faceVertexUvs[0][0] = uv.prevBottom; //
+        this.flap_g.faceVertexUvs[0][4] = uv.prevTop; //
+        this.flap_g.faceVertexUvs[0][5] = uv.bottom;
         this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
 		this.pugified = true;
 		// this.wedged = true;

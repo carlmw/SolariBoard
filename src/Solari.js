@@ -197,15 +197,30 @@ var Solari = Backbone.View.extend({
 			rowLength = targetRows[0].length,
 			x = 0,
 			y = 0,
+			ydiv = targetRows.length * 2,
 			stepX = 1.0 / rowLength,
-			stepY = 1.0 / (targetRows.length * 2);
-			
+			stepY = 1.0 / (ydiv + 2); // The +1 is the additional row we'll need for the front of the previous flap
+		
+		var baseUV = {
+		    prevTop: [
+	            new THREE.UV(0, stepY * ydiv),
+	            new THREE.UV(0, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * ydiv)
+			],
+			prevBottom: [
+	            new THREE.UV(0, stepY * (ydiv + 1)),
+	            new THREE.UV(0, stepY * (ydiv + 2)),
+	            new THREE.UV(stepX, stepY * (ydiv + 2)),
+	            new THREE.UV(stepX, stepY * (ydiv + 1))
+			]
+		};
 		_.each(targetFlaps, function(flap, i){
 			if(i > 0 && i % rowLength === 0){
 				x = 0;
 				y += (stepY * 2);
 			}
-			UV[i] = {
+			UV[i] = _.extend({
 				top: [
                     new THREE.UV(x, y),
                     new THREE.UV(x, y + stepY),
@@ -213,18 +228,12 @@ var Solari = Backbone.View.extend({
                     new THREE.UV(x + stepX, y)
                 ],
                 bottom: [
+	                new THREE.UV(x + stepX, y + 2 * stepY),
+	                new THREE.UV(x + stepX, y + stepY),
 	                new THREE.UV(x, y + stepY),
-	                new THREE.UV(x, y + (stepY * 2)),
-	                new THREE.UV(x + stepX, y + (stepY * 2)),
-	                new THREE.UV(x + stepX, y + stepY)
+	                new THREE.UV(x, y + 2 * stepY)
                 ],
-                back: [
-                	new THREE.UV( x + stepX, y + (2 * stepY)),
-                	new THREE.UV( x + stepX, y + stepY ),
-                	new THREE.UV( x, y + stepY),
-                	new THREE.UV( x, y + (2 * stepY))
-				]
-			};
+			}, baseUV);
 			x += stepX;
 		});
 		
@@ -234,8 +243,10 @@ var Solari = Backbone.View.extend({
 			left = (targetWidth - w) / 2,
 			top = (targetHeight - h) / 2;
 			
+		targetHeight += (this.flaps[0].height * 2); // One more for the back of our flap
+			
 		canvas.width = targetWidth;
-		canvas.height = targetHeight;
+		canvas.height = targetHeight; // One more for the back of our flap
 
 		var bgImg = document.createElement('img'),
 			overlayImg = document.createElement('img');
@@ -254,6 +265,8 @@ var Solari = Backbone.View.extend({
 				ctx.drawImage(bgImg, x, y, bgImg.width, bgImg.height);
 				x += flap.width;
 			});
+			// One more for the back of our flap
+			ctx.drawImage(bgImg, 0, y + (targetFlaps[0].height * 2), bgImg.width, bgImg.height);
 			ctx.drawImage(img, left, top, w, h);
 			y = 0, x = 0;
 			_.each(targetFlaps, function(flap, i){
@@ -264,7 +277,9 @@ var Solari = Backbone.View.extend({
 				ctx.drawImage(overlayImg, x, y, overlayImg.width, overlayImg.height);
 				x += flap.width;
 			});
-
+			ctx.drawImage(overlayImg, 0, y + (targetFlaps[0].height * 2), overlayImg.width, overlayImg.height);
+			document.body.appendChild(canvas)
+			
 			// Create a texture from the incoming image data
 			var map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, targetWidth, targetHeight).data), targetWidth, targetHeight),
 				texture = new THREE.MeshLambertMaterial({
