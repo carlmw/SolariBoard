@@ -201,7 +201,7 @@ var Solari = Backbone.View.extend({
 			stepX = 1.0 / rowLength,
 			stepY = 1.0 / (ydiv + 2); // The +1 is the additional row we'll need for the front of the previous flap
 		
-		var baseUV = {
+		var baseUV = { // We'll extend this and use the base when we're exiting the poster returning to
 		    prevTop: [
 	            new THREE.UV(0, stepY * ydiv),
 	            new THREE.UV(0, stepY * (ydiv + 1)),
@@ -213,14 +213,27 @@ var Solari = Backbone.View.extend({
 	            new THREE.UV(0, stepY * (ydiv + 2)),
 	            new THREE.UV(stepX, stepY * (ydiv + 2)),
 	            new THREE.UV(stepX, stepY * (ydiv + 1))
-			]
+			],
+			flapTop: [
+	            new THREE.UV(0, stepY * ydiv),
+	            new THREE.UV(0, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * ydiv)
+            ],
+            flapBottom: [
+	            new THREE.UV(0, stepY * (ydiv + 2)),
+	            new THREE.UV(0, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * (ydiv + 1)),
+	            new THREE.UV(stepX, stepY * (ydiv + 2))
+            ]
+			
 		};
 		_.each(targetFlaps, function(flap, i){
 			if(i > 0 && i % rowLength === 0){
 				x = 0;
 				y += (stepY * 2);
 			}
-			UV[i] = _.extend({
+			UV[i] = _.extend({}, baseUV, {
 				top: [
                     new THREE.UV(x, y),
                     new THREE.UV(x, y + stepY),
@@ -233,7 +246,7 @@ var Solari = Backbone.View.extend({
 	                new THREE.UV(x, y + stepY),
 	                new THREE.UV(x, y + 2 * stepY)
                 ],
-			}, baseUV);
+			});
 			x += stepX;
 		});
 		
