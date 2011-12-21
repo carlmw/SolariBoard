@@ -6,6 +6,7 @@
 	<script src="lib/backbone.js"></script>
 	<script src="lib/Three.js"></script>
 	<script src="lib/stats.js"></script>
+	<script src="http://mob061.lan:8090/socket.io/socket.io.js"></script>
 	<script src="src/SolariTexture.js"></script>
 	<script src="src/SolariRow.js"></script>
 	<script src="src/SolariFlap.js"></script>
@@ -13,6 +14,7 @@
 	<script src="src/Solari.js"></script>
 	<script src="src/SolariPlugin.js"></script>
 	<script src="plugins/jenkins.js"></script>
+	<script src="plugins/lastfm.js"></script>
 	<script>
 	var consolePlugin;
 	(function(){
@@ -34,8 +36,10 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			var jenkinsPlugin = JenkinsPlugin;
-			board.registerPlugin(jenkinsPlugin);
+			// var jenkinsPlugin = JenkinsPlugin;
+			// board.registerPlugin(jenkinsPlugin);
+			var lastFmPlugin = LastFmPlugin;
+			board.registerPlugin(lastFmPlugin);
 			Board.start();
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
     }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);

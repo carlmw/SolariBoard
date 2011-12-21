@@ -9,8 +9,30 @@ Array.matrix = function(m, n, initial) {
     }
     return mat;
 };
+Array.init = function(m, initial) {
+    var i, a = [];
+    for (i = 0; i < m; i+= 1) {
+        a[i] = initial;
+    }
+    return a;
+}
 SolariScreen = _.extend({
     init: function(rows, columns){
+        this.rows = rows;
+        this.columns = columns;
         this.matrix = Array.matrix(rows, columns, ' ');
+    },
+    pushMessage: function(msg){
+        this.matrix.pop();
+        this.matrix.unshift(Array.init(this.columns, ' '));
+        for(i = 0; i < this.matrix[0].length; i++){
+            var c;
+            if (i < msg.length){
+                c = msg[i];
+            } else {
+                c = ' ';
+            }
+            this.matrix[0][i] = c;
+        }
     }
 }, Backbone.Events);

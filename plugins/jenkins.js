@@ -74,10 +74,7 @@ JenkinsPlugin = _.extend({
     },
     updateScreen: function(){
         this.scr.trigger('screenUpdated');
-    },
-    setScreen: function(scr){
-        this.scr = scr;
-    },
+    }
 },
 SolariPlugin
 );
