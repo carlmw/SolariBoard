@@ -32,7 +32,8 @@
 			localStorage.setItem('messages', JSON.stringify(output));
 		};
 	
-	var connect = function(){
+	var WebSocket = WebSocket||MozWebSocket,
+	    connect = function(){
 	    if(ws) ws.close();
 	    if(ws2) ws2.close();
 	    
