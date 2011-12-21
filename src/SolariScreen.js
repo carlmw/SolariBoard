@@ -25,10 +25,9 @@ SolariScreen = _.extend({
     pushMessage: function(msg){
         this.matrix.pop();
         this.matrix.unshift(Array.init(this.columns, ' '));
-        for(i = 0; i < this.matrix[0].length; i++){
+        for(i = 0; i < this.matrix[0].length - 1; i++){
             var c;
-            //The last flap is special so don't add to it.
-            if (i < msg.length - 1){
+            if (i < msg.length){
                 c = msg[i];
             } else {
                 c = ' ';
