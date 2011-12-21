@@ -188,6 +188,10 @@ var Solari = Backbone.View.extend({
 
 		targetWidth = _.reduce(targetRows[0], function(memo, flap){ return memo + flap.width }, 0);
 		
+		if(targetRows.length === 0){
+			return;
+		}
+		
 		// Now generate our UV's, this will be fun
 		var UV = [],
 			rowLength = targetRows[0].length,
@@ -233,23 +237,47 @@ var Solari = Backbone.View.extend({
 		canvas.width = targetWidth;
 		canvas.height = targetHeight;
 
-		ctx.fillStyle = "rgb(200,200,0)";  
-		ctx.fillRect (0, 0, targetWidth, targetHeight);
-		ctx.drawImage(img, left, top, w, h);
+		var bgImg = document.createElement('img'),
+			overlayImg = document.createElement('img');
 		
-		document.body.appendChild(canvas);
-		// Create a texture from the incoming image data
-		var map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, targetWidth, targetHeight).data), targetWidth, targetHeight),
-			texture = new THREE.MeshLambertMaterial({
-	            map: map
-	        });
+		bgImg.onload = function(){
+			overlayImg.src = 'img/flap-overlay.png';
+		};
+		
+		overlayImg.onload = function(){
+			var y = 0, x = 0;
+			_.each(targetFlaps, function(flap, i){
+				if(i > 0 && i % rowLength === 0){
+					y += flap.height * 2;
+					x = 0;
+				}
+				ctx.drawImage(bgImg, x, y, bgImg.width, bgImg.height);
+				x += flap.width;
+			});
+			ctx.drawImage(img, left, top, w, h);
+			y = 0, x = 0;
+			_.each(targetFlaps, function(flap, i){
+				if(i > 0 && i % rowLength === 0){
+					y += flap.height * 2;
+					x = 0;
+				}
+				ctx.drawImage(overlayImg, x, y, overlayImg.width, overlayImg.height);
+				x += flap.width;
+			});
+
+			// Create a texture from the incoming image data
+			var map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, targetWidth, targetHeight).data), targetWidth, targetHeight),
+				texture = new THREE.MeshLambertMaterial({
+		            map: map
+		        });
 	
-		map.needsUpdate = true;
+			map.needsUpdate = true;
 		
-		
-		// Pugify
-		_.each(targetFlaps, function(flap, i){
-			flap.repaint(texture, UV[i]);
-		});
+			// Pugify
+			_.each(targetFlaps, function(flap, i){
+				flap.repaint(texture, UV[i]);
+			});
+		};
+		bgImg.src = 'img/flap-bg.jpg';
 	}
 });
