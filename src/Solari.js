@@ -154,8 +154,8 @@ var Solari = Backbone.View.extend({
 		// and end paint.
 		var boardWidth = this.boardWidth,
 			boardHeight = this.boardHeight,
-			startLeft = Math.round((boardWidth - w) / 2),
-			startTop = Math.round((boardHeight - h) / 2),
+			startLeft = (boardWidth - w) / 2,
+			startTop = (boardHeight - h) / 2,
 			endLeft = startLeft + w,
 			endTop = startTop + h;
 		
@@ -164,28 +164,19 @@ var Solari = Backbone.View.extend({
 			targetRows = [],
 			targetWidth = 0,
 			targetHeight = 0;
-		
-		var drawReference = function(x, y, w, h){
-			var d = document.createElement('div');
-			d.style.border='1px solid red';
-			d.style.width = w + 'px';
-			d.style.height = h + 'px';
-			d.style.position = 'absolute';
-			d.style.zIndex = 1000;
-			d.style.top = y + 'px';
-			d.style.left = x + 'px';
-			document.body.appendChild(d);	
-		};
-		
-		drawReference(startLeft, startTop, boardWidth, boardHeight);
-		
+
 		_.each(this.rows, function(row){
 			var rowFlaps = _.filter(row.flaps, function(flap){
 				// Get the left and right of the flap relative to the board
 				var top = flap.relativeTop = Math.abs(flap.y),
 					left = flap.relativeLeft = (flap.x - (flap.width / 2));
 				
-				return top >= startLeft && left >= startLeft && (top + flap.width) < endTop && (left + flap.height) < endLeft;
+				return (
+					left > (startLeft - flap.width) &&
+					top > (startTop - (flap.height * 2)) &&
+					left < (endLeft) &&
+					top < (endTop)
+				);
 			});
 			
 			if(rowFlaps.length > 0){
@@ -194,9 +185,8 @@ var Solari = Backbone.View.extend({
 				targetRows.push(rowFlaps);
 			}
 		});
+
 		targetWidth = _.reduce(targetRows[0], function(memo, flap){ return memo + flap.width }, 0);
-		
-		console.log(targetWidth + ' ' + targetHeight);
 		
 		// Now generate our UV's, this will be fun
 		var UV = [],
@@ -239,6 +229,7 @@ var Solari = Backbone.View.extend({
 			ctx = canvas.getContext('2d'),
 			left = (targetWidth - w) / 2,
 			top = (targetHeight - h) / 2;
+			
 		canvas.width = targetWidth;
 		canvas.height = targetHeight;
 
