@@ -7,7 +7,6 @@ LastFmPlugin = _.extend({
         this.updateScreen();
         var self = this;
         this.socket.on('lastfm', function(track){
-            console.log(track);
             self.scr.pushMessage(track.track.toUpperCase());
             self.scr.pushMessage(track.artist.toUpperCase());
             self.updateScreen();
