@@ -16,7 +16,10 @@ Array.init = function(m, initial) {
     }
     return a;
 }
-SolariScreen = _.extend({
+SolariScreen = function() {
+}
+
+_.extend(SolariScreen.prototype, {
     init: function(rows, columns){
         this.rows = rows;
         this.columns = columns;

@@ -25,6 +25,7 @@ var Solari = Backbone.View.extend({
 	VIEW_ANGLE: 45,
 	NEAR: -2000,
 	FAR: 1000,
+    SCREEN_DISPLAY_SECS: 120,
  	initialize: function(){
         this.animate = false;
 		this.flaps = [];
@@ -140,7 +141,7 @@ var Solari = Backbone.View.extend({
 		return this;
 	},
     registerPlugin: function(plugin){
-        var scr = SolariScreen;
+        var scr = new SolariScreen;
         scr.init(this.rows.length, this.rows[0].flaps.length);
         scr.bind('screenUpdated', this.screenUpdated);
         this.screens.push(scr);
