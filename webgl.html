@@ -11,6 +11,7 @@
 	<script src="src/SolariFlap.js"></script>
 	<script src="src/Solari.js"></script>
 	<script src="src/PosterTexture.js"></script>
+	<script src="plugins/poster.js"></script>
 	<script>
 	(function(){
 	var board = window.Board = new Solari;
@@ -33,22 +34,9 @@
 			});
 
 			Board.start();
+			PosterPlugin('http://www.poeghostal.com/wp-content/uploads/2009/08/battlecatpainting0_full.jpg');
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
     }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 72, 63);
-
-	setTimeout(function(){
-		var img = document.createElement('img');
-		img.style.maxWidth = Board.boardWidth + 'px';
-		img.style.maxHeight = Board.boardHeight + 'px'; // Let the browser do the heavy lifting with the scaling and resampling
-		
-		document.body.appendChild(img);
-		img.onload = function(){
-			Board.setImage(Board, img.src, img.clientWidth, img.clientHeight); // this will become our texture
-			document.body.removeChild(img);
-		};
-		img.src= 'http://www.poeghostal.com/wp-content/uploads/2009/08/battlecatpainting0_full.jpg';
-		
-	}, 1000);
 
 	})();
 	</script>
