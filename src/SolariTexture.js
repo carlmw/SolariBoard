@@ -1,8 +1,5 @@
 var SolariTexture = function(src, chars, faceWidth, faceHeight){};
 SolariTexture.prototype = _.extend({
-	loaded: false,
-	chars: [],
-	faces: {},
 	load: function(src, chars, faceWidth, faceHeight){
 		this.chars = chars;
 		this.faceWidth = faceWidth;
