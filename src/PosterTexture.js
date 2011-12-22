@@ -14,10 +14,10 @@ var PosterTexture = function(board, src, w, h){
 	this.img.onload = _.bind(this.onload, this);
 	this.img.src = src;
 };
-PosterTexture.prototype = {
+PosterTexture.prototype = _.extend({
 	tileSrc: 'img/flap-bg.jpg',
 	overlayTileSrc: 'img/flap-overlay.png',
-	collectTargetFlaps: function(bounds){
+	collectTargets: function(bounds){
 		var target = {
 			flaps: [],
 			rows: [],
@@ -25,31 +25,38 @@ PosterTexture.prototype = {
 			height: 0
 		};
 		
-		_.each(this.board.rows, function(row){
-			var rowFlaps = _.filter(row.flaps, function(flap){
-				// Get the left and right of the flap relative to the board
-				var top = flap.relativeTop = Math.abs(flap.y),
-					left = flap.relativeLeft = (flap.x - (flap.width / 2));
+		target.rows = this.collectTargetRows(bounds);
+		target.flaps = _.reduceRight(target.rows, function(row, memo){ return memo.concat(row); }, []);
 
-				return (
-					left > (bounds.left - flap.width) &&
-					top > (bounds.top - (flap.height * 2)) &&
-					left < (bounds.right) &&
-					top < (bounds.bottom)
-				);
-			}, this);
+		if(target.rows.length === 0) return target;
+		
+		target.width = _.reduce(target.rows[0], function(memo, flap){ return memo + flap.width }, 0);
+		target.height = (target.flaps[0].height * 2) * target.rows.length;
 
-			if(rowFlaps.length > 0){
-				target.height += (rowFlaps[0].height * 2);
-				target.flaps = target.flaps.concat(rowFlaps);
-				target.rows.push(rowFlaps);
-			}
-		}, this);
-		
-		// Get the row width of the first row
-		if(target.rows.length > 0) target.width = _.reduce(target.rows[0], function(memo, flap){ return memo + flap.width }, 0);
-		
 		return target;
+	},
+	collectTargetFlaps: function(flaps, bounds){
+		 return _.filter(flaps, function(flap){ return this.testFlapBounds(flap, bounds); }, this);
+	},
+	collectTargetRows: function(bounds){
+		return _.filter(
+			_.map(this.board.rows, function(row){ return this.collectTargetFlaps(row.flaps, bounds); }, this),
+			function(row){
+				return row.length > 0
+			}
+		);
+	},
+	testFlapBounds: function(flap, bounds){
+		// Get the left and right of the flap relative to the board
+		var top = flap.relativeTop = Math.abs(flap.y),
+			left = flap.relativeLeft = (flap.x - (flap.width / 2));
+
+		return (
+			left > (bounds.left - flap.width) &&
+			top > (bounds.top - (flap.height * 2)) &&
+			left < (bounds.right) &&
+			top < (bounds.bottom)
+		);
 	},
 	generateUVs: function(target){
 		// Now generate our UV's, this will be fun
@@ -165,11 +172,13 @@ PosterTexture.prototype = {
 			map.needsUpdate = true;
 
 			callback(texture);
+			
+			this.trigger('load');
 		}, this);
 		bgImg.src = this.tileSrc;
 	},
 	onload: function(){
-		var target = this.collectTargetFlaps(this.bounds);
+		var target = this.collectTargets(this.bounds);
 		
 		if(target.rows.length === 0) return; // Nothing more to do
 
@@ -181,4 +190,4 @@ PosterTexture.prototype = {
 			});
 		}, this));
 	}
-};
+}, Backbone.Events);
