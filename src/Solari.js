@@ -23,9 +23,9 @@ window.requestAnimFrame = (function(callback){
 
 var Solari = Backbone.View.extend({
 	VIEW_ANGLE: 45,
-	NEAR: -2000,
-	FAR: 1000,
     SCREEN_DISPLAY_SECS: 120,
+	NEAR: 1,
+	FAR: 10000,
  	initialize: function(){
         this.animate = false;
 		this.flaps = [];
@@ -37,11 +37,10 @@ var Solari = Backbone.View.extend({
 		this.aspect = this.width / this.height;
 		this.renderer = new THREE.WebGLRenderer;
         this.renderer.sortObjects = false;
-		this.camera = new THREE.OrthographicCamera(
-			window.innerWidth / - 2,
-			window.innerWidth / 2,
-			window.innerHeight / 2,
-			window.innerHeight / - 2,
+
+		this.camera = new THREE.PerspectiveCamera(
+            20.0,
+            window.innerWidth / innerHeight,
 			this.NEAR,
 			this.FAR
 		);
@@ -50,14 +49,18 @@ var Solari = Backbone.View.extend({
 		this.renderer.setSize(this.width, this.height);
 
 		this.pointLight = new THREE.PointLight(0xFFFFFF);
+        this.ambientLight = new THREE.AmbientLight(0x333333);
 
-		this.pointLight.position.x = window.innerWidth / 2;
-		this.pointLight.position.y = -200;
-		this.pointLight.position.z = 600;
+		this.pointLight.position.x = 1000;
+		this.pointLight.position.y = -800;
+		this.pointLight.position.z = 300;
+
 		this.scene.add(this.pointLight);
+		this.scene.add(this.ambientLight);
 
 		// Pull the camera back
-		this.camera.position.z = 0;
+		this.camera.position.z = 3200;
+        this.camera.lookAt(new THREE.Vector3((0,0,0)));
 
 		this.el = this.renderer.domElement;
 
@@ -113,7 +116,6 @@ var Solari = Backbone.View.extend({
             var timeDiff = time - lastTime;
             lastTime = time;
             // render
-
             self.anim = ! self.update(timeDiff);
             self.stats.update();
             self.render();

@@ -1,5 +1,5 @@
 var DEG2RAD =  Math.PI / 180,
-    SPEED = 900.0;
+    SPEED = 1100.0;
 
 var SolariFlap = Backbone.View.extend({
     MAX_X: 180 * DEG2RAD,
@@ -33,10 +33,10 @@ var SolariFlap = Backbone.View.extend({
 
         bottom.position = new THREE.Vector3(x, y, 0);
         top.position = new THREE.Vector3(x, y + flapHeight, 0);
-        flap.position = new THREE.Vector3(0.5, flapHeight/2, 1);
+        flap.position = new THREE.Vector3(0, flapHeight/2, 0);
 
         this.flapWrapper = new THREE.Object3D;
-        this.flapWrapper.position = new THREE.Vector3(x, y + flapHeight/2, 1);
+        this.flapWrapper.position = new THREE.Vector3(x, y + flapHeight/2, 2);
         this.flapWrapper.add(flap);
 
         this.objToRender = [top, bottom, this.flapWrapper];
