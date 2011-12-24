@@ -1,4 +1,4 @@
-JenkinsPlugin = _.extend({}, SolariPlugin, {
+JenkinsPlugin = _.extend({
     repos: {
         'fidodevelopment': 'FIDODEV',
         'fidotesting': 'FIDOTEST',
@@ -75,5 +75,6 @@ JenkinsPlugin = _.extend({}, SolariPlugin, {
     updateScreen: function(){
         this.scr.trigger('screenUpdated');
     }
-}
+},
+SolariPlugin
 );
