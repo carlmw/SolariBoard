@@ -1,6 +1,7 @@
 var LastFmNode = require('lastfm').LastFmNode;
 var http = require('http');
 var io = require('socket.io').listen(8090);
+var config = require('./lastfm.config.js');
 
 var sockets = [];
 
@@ -9,8 +10,8 @@ io.sockets.on('connection', function(socket){
 });
 
 var lastfm = new LastFmNode({
-    api_key: process.env.LAST_FM_API_KEY,
-    secret: process.env.LAST_FM_SECRET
+    api_key: process.env.LAST_FM_API_KEY || config.api_key,
+    secret: process.env.LAST_FM_SECRET || config.secret
 });
 
 var users = ['kevbear', 'carl359'],
