@@ -15,6 +15,7 @@
 	<script src="src/SolariPlugin.js"></script>
 	<script src="plugins/jenkins.js"></script>
 	<script src="plugins/lastfm.js"></script>
+	<script src="plugins/time.js"></script>
 	<script>
 	var consolePlugin;
 	(function(){
@@ -38,8 +39,10 @@
 			});
 			// var jenkinsPlugin = JenkinsPlugin;
 			// board.registerPlugin(jenkinsPlugin);
-			var lastFmPlugin = LastFmPlugin;
-			board.registerPlugin(lastFmPlugin);
+			// var lastFmPlugin = LastFmPlugin;
+			// board.registerPlugin(lastFmPlugin);
+			var timePlugin = TimePlugin;
+			board.registerPlugin(timePlugin);
 			Board.start();
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
     }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
