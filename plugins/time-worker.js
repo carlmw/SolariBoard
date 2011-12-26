@@ -2,10 +2,9 @@ var now = new Date(),
     time = {
         hour: now.getHours(),
         minutes: now.getMinutes()
-    },
-    newTime = time;
+    };
 self.postMessage(time);
-while(true){
+setInterval(function(){
     now = new Date(),
     newTime = {
         hour: now.getHours(),
@@ -15,4 +14,4 @@ while(true){
         time = newTime;
         self.postMessage(time);
     }
-}
+}, 500);
