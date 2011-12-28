@@ -6,7 +6,7 @@
 	<script src="lib/backbone.js"></script>
 	<script src="lib/Three.js"></script>
 	<script src="lib/stats.js"></script>
-	<script src="http://mob061.lan:8090/socket.io/socket.io.js"></script>
+	<script src="http://10.101.13.30:8090/socket.io/socket.io.js"></script>
 	<script src="src/SolariTexture.js"></script>
 	<script src="src/SolariRow.js"></script>
 	<script src="src/SolariFlap.js"></script>
@@ -39,8 +39,8 @@
 			});
 			// var jenkinsPlugin = JenkinsPlugin;
 			// board.registerPlugin(jenkinsPlugin);
-			// var lastFmPlugin = LastFmPlugin;
-			// board.registerPlugin(lastFmPlugin);
+			var lastFmPlugin = LastFmPlugin;
+			board.registerPlugin(lastFmPlugin);
 			var timePlugin = TimePlugin;
 			board.registerPlugin(timePlugin);
 			Board.start();

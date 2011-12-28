@@ -31,6 +31,7 @@ var Solari = Backbone.View.extend({
 		this.flaps = [];
 		this.rows = [];
         this.screens = [];
+        this.currentScreenNum = 0;
 		this.y = 0;
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
@@ -134,6 +135,15 @@ var Solari = Backbone.View.extend({
         }
         animate(lastTime);
 
+        setInterval(function(){
+            if (self.currentScreenNum == (self.screens.length - 1)){
+                self.currentScreenNum = 0;
+            } else {
+                self.currentScreenNum++;
+            }
+            self.screenUpdated();
+        }, 1000 * 30);
+
 		this.trigger('start');
 	},
 	setMessage: function(msg){
@@ -151,7 +161,7 @@ var Solari = Backbone.View.extend({
         this.bind('start', plugin.start);
     },
     screenUpdated: function(){
-        var scr = this.screens[0],
+        var scr = this.screens[this.currentScreenNum],
             matrix = scr.matrix;
         _.each(this.rows, function(row, i){
             matrix_row = matrix[i].join('');
