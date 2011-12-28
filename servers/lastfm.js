@@ -10,11 +10,11 @@ io.sockets.on('connection', function(socket){
 });
 
 var lastfm = new LastFmNode({
-    api_key: process.env.LAST_FM_API_KEY || config.api_key,
-    secret: process.env.LAST_FM_SECRET || config.secret
+    api_key: config.api_key,
+    secret: config.secret
 });
 
-var users = ['kevbear', 'carl359'],
+var users = config.users,
     streams = [];
 
 for (i = 0; i < users.length; i++) {
