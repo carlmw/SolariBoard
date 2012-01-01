@@ -25,7 +25,7 @@
 	    connect = function(){
 	    if(ws) ws.close();
 	    
-	    ws = new WebSocket('ws://' + HOST + '/jenkins'),
+	    ws = new WebSocket('ws://' + WSHOST + '/jenkins'),
     	    
         ws.onmessage = function(msg) {
     		var data = JSON.parse(msg.data);
