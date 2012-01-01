@@ -68,6 +68,7 @@ var SolariFlap = Backbone.View.extend({
         this.wedged = this.currentChar == this.i;
         return this;
     },
+	
     next: function(){
         this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
         var next = (this.i+1>this.textureSet.max) ? 0 : this.i + 1;
@@ -94,12 +95,6 @@ var SolariFlap = Backbone.View.extend({
         return false;
     },
 	repaint: function(material, uv){
-		// console.log(material)
-		// this.top_g.faces[0].materials[0] = material;
-		// this.top_g.map = material.map;
-		// this.bottom_g.faces[0].materials[0].map = material;
-		// this.flap_g.faces[0].materials[0].map = material;
-		// this.wedged = true;
 		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material
         this.top_g.faceVertexUvs[0][0] = uv.top;//
         this.bottom_g.faceVertexUvs[0][0] = uv.prevBottom; //
@@ -107,6 +102,5 @@ var SolariFlap = Backbone.View.extend({
         this.flap_g.faceVertexUvs[0][5] = uv.bottom;
         this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
 		this.pugified = true;
-		// this.wedged = true;
 	}
 });

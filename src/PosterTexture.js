@@ -80,7 +80,7 @@ var PosterTexture = (function(){
 		},
 		generateUVs: function(target){
 			// Now generate our UV's, this will be fun
-			var UV = {flaps:[]},
+			var UV = {},
 				rowLength = target.rows[0].length,
 				x = 0,
 				y = 0,
@@ -88,7 +88,7 @@ var PosterTexture = (function(){
 				stepX = 1.0 / rowLength,
 				stepY = 1.0 / (ydiv + 2); // The +1 is the additional row we'll need for the front of the previous flap
 
-			UV.base = { // We'll extend this and use the base when we're exiting the poster returning to the default texture set
+			var baseUV = { // We'll extend this and use the base when we're exiting the poster returning to the default texture set
 			    prevTop: [
 		            new THREE.UV(0, stepY * ydiv),
 		            new THREE.UV(0, stepY * (ydiv + 1)),
@@ -120,7 +120,7 @@ var PosterTexture = (function(){
 					x = 0;
 					y += (stepY * 2);
 				}
-				UV.flaps[i] = _.extend({}, UV.base, {
+				UV[flap.cid] = _.extend({}, baseUV, {
 					top: [
 		                new THREE.UV(x, y),
 		                new THREE.UV(x, y + stepY),
@@ -191,11 +191,11 @@ var PosterTexture = (function(){
 		
 			if(target.rows.length === 0) return; // Nothing more to do
 
-			var UV = this.generateUVs(target);
+			var UV = this.UV = this.generateUVs(target);
 		
 			this.generatePosterMaterial(target, _.bind(function(texture){
-				_.each(target.flaps, function(flap, i){
-					flap.repaint(texture, UV.flaps[i]);
+				_.each(target.flaps, function(flap){
+					flap.repaint(texture, UV[flap.cid]);
 				});
 			}, this));
 		}
