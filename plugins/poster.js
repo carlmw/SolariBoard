@@ -5,7 +5,13 @@ var PosterPlugin = function(src){
 
 	document.body.appendChild(img);
 	img.onload = function(){
-		Board.setImage(Board, img.src, img.clientWidth, img.clientHeight); // this will become our texture
+		var texture = new PosterTexture(Board, img.src, img.clientWidth, img.clientHeight).
+			bind('load', function(){
+				_.invoke(this.target.flaps, 'bind', 'cycleend', function(){
+					this.paint(texture.spriteMaterial, texture.UV[this.cid]);
+				});
+			});
+
 		document.body.removeChild(img);
 	};
 	img.src = src;

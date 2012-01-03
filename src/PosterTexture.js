@@ -33,7 +33,7 @@ var PosterTexture = (function(){
 		this.img.onload = _.bind(this.onload, this);
 		this.img.src = src;
 	};
-	PosterTexture.prototype = _.extend({
+	PosterTexture.prototype = _.extend({}, Backbone.Events, {
 		tileSrc: 'img/flap-bg.jpg',
 		overlayTileSrc: 'img/flap-overlay.png',
 		collectTargets: function(){
@@ -175,31 +175,25 @@ var PosterTexture = (function(){
 				x += w;
 			});
 		},
-		generatePosterMaterial: function(target, callback){
+		generatePosterMaterial: function(target){
 			this.generateCompositeDataTexture(target, _.bind(function(map){
 				this.spriteMaterial = new THREE.MeshLambertMaterial({
 		            map: map
 		        });
 
-				callback(this.spriteMaterial);
-			
 				this.trigger('load');
 			}, this));
 		},
 		onload: function(){
-			var target = this.collectTargets();
+			var target = this.target = this.collectTargets();
 		
 			if(target.rows.length === 0) return; // Nothing more to do
 
 			var UV = this.UV = this.generateUVs(target);
 		
-			this.generatePosterMaterial(target, _.bind(function(texture){
-				_.each(target.flaps, function(flap){
-					flap.repaint(texture, UV[flap.cid]);
-				});
-			}, this));
+			this.generatePosterMaterial(target);
 		}
-	}, Backbone.Events);
+	});
 	
 	return PosterTexture;
 })();
