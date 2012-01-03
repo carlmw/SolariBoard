@@ -148,8 +148,5 @@ var Solari = Backbone.View.extend({
         if (!this.anim) this.start();
 
 		return this;
-	},
-	setImage: function(board, img, w, h){
-		new PosterTexture(board, img, w, h);
 	}
 });

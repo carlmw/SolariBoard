@@ -3,7 +3,6 @@ var DEG2RAD =  Math.PI / 180,
 
 var SolariFlap = Backbone.View.extend({
     MAX_X: 180 * DEG2RAD,
-
     initialize: function(textureSet, x, y){
         var flapWidth = textureSet.faceWidth,
             flapHeight = textureSet.faceHeight,
@@ -55,30 +54,29 @@ var SolariFlap = Backbone.View.extend({
         /* Setting up the coming character. */
         var current = this.textureSet.UV[from],
             next = this.textureSet.UV[to];
-
-        this.top_g.faceVertexUvs[0][0] = next.top;
-        this.bottom_g.faceVertexUvs[0][0] = current.bottom;
-        this.flap_g.faceVertexUvs[0][4] = current.top;
-        this.flap_g.faceVertexUvs[0][5] = next.back;
-
-        this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
+		
+		this.paint(this.textureSet.spriteMaterial, {
+			top: next.top,
+			prevBottom: current.bottom,
+	        prevTop: current.top,
+	        back: next.back
+		});
     },
     setChar: function(ch){
         var i = this.textureSet.chars.indexOf(ch);
         this.currentChar = i != -1 ? i : this.textureSet.max;
         this.wedged = this.currentChar == this.i;
+
         return this;
     },
     next: function(){
         this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-        var next = (this.i+1>this.textureSet.max) ? 0 : this.i + 1;
-        this.setUpTextures(this.i, next);
 
-        if(this.currentChar === this.i){
-            this.wedged = true;
-        }else{
-            this.wedged = false;
-        }
+    	var next = (this.i + 1 > this.textureSet.max) ? 0 : this.i + 1;
+    	
+		this.setUpTextures(this.i, next);
+
+        this.wedged = this.currentChar === this.i;
     },
     update: function(diff) {
         var x = this.flapWrapper.rotation.x;
@@ -87,20 +85,24 @@ var SolariFlap = Backbone.View.extend({
         x += diff * this.SPEED;
 
         this.flapWrapper.rotation.x = x;
-        if (x > this.MAX_X) {
+		
+        if(x > this.MAX_X){
             this.flapWrapper.rotation.x = 0;
-            if(!this.pugified) this.next();
-            if (this.wedged && (Math.random()>0.995)) { this.next(); this.wedged=false; }
+            this.next();
+			
+            if(this.wedged && (Math.random() > 0.995)){
+				this.next();
+				this.wedged = false;
+			}
         }
         return false;
     },
-	repaint: function(material, uv){
-		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material
-        this.top_g.faceVertexUvs[0][0] = uv.top;//
-        this.bottom_g.faceVertexUvs[0][0] = uv.prevBottom; //
-        this.flap_g.faceVertexUvs[0][4] = uv.prevTop; //
-        this.flap_g.faceVertexUvs[0][5] = uv.bottom;
+	paint: function(material, uv){
+		this.top.materials[0] = this.bottom.materials[0] = this.flap.materials[0] = material;
+        this.top_g.faceVertexUvs[0][0] = uv.top;
+        this.bottom_g.faceVertexUvs[0][0] = uv.prevBottom;
+        this.flap_g.faceVertexUvs[0][4] = uv.prevTop;
+        this.flap_g.faceVertexUvs[0][5] = uv.back;
         this.top_g.__dirtyUvs = this.bottom_g.__dirtyUvs = this.flap_g.__dirtyUvs = true;
-		this.pugified = true;
 	}
 });
