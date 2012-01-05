@@ -174,7 +174,8 @@ var PosterTexture = (function(){
 				this.spriteMaterial = new THREE.MeshLambertMaterial({
 		            map: map
 		        });
-
+				this.img.parentNode.removeChild(this.img);
+				this.img = null;
 				this.trigger('load');
 			}, this));
 		},
