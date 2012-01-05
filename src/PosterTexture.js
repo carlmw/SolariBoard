@@ -17,10 +17,11 @@ var PosterTexture = (function(){
 			});
 		}, this);
 	},
-	PosterTexture = function(src, targetWidth, targetHeight, rows){
+	PosterTexture = function(src, rows){
 		this.max = 0;
-		this.targetWidth = targetWidth;
-		this.targetHeight = targetHeight;
+		this.maxTargetWidth = _.reduce(rows[0].flaps, function(memo, flap){ return memo + flap.width }, 0);
+		this.maxTargetHeight = (rows[0].flaps[0].height * 2) * rows.length;
+
 		this.rows = rows;
 		this.img = document.createElement('img');
 		document.body.appendChild(this.img);
@@ -152,7 +153,7 @@ var PosterTexture = (function(){
 				this.tileImage(ctx, overlayImg, target.rows.length + 1, target.rows[0].length, target.flaps[0].width, target.flaps[0].height * 2);
 
 				// Create a data texture from the image data
-				var map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, target.width, target.height).data), target.width, target.height);
+				var map = this.map = new THREE.DataTexture(new Uint8Array(ctx.getImageData(0, 0, target.width, target.height).data), target.width, target.height);
 				map.needsUpdate = true;
 			
 				return callback(map);
@@ -176,21 +177,23 @@ var PosterTexture = (function(){
 		        });
 				this.img.parentNode.removeChild(this.img);
 				this.img = null;
+				
+				this.loadHandler();
 				this.trigger('load');
 			}, this));
 		},
 		onload: function(){
-			this.img.style.maxWidth = this.targetWidth + 'px';
-			this.img.style.maxHeight = this.targetHeight + 'px';
+			this.img.style.maxWidth = this.maxTargetWidth + 'px';
+			this.img.style.maxHeight = this.maxTargetHeight + 'px';
 			
 			this.w = this.img.clientWidth;
 			this.h = this.img.clientHeight;
 			
 			this.bounds = { // the coords from which to start and end painting.
-				left: (this.targetWidth - this.w) / 2,
-				top: (this.targetHeight - this.h) / 2,
-			 	right: (this.targetWidth - this.w) / 2 + this.w,
-			 	bottom: (this.targetHeight - this.h) / 2 + this.h
+				left: (this.maxTargetWidth - this.w) / 2,
+				top: (this.maxTargetHeight - this.h) / 2,
+			 	right: (this.maxTargetWidth - this.w) / 2 + this.w,
+			 	bottom: (this.maxTargetHeight - this.h) / 2 + this.h
 			};
 			
 			var target = this.target = this.collectTargets(this.rows);
@@ -199,6 +202,34 @@ var PosterTexture = (function(){
 			var UV = this.UV = this.generateUVs(target);
 		
 			this.generatePosterMaterial(target);
+		},
+		loadHandler: function(){
+			var self = this,
+				l = this.target.flaps.length,
+				i = 0,
+				deallocateHandler = function(){
+					if(i === l) self.deallocate(Board.renderer); // @todo remove evil reference to Board
+					i++;
+				},
+				cycleHandler = function(){
+					this.paint(self.spriteMaterial, self.UV[this.cid]);
+					var animationHandler = function(){
+						this.flapWrapper.rotation.x = Math.PI;
+						this.i = 0;
+						this.wedged = true;
+						this.unbind('animationend', animationHandler);
+						
+						this.bind('animationend', deallocateHandler); // Tidy up when all of the target flaps have been updated
+					};
+					this.bind('animationend', animationHandler);
+					this.unbind('cycleend', cycleHandler);
+				};
+			_.invoke(this.target.flaps, 'bind', 'cycleend', cycleHandler);
+		},
+		deallocate: function(renderer){
+			renderer.deallocateTexture(this.map);
+			this.map = null;
+			renderer.deallocateObject(this.spriteMaterial);
 		}
 	});
 	
