@@ -1,8 +1,8 @@
 var DEG2RAD =  Math.PI / 180,
-    SPEED = 1100.0;
+    SPEED = 1400.0;
 
 var SolariFlap = Backbone.View.extend({
-    MAX_X: 180 * DEG2RAD,
+    MAX_X: Math.PI,
     initialize: function(textureSet, x, y){
         var flapWidth = textureSet.faceWidth,
             flapHeight = textureSet.faceHeight,
@@ -66,17 +66,20 @@ var SolariFlap = Backbone.View.extend({
         var i = this.textureSet.chars.indexOf(ch);
         this.currentChar = i != -1 ? i : this.textureSet.max;
         this.wedged = this.currentChar == this.i;
-
+		this.painted = false;
+		
         return this;
     },
-    next: function(){
+    next: function(){		
         this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-
+		
     	var next = (this.i + 1 > this.textureSet.max) ? 0 : this.i + 1;
     	
-		this.setUpTextures(this.i, next);
+		if(!this.wedged) this.setUpTextures(this.i, next);
 
-        this.wedged = this.currentChar === this.i;
+        this.wedged = this.currentChar === this.i || this.wedged;
+
+		if(this.i == this.textureSet.max) this.trigger('cycleend');
     },
     update: function(diff) {
         var x = this.flapWrapper.rotation.x;
@@ -86,7 +89,10 @@ var SolariFlap = Backbone.View.extend({
 
         this.flapWrapper.rotation.x = x;
 		
-        if(x > this.MAX_X){
+        if(x > this.MAX_X){			
+			this.trigger('animationend');
+			if(this.wedged) return;
+
             this.flapWrapper.rotation.x = 0;
             this.next();
 			

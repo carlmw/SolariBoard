@@ -51,7 +51,8 @@ SolariTexture.prototype = _.extend({
                     new THREE.UV( x + stepX, y + stepY ),
                     new THREE.UV( x, y + stepY),
                     new THREE.UV( x, y + 2*stepY)
-            ]};
+            	]
+			};
             x += stepX;
         });
         return UV;

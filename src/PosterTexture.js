@@ -17,19 +17,13 @@ var PosterTexture = (function(){
 			});
 		}, this);
 	},
-	PosterTexture = function(board, src, w, h){
+	PosterTexture = function(src, targetWidth, targetHeight, rows){
 		this.max = 0;
-		this.board = board;
-		this.w = w;
-		this.h = h;
-		this.bounds = { // the coords from which to start and end painting.
-			left: (board.boardWidth - w) / 2,
-			top: (board.boardHeight - h) / 2,
-		 	right: (board.boardWidth - w) / 2 + w,
-		 	bottom: (board.boardHeight - h) / 2 + h
-		};
-
-		this.img = new Image;
+		this.targetWidth = targetWidth;
+		this.targetHeight = targetHeight;
+		this.rows = rows;
+		this.img = document.createElement('img');
+		document.body.appendChild(this.img);
 		this.img.onload = _.bind(this.onload, this);
 		this.img.src = src;
 	};
@@ -45,7 +39,7 @@ var PosterTexture = (function(){
 					height: 0
 				};
 		
-			target.rows = this.collectTargetRows(bounds);
+			target.rows = this.collectTargetRows(this.rows, bounds);
 			target.flaps = _.reduceRight(target.rows, function(row, memo){ return memo.concat(row); }, []);
 
 			if(target.rows.length === 0) return target;
@@ -58,9 +52,9 @@ var PosterTexture = (function(){
 		collectTargetFlaps: function(flaps, bounds){
 			 return _.filter(flaps, function(flap){ return this.testFlapBounds(flap, bounds); }, this);
 		},
-		collectTargetRows: function(bounds){
+		collectTargetRows: function(rows, bounds){
 			return _.filter(
-				_.map(this.board.rows, function(row){ return this.collectTargetFlaps(row.flaps, bounds); }, this),
+				_.map(rows, function(row){ return this.collectTargetFlaps(row.flaps, bounds); }, this),
 				function(row){
 					return row.length > 0
 				}
@@ -127,7 +121,7 @@ var PosterTexture = (function(){
 		                new THREE.UV(x + stepX, y + stepY),
 		                new THREE.UV(x + stepX, y)
 		            ],
-		            bottom: [
+		            back: [
 		                new THREE.UV(x + stepX, y + 2 * stepY),
 		                new THREE.UV(x + stepX, y + stepY),
 		                new THREE.UV(x, y + stepY),
@@ -185,8 +179,20 @@ var PosterTexture = (function(){
 			}, this));
 		},
 		onload: function(){
-			var target = this.target = this.collectTargets();
-		
+			this.img.style.maxWidth = this.targetWidth + 'px';
+			this.img.style.maxHeight = this.targetHeight + 'px';
+			
+			this.w = this.img.clientWidth;
+			this.h = this.img.clientHeight;
+			
+			this.bounds = { // the coords from which to start and end painting.
+				left: (this.targetWidth - this.w) / 2,
+				top: (this.targetHeight - this.h) / 2,
+			 	right: (this.targetWidth - this.w) / 2 + this.w,
+			 	bottom: (this.targetHeight - this.h) / 2 + this.h
+			};
+			
+			var target = this.target = this.collectTargets(this.rows);
 			if(target.rows.length === 0) return; // Nothing more to do
 
 			var UV = this.UV = this.generateUVs(target);
