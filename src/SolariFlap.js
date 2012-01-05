@@ -66,7 +66,6 @@ var SolariFlap = Backbone.View.extend({
         var i = this.textureSet.chars.indexOf(ch);
         this.currentChar = i != -1 ? i : this.textureSet.max;
         this.wedged = this.currentChar == this.i;
-		this.painted = false;
 		
         return this;
     },
@@ -91,7 +90,7 @@ var SolariFlap = Backbone.View.extend({
 		
         if(x > this.MAX_X){			
 			this.trigger('animationend');
-			if(this.wedged) return;
+			if(this.wedged) return true;
 
             this.flapWrapper.rotation.x = 0;
             this.next();
