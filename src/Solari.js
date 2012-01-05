@@ -23,12 +23,15 @@ window.requestAnimFrame = (function(callback){
 
 var Solari = Backbone.View.extend({
 	VIEW_ANGLE: 45,
+    SCREEN_DISPLAY_SECS: 120,
 	NEAR: 1,
 	FAR: 10000,
  	initialize: function(){
         this.animate = false;
 		this.flaps = [];
 		this.rows = [];
+        this.screens = [];
+        this.currentScreenNum = 0;
 		this.y = 0;
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
@@ -63,6 +66,8 @@ var Solari = Backbone.View.extend({
         this.camera.lookAt(new THREE.Vector3((0,0,0)));
 
 		this.el = this.renderer.domElement;
+
+        _.bindAll(this, 'screenUpdated');
 	},
 	render: function(){
 		this.renderer.render(this.scene, this.camera);
@@ -138,6 +143,15 @@ var Solari = Backbone.View.extend({
         }
         animate(lastTime);
 
+        setInterval(function(){
+            if (self.currentScreenNum == (self.screens.length - 1)){
+                self.currentScreenNum = 0;
+            } else {
+                self.currentScreenNum++;
+            }
+            self.screenUpdated();
+        }, 1000 * 30);
+
 		this.trigger('start');
 	},
 	setMessage: function(msg){
@@ -148,5 +162,21 @@ var Solari = Backbone.View.extend({
         if (!this.anim) this.start();
 
 		return this;
-	}
+	},
+    registerPlugin: function(plugin){
+        var scr = new SolariScreen;
+        scr.init(this.rows.length, this.rows[0].flaps.length);
+        scr.bind('screenUpdated', this.screenUpdated);
+        this.screens.push(scr);
+        plugin.init(scr);
+        this.bind('start', plugin.start);
+    },
+    screenUpdated: function(){
+        var scr = this.screens[this.currentScreenNum],
+            matrix = scr.matrix;
+        _.each(this.rows, function(row, i){
+            matrix_row = matrix[i].join('');
+            row.setChars(matrix_row);
+        });
+    }
 });

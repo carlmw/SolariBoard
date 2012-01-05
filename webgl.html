@@ -9,10 +9,14 @@
 	<script src="src/SolariTexture.js"></script>
 	<script src="src/SolariRow.js"></script>
 	<script src="src/SolariFlap.js"></script>
+	<script src="src/SolariScreen.js"></script>
 	<script src="src/Solari.js"></script>
-	<script src="src/PosterTexture.js"></script>
-	<script src="plugins/poster.js"></script>
+	<script src="src/SolariPlugin.js"></script>
+	<script src="plugins/jenkins.js"></script>
+	<script src="plugins/lastfm.js"></script>
+	<script src="plugins/time.js"></script>
 	<script>
+	var consolePlugin;
 	(function(){
 	var board = window.Board = new Solari;
 	new SolariTexture().bind('load', function(){
@@ -23,20 +27,24 @@
 
 			$('#container').append(board.el);
 
-			_(8).times(function(){
+			_(10).times(function(){
 				row = new SolariRow(board.y);
 
 				_(20).times(function(){
 					row.add(alphaSet);
 				});
-				// row.add(statusSet);
+				row.add(statusSet);
 				board.add(row);
 			});
-
+			// var jenkinsPlugin = JenkinsPlugin;
+			// board.registerPlugin(jenkinsPlugin);
+			// var lastFmPlugin = LastFmPlugin;
+			// board.registerPlugin(lastFmPlugin);
+			var timePlugin = TimePlugin;
+			board.registerPlugin(timePlugin);
 			Board.start();
-			PosterPlugin('http://www.poeghostal.com/wp-content/uploads/2009/08/battlecatpainting0_full.jpg');
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
-    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 72, 63);
+    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
 
 	})();
 	</script>
