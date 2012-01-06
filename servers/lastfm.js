@@ -27,7 +27,8 @@ for (i = 0; i < users.length; i++) {
                     {
                         username: username,
                         track: track.name,
-                        artist: track.artist['#text']
+                        artist: track.artist['#text'],
+                        image: track.image[3]['#text']
                     }
                 )
             }
