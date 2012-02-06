@@ -36,7 +36,7 @@ var Solari = Backbone.View.extend({
 		this.width = window.innerWidth;
 		this.height = window.innerHeight;
 		this.aspect = this.width / this.height;
-		this.renderer = new THREE.WebGLRenderer;
+		this.renderer = new THREE.WebGLRenderer();
         this.renderer.sortObjects = false;
 
 		this.camera = new THREE.PerspectiveCamera(
@@ -45,7 +45,7 @@ var Solari = Backbone.View.extend({
 			this.NEAR,
 			this.FAR
 		);
-		this.scene = new THREE.Scene;
+		this.scene = new THREE.Scene();
 
 		this.renderer.setSize(this.width, this.height);
 
@@ -122,14 +122,14 @@ var Solari = Backbone.View.extend({
             self.render();
 
             // request new frame
-            if (self.anim) { 
+            if (self.anim) {
                 requestAnimFrame(function(){
                 animate(lastTime);
-                }); 
+                });
             } else {
                 setTimeout(function() {
                     animate((new Date().getTime()));
-                }, 2000)
+                }, 2000);
             }
 
         }
@@ -142,7 +142,7 @@ var Solari = Backbone.View.extend({
                 self.currentScreenNum++;
             }
             self.screenUpdated();
-        }, 1000 * 30);
+        }, 1000 * 60 * 5);
 
 		this.trigger('start');
 	},
@@ -153,7 +153,7 @@ var Solari = Backbone.View.extend({
 		return this;
 	},
     registerPlugin: function(plugin){
-        var scr = new SolariScreen;
+        var scr = new SolariScreen();
         scr.init(this.rows.length, this.rows[0].flaps.length);
         scr.bind('screenUpdated', this.screenUpdated);
         this.screens.push(scr);

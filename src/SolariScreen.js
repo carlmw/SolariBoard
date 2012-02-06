@@ -15,9 +15,10 @@ Array.init = function(m, initial) {
         a[i] = initial;
     }
     return a;
-}
+};
+
 SolariScreen = function() {
-}
+};
 
 _.extend(SolariScreen.prototype, {
     init: function(rows, columns){
