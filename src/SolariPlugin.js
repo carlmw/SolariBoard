@@ -1,12 +1,16 @@
-SolariPlugin = function(){
-}
+SolariPlugin = function(){};
 
-_.extend(SolariPlugin.prototype,{
-    init: function(scr){
-        this.scr = scr;
-        _.bindAll(this, 'start');
-    },
-    getScreen: function(){
-        return this.scr;
-    }
-}, Backbone.Events);
+SolariPlugin.prototype.init = function(scr) {
+	this.scr = scr;
+	_.bindAll(this, 'start');
+};
+
+SolariPlugin.prototype.getScreen = function() {
+	return this.scr;
+};
+
+SolariPlugin.prototype.updateScreen = function(){
+        this.scr.trigger('screenUpdated');
+ };
+
+_.extend(SolariPlugin.prototype, Backbone.Events);

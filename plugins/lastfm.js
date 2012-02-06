@@ -1,9 +1,9 @@
-LastFmPlugin = _.extend({
-    init: function(scr){
+LastFmPlugin = function(socket_url){
+    this.init = function(scr){
         SolariPlugin.prototype.init.call(this, scr);
-        this.socket = new io.connect('http://mob061.lan:8090');
-    },
-    start: function(){
+        this.socket = new io.connect(socket_url);
+    };
+    this.start = function(){
         this.updateScreen();
         var self = this;
         this.socket.on('lastfm', function(track){
@@ -11,10 +11,7 @@ LastFmPlugin = _.extend({
             self.scr.pushMessage(track.artist.toUpperCase());
             self.updateScreen();
         });
-    },
-    updateScreen: function(){
-        this.scr.trigger('screenUpdated');
-    }
-},
-SolariPlugin
-);
+    };
+};
+
+_.extend(LastFmPlugin.prototype, SolariPlugin.prototype);

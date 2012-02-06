@@ -1,24 +1,13 @@
-JenkinsPlugin = _.extend({
-    repos: {
-        'fidodevelopment': 'FIDODEV',
-        'fidotesting': 'FIDOTEST',
-        'kerby-server': 'KERBYSVR',
-        'kerby-fido-integration': 'KERBYFIDOINT',
-        'Zonza': 'ZONZA',
-        'ZonzaRest': 'ZONZAREST',
-        'ZonzaSelenium': 'ZONZASELENIUM',
-        'Skellington': 'SKELLINGTON',
-        'Selenium_Tests': 'FIDOSELENIUM',
-        'kerby-ui': 'KERBYUI'
-    },
-    init: function(scr){
+JenkinsPlugin = function(repos){
+    this.repos = repos;
+    this.init = function(scr){
         SolariPlugin.prototype.init.call(this, scr);
         if(this.ws) this.ws.close();
         if(this.ws2) this.ws2.close();
         this.ws = new WebSocket('ws://dev-hson-1:8082/jenkins');
         this.ws2 = new WebSocket('ws://dev-jen1:8081/jenkins');
-    },
-    start: function(){
+    };
+    this.start = function(){
         var self = this,
             matrix = this.scr.matrix,
             repos = this.repos,
@@ -71,10 +60,7 @@ JenkinsPlugin = _.extend({
             self.ws.send('ping');
             self.ws2.send('pong');
         }, 5000);
-    },
-    updateScreen: function(){
-        this.scr.trigger('screenUpdated');
-    }
-},
-SolariPlugin
-);
+    };
+};
+
+_.extend(JenkinsPlugin.prototype, SolariPlugin.prototype);

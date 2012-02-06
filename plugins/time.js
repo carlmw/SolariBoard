@@ -1,5 +1,5 @@
-TimePlugin = _.extend({
-    init: function(scr){
+TimePlugin = function(){
+    this.init = function(scr) {
         SolariPlugin.prototype.init.call(this, scr);
         this.worker = new Worker('plugins/time-worker.js');
         var self = this;
@@ -23,14 +23,11 @@ TimePlugin = _.extend({
             },
             false
         );
-    },
-    start: function(){
+    };
+    this.start = function() {
         this.worker.postMessage();
         this.updateScreen();
-    },
-    updateScreen: function(){
-        this.scr.trigger('screenUpdated');
-    }
-},
-SolariPlugin
-);
+    };
+};
+
+_.extend(TimePlugin.prototype, SolariPlugin.prototype);

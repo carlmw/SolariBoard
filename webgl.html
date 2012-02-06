@@ -6,7 +6,7 @@
 	<script src="lib/backbone.js"></script>
 	<script src="lib/Three.js"></script>
 	<script src="lib/stats.js"></script>
-	<script src="http://10.101.13.30:8090/socket.io/socket.io.js"></script>
+	<script src="http://localhost:8090/socket.io/socket.io.js"></script>
 	<script src="src/SolariTexture.js"></script>
 	<script src="src/SolariRow.js"></script>
 	<script src="src/SolariFlap.js"></script>
@@ -17,7 +17,6 @@
 	<script src="plugins/lastfm.js"></script>
 	<script src="plugins/time.js"></script>
 	<script>
-	var consolePlugin;
 	(function(){
 	var board = window.Board = new Solari;
 	new SolariTexture().bind('load', function(){
@@ -37,11 +36,24 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			// var jenkinsPlugin = JenkinsPlugin;
-			// board.registerPlugin(jenkinsPlugin);
-			var lastFmPlugin = LastFmPlugin;
+			var jenkinsPlugin = JenkinsPlugin(
+				{
+			        'fidodevelopment': 'FIDODEV',
+			        'fidotesting': 'FIDOTEST',
+			        'kerby-server': 'KERBYSVR',
+			        'kerby-fido-integration': 'KERBYFIDOINT',
+			        'Zonza': 'ZONZA',
+			        'ZonzaRest': 'ZONZAREST',
+			        'ZonzaSelenium': 'ZONZASELENIUM',
+			        'Skellington': 'SKELLINGTON',
+			        'Selenium_Tests': 'FIDOSELENIUM',
+			        'kerby-ui': 'KERBYUI'
+			    }
+			);
+			board.registerPlugin(jenkinsPlugin);
+			var lastFmPlugin = new LastFmPlugin('http://localhost:8090');
 			board.registerPlugin(lastFmPlugin);
-			var timePlugin = TimePlugin;
+			var timePlugin = new TimePlugin;
 			board.registerPlugin(timePlugin);
 			Board.start();
         }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
