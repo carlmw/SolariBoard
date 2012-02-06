@@ -36,18 +36,16 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			var jenkinsPlugin = JenkinsPlugin(
-				{
-			        'fidodevelopment': 'FIDODEV',
-			        'fidotesting': 'FIDOTEST',
-			        'kerby-server': 'KERBYSVR',
-			        'kerby-ui': 'KERBYUI',
-			        'zonza-dev': 'ZONZADEV',
-			        'ZonzaRest': 'ZONZAREST',
-			        'zonza-dev-selenium',
-			        'Skellington': 'SKELLINGTON'
-			    }
-			);
+			var jenkinsPlugin = new JenkinsPlugin({
+		        'fidodevelopment': 'FIDODEV',
+		        'fidotesting': 'FIDOTEST',
+		        'kerby-server': 'KERBYSVR',
+		        'kerby-ui': 'KERBYUI',
+		        'zonza-dev': 'ZONZADEV',
+		        'ZonzaRest': 'ZONZAREST',
+		        'zonza-dev-selenium': 'ZONZASEL',
+		        'Skellington': 'SKELLINGTON'
+		    });
 			board.registerPlugin(jenkinsPlugin);
 			var lastFmPlugin = new LastFmPlugin('http://dev-hson-1:8091');
 			board.registerPlugin(lastFmPlugin);
