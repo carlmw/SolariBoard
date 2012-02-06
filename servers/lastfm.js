@@ -45,7 +45,7 @@ for (i = 0; i < users.length; i++) {
     );
     streams[i].on(
         'error',
-        err(error)
+        err
     );
     streams[i].start();
 }
