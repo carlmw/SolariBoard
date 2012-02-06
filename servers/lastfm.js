@@ -1,6 +1,6 @@
 var LastFmNode = require('lastfm').LastFmNode;
 var http = require('http');
-var io = require('socket.io').listen(8090);
+var io = require('socket.io').listen(8091);
 var config = require('./lastfm.config.js');
 
 var sockets = [];
@@ -17,32 +17,35 @@ var lastfm = new LastFmNode({
 var users = config.users,
     streams = [];
 
+function createListener(username) {
+    return function(track) {
+        for (a = 0; a < sockets.length; a++) {
+            sockets[a].emit(
+                'lastfm',
+                {
+                    username: username,
+                    track: track.name,
+                    artist: track.artist['#text'],
+                    image: track.image[3]['#text']
+                }
+            );
+        }
+    };
+}
+
+function err(error) {
+    //NOOP
+}
+
 for (i = 0; i < users.length; i++) {
     streams[i] = lastfm.stream(users[i]);
-    function createListener(username) {
-        return function(track) {
-            for (a = 0; a < sockets.length; a++) {
-                sockets[a].emit(
-                    'lastfm',
-                    {
-                        username: username,
-                        track: track.name,
-                        artist: track.artist['#text'],
-                        image: track.image[3]['#text']
-                    }
-                )
-            }
-        }
-    }
     streams[i].on(
         'nowPlaying',
         createListener(users[i])
     );
     streams[i].on(
         'error',
-        function(error) {
-            //NOOP
-        }
+        err(error)
     );
     streams[i].start();
 }
