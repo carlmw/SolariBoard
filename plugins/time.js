@@ -13,9 +13,6 @@ TimePlugin = function(){
                     row = self.scr.matrix[rowNum],
                     str = pad(e.data.hour) + '.' + pad(e.data.minutes);
                     rowStart = Math.floor((row.length - str.length) / 2);
-                if (e.data.day == 5 && e.data.hour >= 17 && e.data.minutes >= 0 && e.data.minutes <= 10){
-                    str = 'DESKBEER';
-                }
                 for (i = 0; i < str.length; i++) {
                     row[rowStart + i] = str[i];
                 }

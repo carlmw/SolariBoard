@@ -4,8 +4,9 @@ JenkinsPlugin = function(repos){
         SolariPlugin.prototype.init.call(this, scr);
         if(this.ws) this.ws.close();
         if(this.ws2) this.ws2.close();
-        this.ws = new WebSocket('ws://dev-hson-1:8082/jenkins');
-        this.ws2 = new WebSocket('ws://dev-jen1:8081/jenkins');
+        socket = MozWebSocket || WebSocket;
+        this.ws = new socket('ws://dev-hson-1:8082/jenkins');
+        this.ws2 = new socket('ws://dev-jen1:8081/jenkins');
     };
     this.start = function(){
         var self = this,
