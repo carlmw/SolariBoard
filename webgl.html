@@ -39,15 +39,22 @@
 			var fidoJenkinsPlugin = new JenkinsPlugin({
 		        'fidodevelopment': 'FIDODEV',
 		        'fidotesting': 'FIDOTEST',
+		        'fidotestingdeployment': 'FIDOTESTDEPLOY',
+		        'kerby-client': 'KERBYCLI',
 		        'kerby-server': 'KERBYSVR',
 		        'kerby-ui': 'KERBYUI',
-		        'Skellington': 'SKELLINGTON'
+		        'Skellington': 'SKELLINGTON',
+		        'Skelling-deployment': 'SKELLINGTONDEPLOY'
 		    });
 			board.registerPlugin(fidoJenkinsPlugin);
 			var zonzaJenkinsPlugin = new JenkinsPlugin({
 				'zonza-dev': 'ZONZADEV',
 		        'ZonzaRest': 'ZONZAREST',
-		        'zonza-dev-selenium': 'ZONZASEL'
+		        'zonza-dev-selenium': 'ZONZASEL',
+		        'zonza-release': 'ZONZAREL',
+		        'zonza-release-selenium': 'ZONZASELREL',
+		        'zonza-deploy-dev-staging': 'ZDEVDEPLOYSTG',
+		        'zonza-deploy-dev-staging5': 'ZDEVDEPLOYSTG5'
 			});
 			board.registerPlugin(zonzaJenkinsPlugin);
 			var lastFmPlugin = new LastFmPlugin('http://dev-hson-1:8091');
