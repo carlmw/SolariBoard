@@ -36,17 +36,20 @@
 				row.add(statusSet);
 				board.add(row);
 			});
-			var jenkinsPlugin = new JenkinsPlugin({
+			var fidoJenkinsPlugin = new JenkinsPlugin({
 		        'fidodevelopment': 'FIDODEV',
 		        'fidotesting': 'FIDOTEST',
 		        'kerby-server': 'KERBYSVR',
 		        'kerby-ui': 'KERBYUI',
-		        'zonza-dev': 'ZONZADEV',
-		        'ZonzaRest': 'ZONZAREST',
-		        'zonza-dev-selenium': 'ZONZASEL',
 		        'Skellington': 'SKELLINGTON'
 		    });
-			board.registerPlugin(jenkinsPlugin);
+			board.registerPlugin(fidoJenkinsPlugin);
+			var zonzaJenkinsPlugin = new JenkinsPlugin({
+				'zonza-dev': 'ZONZADEV',
+		        'ZonzaRest': 'ZONZAREST',
+		        'zonza-dev-selenium': 'ZONZASEL'
+			});
+			board.registerPlugin(zonzaJenkinsPlugin);
 			var lastFmPlugin = new LastFmPlugin('http://dev-hson-1:8091');
 			board.registerPlugin(lastFmPlugin);
 			var timePlugin = new TimePlugin;
