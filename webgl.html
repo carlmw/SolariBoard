@@ -48,7 +48,11 @@
 			var kerbyJenkinsPlugin = new JenkinsPlugin({
 				'kerby-client': 'KERBYCLIENT',
 		        'kerby-server': 'KERBYSVR',
-		        'kerby-ui': 'KERBYUI'
+		        'kerby-server-deployment': 'KERBYSVRDEP',
+		        'kerby-ui': 'KERBYUI',
+		        'kerby-ui-deployment': 'KERBYUIDEPLOY',
+		        'kerby-fido-integration': 'KERBYFIDINT',
+		        'kerby-fido-integration-deployment': 'KFIDDEPLOY'
 			});
 			board.registerPlugin(kerbyJenkinsPlugin);
 			var zonzaJenkinsPlugin = new JenkinsPlugin({
