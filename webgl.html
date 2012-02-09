@@ -38,15 +38,19 @@
 			});
 			var fidoJenkinsPlugin = new JenkinsPlugin({
 		        'fidodevelopment': 'FIDODEV',
+		        'fidodevelopmentdeployment': 'FIDODEVDEPLOY',
 		        'fidotesting': 'FIDOTEST',
 		        'fidotestingdeployment': 'FIDOTESTDEPLOY',
-		        'kerby-client': 'KERBYCLIENT',
-		        'kerby-server': 'KERBYSVR',
-		        'kerby-ui': 'KERBYUI',
 		        'Skellington': 'SKELLINGTON',
 		        'Skelling-deployment': 'SKELLINGTONDEPLOY'
 		    });
 			board.registerPlugin(fidoJenkinsPlugin);
+			var kerbyJenkinsPlugin = new JenkinsPlugin({
+				'kerby-client': 'KERBYCLIENT',
+		        'kerby-server': 'KERBYSVR',
+		        'kerby-ui': 'KERBYUI'
+			});
+			board.registerPlugin(kerbyJenkinsPlugin);
 			var zonzaJenkinsPlugin = new JenkinsPlugin({
 				'zonza-dev': 'ZONZADEV',
 		        'ZonzaRest': 'ZONZAREST',
