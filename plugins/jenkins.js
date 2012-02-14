@@ -8,7 +8,12 @@ JenkinsPlugin.prototype.init = function(scr){
     SolariPlugin.prototype.init.call(this, scr);
     if(this.ws) this.ws.close();
     if(this.ws2) this.ws2.close();
-    socket = MozWebSocket || WebSocket;
+    var socket;
+    try {
+        socket = MozWebSocket;
+    } catch (ReferenceError) {
+        socket = WebSocket;
+    }
     this.ws = new socket('ws://dev-hson-1:8082/jenkins');
     this.ws2 = new socket('ws://dev-jen1:8081/jenkins');
 };
