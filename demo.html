@@ -11,29 +11,38 @@
 	<script src="src/SolariFlap.js"></script>
 	<script src="src/Solari.js"></script>
 	<script>
-	(function(){
+	(function () {
 	var board = window.Board = new Solari;
-	new SolariTexture().bind('load', function(){
-		var alphaSet = this;
-		new SolariTexture().bind('load', function(){
-			var row,
-				statusSet = this;
+	new SolariTexture().bind('load', function () {
+		var alphaSet = this,
+        row;
 
-			$('#container').append(board.el);
+		$('#container').append(board.el);
 
-			_(8).times(function(){
-				row = new SolariRow(board.y);
+		_(8).times(function () {
+			row = new SolariRow(board.y);
 
-				_(20).times(function(){
-					row.add(alphaSet);
-				});
-				row.add(statusSet);
-				board.add(row);
+			_(24).times(function () {
+				row.add(alphaSet);
 			});
+			board.add(row);
+		});
 
-			Board.start();
-        }).load('img/statuses.png', 'SFUBA '.split(''), 360, 64);
-    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
+		Board.start();
+
+    setTimeout(function () {
+      Board.setMessage([
+        'THUNDERCATS',
+        'ARE ON THE MOVE',
+        'THUNDERCATS ARE LOOSE',
+        'FEEL THE MAGIC',
+        'HEAR THE ROAR',
+        'THUNDERCATS ARE LOOSE',
+        'THUNDER THUNDER THUNDER',
+        'THUNDERCATS HO'
+      ])
+    }, 2000);
+  }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
 
 	})();
 	</script>
@@ -48,7 +57,6 @@
 		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0)), url('img/bg.png');
 	}
 	</style>
-	<script src="plugins/jenkins.js"></script>
 </head>
 <body>
 	<div id="container"></div>
