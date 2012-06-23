@@ -1,0 +1,10 @@
+{
+  "name": "solariboard",
+  "version": "0.0.1",
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "sinon": "*"
+  },
+  "scripts": {"test": "mocha"}
+}
