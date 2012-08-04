@@ -1,56 +1,29 @@
 <!doctype html>
 <html>
 <head>
-	<script src="lib/jquery.js"></script>
-	<script src="lib/underscore.js"></script>
-	<script src="lib/backbone.js"></script>
-	<script src="lib/Three.js"></script>
 	<script src="lib/stats.js"></script>
-	<script src="src/SolariTexture.js"></script>
-	<script src="src/SolariRow.js"></script>
-	<script src="src/SolariFlap.js"></script>
-	<script src="src/Solari.js"></script>
-	<script>
-	(function(){
-	var board = window.Board = new Solari;
-	new SolariTexture().bind('load', function(){
-		var alphaSet = this;
-		new SolariTexture().bind('load', function(){
-			var row,
-				statusSet = this;
-
-			$('#container').append(board.el);
-
-			_(8).times(function(){
-				row = new SolariRow(board.y);
-
-				_(20).times(function(){
-					row.add(alphaSet);
-				});
-				row.add(statusSet);
-				board.add(row);
-			});
-
-			Board.start();
-        }).load('img/statuses.png', 'SFUBC '.split(''), 360, 64);
-    }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
-
-	})();
-	</script>
+    <script src="lib/require.js" data-main="index"></script>
 	<style>
 	*{
 		margin:0;
 		padding:0;
 		overflow:hidden;
 	}
+    #fpscounter{
+        position: absolute;
+        left:0;
+        top:0;
+    }
 	body{
 		background:#000;
 		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0)), url('img/bg.png');
 	}
 	</style>
-	<script src="plugins/jenkins.js"></script>
 </head>
 <body>
-	<div id="container"></div>
+    <div id="container">
+        <div id="fpscounter"></div>
+        <canvas id="canvas"></canvas>
+    </div>
 </body>
 </html>
