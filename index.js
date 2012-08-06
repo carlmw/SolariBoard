@@ -40,9 +40,8 @@ require(["lib/domReady", // Waits for page load
         return;
     }
 
-    // If we don't set this here, the rendering will be skewed
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     renderer = new Renderer(gl, canvas);
     renderer.resize(gl, canvas);

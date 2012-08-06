@@ -55,7 +55,7 @@ define([
 
         var shader = this.fontShader;
 
-        var size = 17;
+        var size = 20;
 
         var indexBuffer = []
           , vertexBuffer = [];
