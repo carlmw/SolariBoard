@@ -4,17 +4,50 @@ attribute float charpos;
 
 uniform mat4 viewMat;
 uniform mat4 projectionMat;
-uniform vec2 offset;
+uniform float time;
 uniform float numChars;
 varying vec2 texCoord;
 
+
+// Matrix rotation code copied from http://www.html5rocks.com/en/tutorials/webgl/million_letters/
+
+// rotateAngleAxisMatrix returns the mat3 rotation matrix
+// for given angle and axis.
+mat3 rotateAngleAxisMatrix(float angle, vec3 axis) {
+  float c = cos(angle);
+  float s = sin(angle);
+  float t = 1.0 - c;
+  axis = normalize(axis);
+  float x = axis.x, y = axis.y, z = axis.z;
+  return mat3(
+    t*x*x + c,    t*x*y + s*z,  t*x*z - s*y,
+    t*x*y - s*z,  t*y*y + c,    t*y*z + s*x,
+    t*x*z + s*y,  t*y*z - s*x,  t*z*z + c
+  );
+}
+
+// rotateAngleAxis rotates a vec3 over the given axis by the given angle and
+// returns the rotated vector.
+vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
+  return rotateAngleAxisMatrix(angle, axis) * v;
+}
+
+
 void main(void) {
-    vec4 v = viewMat * vec4(position, 1.0);
+    vec3 v = position;
+
+    // We're abusing the z coord to mark whether we animate the vertex or not.
+    float animate = v.z;
+    v.z = 0.0;
+
     float char = charpos;
     texCoord = texture;
     texCoord.s = (texCoord.s + char) / numChars;
-    v.x = v.x + offset.x;
-    v.y = v.y + offset.y;
-    gl_Position = projectionMat * v;
+
+    if (animate>0.0) {
+        //v = rotateAngleAxis(time, vec3(1.0, 0.0, 0.0), v);
+        }
+
+    gl_Position = projectionMat * viewMat * vec4(v, 1.0);
 }
 
