@@ -69,6 +69,9 @@ define([
 
         y = 1.5;
 
+        this.rowSize = size;
+
+
         function setupCharHalf(x, y, u, v, i) {
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
@@ -88,40 +91,26 @@ define([
 
 
         x = (-size/2) * (charWidth + offsetX);
-        size = 6;
         for(index=0; index < size; index++) {
 
             setupCharHalf(x, y, 0, 0, 4*index);
             x += offsetX + charWidth;
         }
 
-
-
-        var charPosBuffer = [];
-
         var bufsize = this.verticesPerChar;
+        var charPosBuffer = new Array(this.verticesPerChar * size);
 
-        function addChar(x) {
-            var i, buf = [];
-            for (i=0; i<bufsize; i++) {
-                buf.push(x);
-            }
+        for (i=0; i<charPosBuffer.length; i++) {
+            charPosBuffer[i] = this.chars.length - 1;
+        }
 
-            extend(charPosBuffer, buf);
-        };
-
-        addChar(-1.0);
-        addChar( 0.0);
-        addChar( 1.0);
-        addChar( 12.0);
-        addChar( 20.0);
-        addChar( 4.0);
-
+        this.setMessage("hi kevin abc");
+        console.log(this.newPosBuffer.slice(0,10));
         // This is the volatile buffer. It's still initialized as static_draw
         // since it's going to be updated very infrequently.
         this.charPosBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.charPosBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(charPosBuffer), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(/*charPosBuffer*/this.newPosBuffer), gl.DYNAMIC_DRAW);
 
         gl.enableVertexAttribArray(shader.attribute.charpos);
         gl.vertexAttribPointer(shader.attribute.charpos, 1, gl.FLOAT, false, 4, 0);
@@ -147,10 +136,39 @@ define([
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
     };
 
+    SolariBoard.prototype.setMessage = function(msg) {
+        // Updates the character array with a charcter index for each vertex
+        // that will render it.
+        msg = msg.toUpperCase();
+        var i, j, char, newBuffer = new Array(this.verticesPerChar * this.rowSize);
+
+        for (i=0; i < this.rowSize; i++) {
+            // for each character find it's index in our texture
+            char = this.chars.length - 1;
+
+            if (i < msg.length) {
+                j = this.chars.indexOf(msg[i]);
+                if (j!=-1) char = j;
+            }
+
+            // store the target value for each vertex rendering the char
+            for (j=0; j < this.verticesPerChar; j++) {
+                newBuffer[i*this.verticesPerChar+j] = char;
+            }
+        }
+        this.newPosBuffer = newBuffer;
+    };
+
     var timing = 0;
 
     SolariBoard.prototype.draw = function(gl, frameTime, projectionMat, viewMat) {
         var shader = this.fontShader;
+
+        if (this.newPosBuffer) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.charPosBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.newPosBuffer));
+            this.newPosBuffer = null;
+        }
 
         gl.useProgram(shader);
 

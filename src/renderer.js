@@ -44,7 +44,7 @@ define([
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-        this.board = new SolariBoard(gl);
+        window.board = this.board = new SolariBoard(gl);
 
     };
 
