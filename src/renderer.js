@@ -33,7 +33,7 @@ define([
         // To get a camera that gives you a flying first-person perspective, use camera.FlyingCamera
         // To get a camera that rotates around a fixed point, use camera.ModelCamera
         this.camera = new camera.ModelCamera(canvas);
-        this.camera.distance = 20;
+        this.camera.distance = 15;
 
         this.fov = 45;
         this.projectionMat = mat4.create();
