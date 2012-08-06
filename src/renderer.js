@@ -25,7 +25,7 @@ define([
     "lib/camera",
     "lib/gl-util",
     "src/solari",
-    "js/util/gl-matrix.js",
+    "lib/gl-matrix.js",
 ], function(camera, glUtil, SolariBoard) {
     "use strict";
 
@@ -39,7 +39,7 @@ define([
         this.projectionMat = mat4.create();
         mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.projectionMat);
 
-        gl.clearColor(0.0, 0.0, 0.2, 1.0);
+        gl.clearColor(0.1, 0.1, 0.1, 1.0);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
