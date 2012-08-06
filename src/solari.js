@@ -22,8 +22,8 @@
  */
 
 define([
-    "lib/text!src/shader_font.vs",
-    "lib/text!src/shader_font.fs",
+    "lib/text!src/shader_font.vert",
+    "lib/text!src/shader_font.frag",
     "lib/gl-util",
     "lib/gl-matrix.js",
 ], function(fontVS, fontFS, glUtil) {
