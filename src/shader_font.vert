@@ -35,17 +35,17 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 
 void main(void) {
     vec3 v = position;
-
     // We're abusing the z coord to mark whether we animate the vertex or not.
     float animate = v.z;
     v.z = 0.0;
+    vec3 base = v - vec3(0,1.0,0);
 
     float char = charpos;
     texCoord = texture;
     texCoord.s = (texCoord.s + char) / numChars;
 
     if (animate>0.0) {
-        //v = rotateAngleAxis(time, vec3(1.0, 0.0, 0.0), v);
+        v = rotateAngleAxis(time, vec3(1.0, 0.0, 0.0), v-base)+base;
         }
 
     gl_Position = projectionMat * viewMat * vec4(v, 1.0);

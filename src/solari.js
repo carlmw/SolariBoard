@@ -51,7 +51,7 @@ define([
             ["position", "texture", "charpos"],
             ["viewMat", "projectionMat", "time", "numChars", "diffuse"]
         );
-        this.verticesPerChar = 4;
+        this.verticesPerChar = 12;
 
         var shader = this.fontShader;
 
@@ -72,18 +72,20 @@ define([
         this.rowSize = size;
 
 
-        function setupCharHalf(x, y, u, v, i) {
+        function setupCharHalf(x, y, u, v, i, top) {
+            // Z coordinate is used as a marker for the animated vertices
+            if (top) { top = 1.0; }
+
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
 
-            // Z coordinate is used as a marker for the animated vertices
             extend(vertexBuffer, [x+charWidth, y, z]);
             extend(vertexBuffer, [u+1, v]);
 
-            extend(vertexBuffer, [x+charWidth, y+charHeight, z]);
+            extend(vertexBuffer, [x+charWidth, y+charHeight, z+top]);
             extend(vertexBuffer, [u+1, v+0.5]);
 
-            extend(vertexBuffer, [x, y+charHeight, z]);
+            extend(vertexBuffer, [x, y+charHeight, z+top]);
             extend(vertexBuffer, [u, v+0.5]);
 
             addFaceIndices(indexBuffer, i+0, i+1, i+2, i+3);
@@ -92,8 +94,10 @@ define([
 
         x = (-size/2) * (charWidth + offsetX);
         for(index=0; index < size; index++) {
+            setupCharHalf(x, y-1.0, 0, 0, this.verticesPerChar * index);
+            setupCharHalf(x, y, 0, 0.5, this.verticesPerChar * index + 4);
 
-            setupCharHalf(x, y, 0, 0, 4*index);
+            setupCharHalf(x, y, 0, 0.5, this.verticesPerChar * index + 8, true);
             x += offsetX + charWidth;
         }
 
@@ -105,7 +109,7 @@ define([
         }
 
         this.setMessage("hi kevin abc");
-        console.log(this.newPosBuffer.slice(0,10));
+
         // This is the volatile buffer. It's still initialized as static_draw
         // since it's going to be updated very infrequently.
         this.charPosBuffer = gl.createBuffer();
@@ -175,7 +179,7 @@ define([
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
 
-        timing += frameTime*0.0001;
+        timing += frameTime*0.004;
 
         gl.uniform1f(shader.uniform.time, timing);
         gl.uniform1f(shader.uniform.numChars, this.numChars);
