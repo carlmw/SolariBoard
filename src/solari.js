@@ -179,7 +179,7 @@ define([
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
 
-        timing += frameTime*0.004;
+        timing += frameTime*0.0004;
 
         gl.uniform1f(shader.uniform.time, timing);
         gl.uniform1f(shader.uniform.numChars, this.numChars);

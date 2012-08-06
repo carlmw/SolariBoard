@@ -8,6 +8,9 @@ uniform float time;
 uniform float numChars;
 varying vec2 texCoord;
 
+varying vec2 prevPos;
+varying vec2 curPos;
+
 
 // Matrix rotation code copied from http://www.html5rocks.com/en/tutorials/webgl/million_letters/
 
@@ -34,7 +37,7 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 
 
 void main(void) {
-    vec3 v = position;
+    vec3 prevV, v = position;
     // We're abusing the z coord to mark whether we animate the vertex or not.
     float animate = v.z;
     v.z = 0.0;
@@ -45,9 +48,13 @@ void main(void) {
     texCoord.s = (texCoord.s + char) / numChars;
 
     if (animate>0.0) {
+        prevV = rotateAngleAxis(time - 0.5, vec3(1.0, 0.0, 0.0), v-base)+base;
         v = rotateAngleAxis(time, vec3(1.0, 0.0, 0.0), v-base)+base;
-        }
-
+    } else {
+        prevV = v;
+    }
+    prevPos = (projectionMat * viewMat * vec4(prevV, 1.0)).xy;
     gl_Position = projectionMat * viewMat * vec4(v, 1.0);
+    curPos = gl_Position.xy;
 }
 
