@@ -33,7 +33,39 @@ define([
       //ab
       //dc
 
-    var SolariBoard = function (gl) {
+    function Buffer(gl, width, height) {
+        this.width = width;
+        this.height = height;
+        this.id = gl.createFramebuffer();
+        this.texture = gl.createTexture();
+
+        var renderbuffer = gl.createRenderbuffer();
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //_MIPMAP_NEAREST);
+        //gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+        gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    };
+
+    Buffer.prototype = {
+
+    };
+
+    var SolariBoard = function (gl, canvas) {
         /*
          * The Board renders with a single draw call, with both the vertices
          * and texture coords stored in buffer objects.
@@ -110,6 +142,9 @@ define([
 
         this.setMessage("hi kevin abc");
 
+
+        this.frameBuffer = new Buffer(gl, canvas.width, canvas.height);
+
         // This is the volatile buffer. It's still initialized as static_draw
         // since it's going to be updated very infrequently.
         this.charPosBuffer = gl.createBuffer();
@@ -179,7 +214,7 @@ define([
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
 
-        timing += frameTime*0.0004;
+        timing += frameTime*0.004;
 
         gl.uniform1f(shader.uniform.time, timing);
         gl.uniform1f(shader.uniform.numChars, this.numChars);
