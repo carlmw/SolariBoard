@@ -75,13 +75,14 @@ define([
          * floats defining the char to render, therefore only needing a single
          * buffer update.
          */
+        this.screenSize = [canvas.width, canvas.height];
         this.fontTexture = glUtil.loadTexture(gl, "img/chars.png");
         this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split('');
         this.numChars = this.chars.length;
 
         this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
             ["position", "texture", "charpos"],
-            ["viewMat", "projectionMat", "time", "numChars", "diffuse"]
+            ["viewMat", "projectionMat", "time", "numChars", "diffuse", "blur", "screenSize"]
         );
         this.verticesPerChar = 12;
 
@@ -202,6 +203,22 @@ define([
 
     SolariBoard.prototype.draw = function(gl, frameTime, projectionMat, viewMat) {
         var shader = this.fontShader;
+        // restructure this to have
+        ***************************
+
+        Restructure this so there's a separate shader for the blur.
+
+        We want separate calls in the renderer above:
+
+        1) bind target for color:
+        solari.draw
+
+        2) bind target for velocity
+        solari draw without textures, drawing the velocities only
+
+        3) render a quad with the blur pass
+        looking up velocity and rendered textures to perform blur
+
 
         if (this.newPosBuffer) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.charPosBuffer);
@@ -209,13 +226,17 @@ define([
             this.newPosBuffer = null;
         }
 
+        timing += frameTime*0.001;
         gl.useProgram(shader);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
 
-        timing += frameTime*0.004;
 
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform1i(shader.uniform.blur, false);
         gl.uniform1f(shader.uniform.time, timing);
         gl.uniform1f(shader.uniform.numChars, this.numChars);
 
@@ -223,6 +244,15 @@ define([
         gl.bindTexture(gl.TEXTURE_2D, this.fontTexture);
         gl.uniform1i(shader.uniform.diffuse, 0);
 
+        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
+        gl.uniform1i(shader.uniform.blur, true);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.frameBuffer.texture);
         gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
 
     };

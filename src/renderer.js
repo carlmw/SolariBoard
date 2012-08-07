@@ -61,8 +61,6 @@ define([
 
         this.camera.update(frameTime);
 
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
         board.draw(gl, frameTime, projectionMat, viewMat);
     };
 
