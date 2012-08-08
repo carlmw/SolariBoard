@@ -77,7 +77,7 @@ define([
 
         this.board = new SolariBoard(gl, {
             rows: 1,
-            cols: 1,
+            cols: 20,
             texture: glUtil.loadTexture(gl, "img/chars.png"),
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
         });
@@ -138,6 +138,8 @@ define([
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, board.texture);
         gl.uniform1i(shader.uniform.fontTex, 0);
+
+        board.draw(gl);
 
 
 

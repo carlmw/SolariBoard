@@ -154,7 +154,7 @@ define([
         msg = msg.toUpperCase();
         var i, j, char, newBuffer = new Array(this.verticesPerChar * this.cols);
 
-        for (i=0; i < this.rowSize; i++) {
+        for (i=0; i < this.cols; i++) {
             // for each character find it's index in our texture
             char = this.chars.length - 1;
 
@@ -183,7 +183,6 @@ define([
     };
 
     SolariBoard.prototype.draw = function(gl) {
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
     };
 
