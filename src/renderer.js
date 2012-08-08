@@ -22,12 +22,43 @@
  */
 
 define([
+    "lib/text!src/shader_font.vert",
+    "lib/text!src/shader_font.frag",
     "lib/camera",
     "lib/gl-util",
     "src/solari",
     "lib/gl-matrix.js",
-], function(camera, glUtil, SolariBoard) {
+], function(fontVS, fontFS, camera, glUtil, SolariBoard) {
     "use strict";
+
+    function Buffer(gl, width, height) {
+        // A framebuffer that can be used as a render target
+        this.width = width;
+        this.height = height;
+        this.id = gl.createFramebuffer();
+        this.texture = gl.createTexture();
+
+        var renderbuffer = gl.createRenderbuffer();
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //_MIPMAP_NEAREST);
+        //gl.generateMipmap(gl.TEXTURE_2D);
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+        gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
+        gl.bindTexture(gl.TEXTURE_2D, null);
+        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    };
 
     var Renderer = function (gl, canvas) {
         // To get a camera that gives you a flying first-person perspective, use camera.FlyingCamera
@@ -44,8 +75,28 @@ define([
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
-        window.board = this.board = new SolariBoard(gl, canvas);
+        this.board = new SolariBoard(gl, {
+            rows: 1,
+            cols: 20,
+            texture: glUtil.loadTexture(gl, "img/chars.png"),
+            chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
+        });
 
+        // The basic shader rendering the textured board
+
+        // FIXME: change this to requirejs require() so shaders are requested
+        // where theyre needed
+        this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
+            ["position", "texture", "charpos"],
+            ["viewMat", "projectcall when creating the bufferionMat", "time", "numChars", "diffuse", "blur", "screenSize"]
+        );
+
+        // The color buffer when we render the textured solari board. It's
+        // than used as a source texture for the motion blur pass
+        this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
+
+
+        window.board = this.board; // quick hack for board testing
     };
 
     Renderer.prototype.resize = function (gl, canvas) {
@@ -54,14 +105,50 @@ define([
     };
 
     Renderer.prototype.drawFrame = function (gl, timing) {
+        /*
+         * The draw consists of 3 passes:
+         * 1) Render a regular solari board to texture.
+         * 2) Render a velocity map to a texture
+         * 3) Render a screensized quad bluring the final image along the velocity vectors
+         */
         var viewMat = this.camera.getViewMat()
           , frameTime = timing.frameTime
           , projectionMat = this.projectionMat
-          , board = this.board;
+          , board = this.board
+          , shader;
 
         this.camera.update(frameTime);
+        this.board.update(frameTime);
 
-        board.draw(gl, frameTime, projectionMat, viewMat);
+        // First pass - rendered the textured solari board
+        var shader = this.fontShader;
+        gl.useProgram(shader);
+        board.bindShaderAttribs(gl, shader.attribute.charpos, shader.attribute.position, shader.attribute.texture);
+
+        gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
+
+        //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform1f(shader.uniform.time, board.timing);
+        gl.uniform1f(shader.uniform.numChars, board.chars.length);
+
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, board.texture);
+        gl.uniform1i(shader.uniform.diffuse, 0);
+
+
+
+
+        /*
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.frameBuffer.texture);
+        */
     };
 
     return Renderer;

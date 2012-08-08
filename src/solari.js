@@ -22,50 +22,11 @@
  */
 
 define([
-    "lib/text!src/shader_font.vert",
-    "lib/text!src/shader_font.frag",
-    "lib/gl-util",
     "lib/gl-matrix.js",
-], function(fontVS, fontFS, glUtil) {
+], function() {
     "use strict";
-    var extend = function(a1, a2) { a1.push.apply(a1, a2); }
-      , addFaceIndices = function(arr, a, b, c, d) { arr.push(c, d, a, c, a, b); };
-      //ab
-      //dc
 
-    function Buffer(gl, width, height) {
-        this.width = width;
-        this.height = height;
-        this.id = gl.createFramebuffer();
-        this.texture = gl.createTexture();
-
-        var renderbuffer = gl.createRenderbuffer();
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
-        gl.bindTexture(gl.TEXTURE_2D, this.texture);
-
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //_MIPMAP_NEAREST);
-        //gl.generateMipmap(gl.TEXTURE_2D);
-
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
-        gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
-
-        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
-        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
-
-        gl.bindTexture(gl.TEXTURE_2D, null);
-        gl.bindRenderbuffer(gl.RENDERBUFFER, null);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    };
-
-    Buffer.prototype = {
-
-    };
-
-    var SolariBoard = function (gl, canvas) {
+    var SolariBoard = function (gl, options) {
         /*
          * The Board renders with a single draw call, with both the vertices
          * and texture coords stored in buffer objects.
@@ -75,39 +36,84 @@ define([
          * floats defining the char to render, therefore only needing a single
          * buffer update.
          */
-        this.screenSize = [canvas.width, canvas.height];
-        this.fontTexture = glUtil.loadTexture(gl, "img/chars.png");
-        this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split('');
-        this.numChars = this.chars.length;
+        this.texture = options.texture;
+        this.chars = options.chars.split('');
+        this.rows = options.rows;
+        this.cols = options.cols;
 
-        this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
-            ["position", "texture", "charpos"],
-            ["viewMat", "projectionMat", "time", "numChars", "diffuse", "blur", "screenSize"]
-        );
+        // A single variable passed into the animating shaders defining the
+        // animation timeframe. The char buffer allows a unique offset for
+        // each character.
+        this.timing = 0.0;
+
+        // We need this to fillup the charBuffer
         this.verticesPerChar = 12;
 
-        var shader = this.fontShader;
-
-        var size = 20;
+        this.vertexBuffer = gl.createBuffer();
+        this.indexBuffer = gl.createBuffer();
+        this.charBuffer = gl.createBuffer();
 
         var indexBuffer = []
-          , vertexBuffer = [];
+          , vertexBuffer = []
+          , charBuffer = new Array(this.verticesPerChar * this.cols);
 
-        var i, index, u=0.0,v=0.0;
+        // Setup an interlaced buffer with vertices and tex coords
+        this._buildBuffers(indexBuffer, vertexBuffer, charBuffer);
+        this.numIndices = indexBuffer.length;
 
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(charBuffer), gl.DYNAMIC_DRAW);
 
-        var charWidth = 1.0, charHeight = 1.0;
-        var x, y, z = 0;
-        var offsetX = 0.1;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexBuffer), gl.STATIC_DRAW);
 
-        y = 1.5;
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
+    };
 
-        this.rowSize = size;
+    SolariBoard.prototype.bindShaderAttribs = function(gl, position, charpos, texture) {
+        /*
+         * Point the shader attributes to the appropriate buffers.
+         */
+        gl.enableVertexAttribArray(charpos);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
+        gl.vertexAttribPointer(charpos, 1, gl.FLOAT, false, 4, 0);
 
+        gl.enableVertexAttribArray(position);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 20, 0);
 
-        function setupCharHalf(x, y, u, v, i, top) {
+        if (texture) {
+            // the velocity rendering shader doesn't use the texture coord
+            gl.enableVertexAttribArray(texture);
+            gl.vertexAttribPointer(texture, 2, gl.FLOAT, false, 20, 12);
+        }
+    };
+
+    SolariBoard.prototype._buildBuffers = function(indexBuffer, vertexBuffer, charBuffer) {
+        var extend = function(a1, a2) { a1.push.apply(a1, a2); }
+          , addFaceIndices = function(arr, a, b, c, d) { arr.push(c, d, a, c, a, b); }
+          , i
+          , index
+          , x, y, z
+          , charWidth = 1.0, charHeight = 1.0 // !charHeight is assumed to be 1.0 in the shaders!
+          , offsetX = 0.1, offsetY;
+
+        // Fill the char buffer with the "space" character
+        for (i=0; i<charBuffer.length; i++) {
+            charBuffer[i] = this.chars.length - 1;
+        }
+
+        // Add 4 vertices, texture coords and indices for each "flap"
+        function setupCharHalf(x, y, u, v, i, animated) {
+
             // Z coordinate is used as a marker for the animated vertices
-            if (top) { top = 1.0; }
+            // This is by far the biggest hack in this solari implementation.
+            // The shader animates the rotation of the flaps, but the same
+            // code runs for each vertex and we only want to animate 2 verts
+            // for some of the flaps. So we need a way to "mark" them. We use
+            // z for this.
+            animated = (animated) ? 1.0 : 0.0;
 
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
@@ -115,72 +121,37 @@ define([
             extend(vertexBuffer, [x+charWidth, y, z]);
             extend(vertexBuffer, [u+1, v]);
 
-            extend(vertexBuffer, [x+charWidth, y+charHeight, z+top]);
+            extend(vertexBuffer, [x+charWidth, y+charHeight, z+animated]);
             extend(vertexBuffer, [u+1, v+0.5]);
 
-            extend(vertexBuffer, [x, y+charHeight, z+top]);
+            extend(vertexBuffer, [x, y+charHeight, z+animated]);
             extend(vertexBuffer, [u, v+0.5]);
 
             addFaceIndices(indexBuffer, i+0, i+1, i+2, i+3);
         };
 
+        x = (-this.cols/2) * (charWidth + offsetX);
 
-        x = (-size/2) * (charWidth + offsetX);
-        for(index=0; index < size; index++) {
-            setupCharHalf(x, y-1.0, 0, 0, this.verticesPerChar * index);
-            setupCharHalf(x, y, 0, 0.5, this.verticesPerChar * index + 4);
+        for(index=0; index < this.cols; index++) {
+            i = this.verticesPerChar * index;
+            setupCharHalf(x, y-1, 0,   0, i);           // botom half of current character
+            setupCharHalf(x, y,   0, 0.5, i+4);         // top half of next character
 
-            setupCharHalf(x, y, 0, 0.5, this.verticesPerChar * index + 8, true);
+            setupCharHalf(x, y,   0, 0.5, i+8, true);   // animated flap with current character
+                                                        // animated flap with the bottom of the next (backfacing)
+
             x += offsetX + charWidth;
         }
-
-        var bufsize = this.verticesPerChar;
-        var charPosBuffer = new Array(this.verticesPerChar * size);
-
-        for (i=0; i<charPosBuffer.length; i++) {
-            charPosBuffer[i] = this.chars.length - 1;
-        }
-
-        this.setMessage("hi kevin abc");
-
-
-        this.frameBuffer = new Buffer(gl, canvas.width, canvas.height);
-
-        // This is the volatile buffer. It's still initialized as static_draw
-        // since it's going to be updated very infrequently.
-        this.charPosBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.charPosBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(/*charPosBuffer*/this.newPosBuffer), gl.DYNAMIC_DRAW);
-
-        gl.enableVertexAttribArray(shader.attribute.charpos);
-        gl.vertexAttribPointer(shader.attribute.charpos, 1, gl.FLOAT, false, 4, 0);
-
-
-        // This is an interleaved buffer for texture coords and vertices.
-        // [vert, vert, vert, texoord, texcoor, ...]
-        this.vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexBuffer), gl.STATIC_DRAW);
-
-        gl.enableVertexAttribArray(shader.attribute.position);
-        gl.enableVertexAttribArray(shader.attribute.texture);
-        gl.vertexAttribPointer(shader.attribute.position, 3, gl.FLOAT, false, 20, 0);
-        gl.vertexAttribPointer(shader.attribute.texture, 2, gl.FLOAT, false, 20, 12);
-
-        // The index buffer is built alongside the vertex one and never
-        // changes.
-        this.indexBuffer = gl.createBuffer();
-        this.numIndices = indexBuffer.length;
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
     };
 
+
     SolariBoard.prototype.setMessage = function(msg) {
-        // Updates the character array with a charcter index for each vertex
-        // that will render it.
+        /*
+         * Setting the message builds a new character buffer. It's pushed to
+         * the gpu inside the draw call.
+         */
         msg = msg.toUpperCase();
-        var i, j, char, newBuffer = new Array(this.verticesPerChar * this.rowSize);
+        var i, j, char, newBuffer = new Array(this.verticesPerChar * this.cols);
 
         for (i=0; i < this.rowSize; i++) {
             // for each character find it's index in our texture
@@ -199,64 +170,20 @@ define([
         this.newPosBuffer = newBuffer;
     };
 
-    var timing = 0;
 
-    SolariBoard.prototype.draw = function(gl, frameTime, projectionMat, viewMat) {
-        var shader = this.fontShader;
-        // restructure this to have
-        ***************************
-
-        Restructure this so there's a separate shader for the blur.
-
-        We want separate calls in the renderer above:
-
-        1) bind target for color:
-        solari.draw
-
-        2) bind target for velocity
-        solari draw without textures, drawing the velocities only
-
-        3) render a quad with the blur pass
-        looking up velocity and rendered textures to perform blur
-
+    SolariBoard.prototype.update = function(time) {
+        this.timing += time * 0.0005; // this should be scaled to increment at 1.0 for each flap rotation
 
         if (this.newPosBuffer) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.charPosBuffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.newPosBuffer));
             this.newPosBuffer = null;
         }
-
-        timing += frameTime*0.001;
-        gl.useProgram(shader);
-
-        gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
-        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
-
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        gl.uniform1i(shader.uniform.blur, false);
-        gl.uniform1f(shader.uniform.time, timing);
-        gl.uniform1f(shader.uniform.numChars, this.numChars);
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.fontTexture);
-        gl.uniform1i(shader.uniform.diffuse, 0);
-
-        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
-        gl.uniform1i(shader.uniform.blur, true);
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.frameBuffer.texture);
-        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
-
     };
 
+    SolariBoard.prototype.draw = function(gl) {
+        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
+    };
 
     return SolariBoard;
 });
