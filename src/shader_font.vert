@@ -1,15 +1,14 @@
 attribute vec3 position;
 attribute vec2 texture;
-attribute float charpos;
+attribute float character;
 
 uniform mat4 viewMat;
 uniform mat4 projectionMat;
-uniform float time;
-uniform float numChars;
-uniform bool blur;
-varying vec2 texCoord;
 
-varying vec2 velocity;
+uniform float timing;
+uniform float numCharacters;
+
+varying vec2 texCoord;
 
 
 // Matrix rotation code copied from http://www.html5rocks.com/en/tutorials/webgl/million_letters/
@@ -37,27 +36,27 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 
 
 void main(void) {
-
     vec3 prevV, v = position;
     // We're abusing the z coord to mark whether we animate the vertex or not.
     float animate = v.z;
     v.z = 0.0;
     vec3 base = v - vec3(0,1.0,0);
 
-    float char = charpos;
+    float char = character;
+
     texCoord = texture;
-    texCoord.s = (texCoord.s + char) / numChars;
+    texCoord.s = (texCoord.s + char) / numCharacters;
 
     if (animate>0.0) {
-        prevV = rotateAngleAxis(time - 0.5, vec3(1.0, 0.0, 0.0), v-base)+base;
-        v = rotateAngleAxis(time, vec3(1.0, 0.0, 0.0), v-base)+base;
+        //prevV = rotateAngleAxis(time - 0.5, vec3(1.0, 0.0, 0.0), v-base)+base;
+        v = rotateAngleAxis(timing, vec3(1.0, 0.0, 0.0), v-base)+base;
     } else {
         prevV = v;
     }
 
-    vec4 prevPos = projectionMat * viewMat * vec4(prevV, 1.0);
-    vec4 nextPos = projectionMat * viewMat * vec4(v, 1.0);
-    velocity = ((nextPos.xy / nextPos.w) - (prevPos.xy / prevPos.w)) *0.2;
-    gl_Position = nextPos;
+    //vec4 prevPos = projectionMat * viewMat * vec4(prevV, 1.0);
+    //vec4 nextPos = projectionMat * viewMat * vec4(v, 1.0);
+    //velocity = ((nextPos.xy / nextPos.w) - (prevPos.xy / prevPos.w)) *0.2;
+    gl_Position = projectionMat * viewMat * vec4(v, 1.0);
 }
 

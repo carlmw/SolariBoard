@@ -70,14 +70,14 @@ define([
         this.projectionMat = mat4.create();
         mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.projectionMat);
 
-        gl.clearColor(0.1, 0.1, 0.1, 1.0);
+        gl.clearColor(0, 0, 0, 1);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         this.board = new SolariBoard(gl, {
             rows: 1,
-            cols: 20,
+            cols: 1,
             texture: glUtil.loadTexture(gl, "img/chars.png"),
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
         });
@@ -87,16 +87,17 @@ define([
         // FIXME: change this to requirejs require() so shaders are requested
         // where theyre needed
         this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
-            ["position", "texture", "charpos"],
-            ["viewMat", "projectcall when creating the bufferionMat", "time", "numChars", "diffuse", "blur", "screenSize"]
+            ["position", "texture", "character"],
+            ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
         );
 
         // The color buffer when we render the textured solari board. It's
         // than used as a source texture for the motion blur pass
-        this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
+        //this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
 
 
         window.board = this.board; // quick hack for board testing
+        this.board.setMessage("solari board");
     };
 
     Renderer.prototype.resize = function (gl, canvas) {
@@ -118,12 +119,12 @@ define([
           , shader;
 
         this.camera.update(frameTime);
-        this.board.update(frameTime);
+        board.update(frameTime, gl);
 
         // First pass - rendered the textured solari board
         var shader = this.fontShader;
         gl.useProgram(shader);
-        board.bindShaderAttribs(gl, shader.attribute.charpos, shader.attribute.position, shader.attribute.texture);
+        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
@@ -131,12 +132,12 @@ define([
         //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        gl.uniform1f(shader.uniform.time, board.timing);
-        gl.uniform1f(shader.uniform.numChars, board.chars.length);
+        gl.uniform1f(shader.uniform.timing, board.timing);
+        gl.uniform1f(shader.uniform.numCharacters, board.chars.length);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, board.texture);
-        gl.uniform1i(shader.uniform.diffuse, 0);
+        gl.uniform1i(shader.uniform.fontTex, 0);
 
 
 

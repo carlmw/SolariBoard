@@ -40,8 +40,10 @@ require(["lib/domReady", // Waits for page load
         return;
     }
 
-    canvas.width = 512;window.innerWidth;
-    canvas.height = 512; window.innerHeight;
+    //canvas.width = 512;window.innerWidth;
+    //canvas.height = 512; window.innerHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     renderer = new Renderer(gl, canvas);
     renderer.resize(gl, canvas);

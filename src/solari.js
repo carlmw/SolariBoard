@@ -71,16 +71,16 @@ define([
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
     };
 
-    SolariBoard.prototype.bindShaderAttribs = function(gl, position, charpos, texture) {
+    SolariBoard.prototype.bindShaderAttribs = function(gl, character, position, texture) {
         /*
          * Point the shader attributes to the appropriate buffers.
          */
-        gl.enableVertexAttribArray(charpos);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
-        gl.vertexAttribPointer(charpos, 1, gl.FLOAT, false, 4, 0);
+        gl.enableVertexAttribArray(character);
+        gl.vertexAttribPointer(character, 1, gl.FLOAT, false, 4, 0);
 
-        gl.enableVertexAttribArray(position);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.enableVertexAttribArray(position);
         gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 20, 0);
 
         if (texture) {
@@ -114,6 +114,7 @@ define([
             // for some of the flaps. So we need a way to "mark" them. We use
             // z for this.
             animated = (animated) ? 1.0 : 0.0;
+            z = 0;
 
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
@@ -131,7 +132,7 @@ define([
         };
 
         x = (-this.cols/2) * (charWidth + offsetX);
-
+        y = 1.5;
         for(index=0; index < this.cols; index++) {
             i = this.verticesPerChar * index;
             setupCharHalf(x, y-1, 0,   0, i);           // botom half of current character
@@ -171,7 +172,7 @@ define([
     };
 
 
-    SolariBoard.prototype.update = function(time) {
+    SolariBoard.prototype.update = function(time, gl) {
         this.timing += time * 0.0005; // this should be scaled to increment at 1.0 for each flap rotation
 
         if (this.newPosBuffer) {
@@ -182,6 +183,7 @@ define([
     };
 
     SolariBoard.prototype.draw = function(gl) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
     };
 
