@@ -75,6 +75,11 @@ define([
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
+
+        gl.frontFace(gl.CCW);
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
+
         this.board = new SolariBoard(gl, {
             rows: 1,
             cols: 20,

@@ -47,7 +47,7 @@ define([
         this.timing = 0.0;
 
         // We need this to fillup the charBuffer
-        this.verticesPerChar = 12;
+        this.verticesPerChar = 16;
 
         this.vertexBuffer = gl.createBuffer();
         this.indexBuffer = gl.createBuffer();
@@ -105,7 +105,7 @@ define([
         }
 
         // Add 4 vertices, texture coords and indices for each "flap"
-        function setupCharHalf(x, y, u, v, i, animated) {
+        function setupCharHalf(x, y, u, v, i, animated, flipped) {
 
             // Z coordinate is used as a marker for the animated vertices
             // This is by far the biggest hack in this solari implementation.
@@ -115,6 +115,7 @@ define([
             // z for this.
             animated = (animated) ? 1.0 : 0.0;
             z = 0;
+            var topUV = (flipped) ? -0.5 : 0.5;
 
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
@@ -123,12 +124,16 @@ define([
             extend(vertexBuffer, [u+1, v]);
 
             extend(vertexBuffer, [x+charWidth, y+charHeight, z+animated]);
-            extend(vertexBuffer, [u+1, v+0.5]);
+            extend(vertexBuffer, [u+1, v+topUV]);
 
             extend(vertexBuffer, [x, y+charHeight, z+animated]);
-            extend(vertexBuffer, [u, v+0.5]);
+            extend(vertexBuffer, [u,   v+topUV]);
 
-            addFaceIndices(indexBuffer, i+0, i+1, i+2, i+3);
+            if (flipped) {
+                addFaceIndices(indexBuffer, i+3, i+2, i+1, i+0);
+            } else {
+                addFaceIndices(indexBuffer, i+0, i+1, i+2, i+3);
+            }
         };
 
         x = (-this.cols/2) * (charWidth + offsetX);
@@ -139,7 +144,7 @@ define([
             setupCharHalf(x, y,   0, 0.5, i+4);         // top half of next character
 
             setupCharHalf(x, y,   0, 0.5, i+8, true);   // animated flap with current character
-                                                        // animated flap with the bottom of the next (backfacing)
+            setupCharHalf(x, y,   0, 0.5, i+12, true, true);   // animated flap with the bottom of the next (backfacing)
 
             x += offsetX + charWidth;
         }
