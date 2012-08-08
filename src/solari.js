@@ -141,10 +141,10 @@ define([
         for(index=0; index < this.cols; index++) {
             i = this.verticesPerChar * index;
             setupCharHalf(x, y-1, 0,   0, i);           // botom half of current character
-            setupCharHalf(x, y,   0, 0.5, i+4);         // top half of next character
+            setupCharHalf(x, y,  -1, 0.5, i+4);         // top half of next character
 
             setupCharHalf(x, y,   0, 0.5, i+8, true);   // animated flap with current character
-            setupCharHalf(x, y,   0, 0.5, i+12, true, true);   // animated flap with the bottom of the next (backfacing)
+            setupCharHalf(x, y,  -1, 0.5, i+12, true, true);   // animated flap with the bottom of the next (backfacing)
 
             x += offsetX + charWidth;
         }
