@@ -36,7 +36,8 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 
 
 void main(void) {
-    vec3 prevV, v = position;
+    vec3 v = position;
+
     // We're abusing the z coord to mark whether we animate the vertex or not.
     float animate = v.z;
     v.z = 0.0;
@@ -48,15 +49,9 @@ void main(void) {
     texCoord.s = (texCoord.s + char) / numCharacters;
 
     if (animate>0.0) {
-        //prevV = rotateAngleAxis(time - 0.5, vec3(1.0, 0.0, 0.0), v-base)+base;
         v = rotateAngleAxis(timing, vec3(1.0, 0.0, 0.0), v-base)+base;
-    } else {
-        prevV = v;
     }
 
-    //vec4 prevPos = projectionMat * viewMat * vec4(prevV, 1.0);
-    //vec4 nextPos = projectionMat * viewMat * vec4(v, 1.0);
-    //velocity = ((nextPos.xy / nextPos.w) - (prevPos.xy / prevPos.w)) *0.2;
     gl_Position = projectionMat * viewMat * vec4(v, 1.0);
 }
 
