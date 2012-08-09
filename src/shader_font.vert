@@ -10,6 +10,7 @@ uniform float numCharacters;
 
 varying vec2 texCoord;
 
+float PI = 3.14159265358979323846264;
 
 // Matrix rotation code copied from http://www.html5rocks.com/en/tutorials/webgl/million_letters/
 
@@ -43,13 +44,14 @@ void main(void) {
     v.z = 0.0;
     vec3 base = v - vec3(0,1.0,0);
 
-    float char = character;
+    float char = floor(character + timing);
+    float angle = fract(timing);
 
     texCoord = texture;
     texCoord.s = (texCoord.s + char) / numCharacters;
 
     if (animate>0.0) {
-        v = rotateAngleAxis(timing, vec3(1.0, 0.0, 0.0), v-base)+base;
+        v = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), v-base)+base;
     }
 
     gl_Position = projectionMat * viewMat * vec4(v, 1.0);
