@@ -29,6 +29,48 @@ define([
 ], function(camera, glUtil, SolariBoard) {
     "use strict";
 
+    var ScreenQuad = function (gl, options) {
+        /*
+         * A quad covering the screen for post ptocessing effects
+         */
+        this.width = options.width;
+        this.height = options.height;
+
+        this.vertexBuffer = gl.createBuffer();
+        this.indexBuffer = gl.createBuffer();
+        this.numIndices = 6;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            0, 0, 0,    0, 0,
+            1, 0, 0,    1, 0,
+            1, 1, 0,    1, 1,
+            0, 1, 0,    0, 1
+        ]), gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
+            2, 3, 0, 2, 0, 1
+        ]), gl.STATIC_DRAW);
+    };
+
+    ScreenQuad.prototype.bindShaderAttribs = function(gl, position, texture) {
+        /*
+         * Point the shader attributes to the appropriate buffers.
+         */
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 20, 0);
+
+        gl.enableVertexAttribArray(texture);
+        gl.vertexAttribPointer(texture, 2, gl.FLOAT, false, 20, 12);
+    };
+
+    ScreenQuad.prototype.draw = function(gl) {
+        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
+    };
+
+
     function Buffer(gl, width, height) {
         // A framebuffer that can be used as a render target
         this.width = width;
@@ -97,10 +139,9 @@ define([
             );
         });
 
-        // The color buffer when we render the textured solari board. It's
+        // The color buffer where we render the textured solari board. It's
         // than used as a source texture for the motion blur pass
-        //this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
-
+        this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
 
         window.board = this.board; // quick hack for board testing
         this.board.setMessage("solari board");
