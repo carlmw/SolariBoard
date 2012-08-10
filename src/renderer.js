@@ -101,8 +101,10 @@ define([
             "lib/text!src/shaders/blur.vert",
             "lib/text!src/shaders/blur.frag",
             "lib/text!src/shaders/font.vert",
-            "lib/text!src/shaders/font.frag"
-        ], function(blurVS, blurFS, fontVS, fontFS) {
+            "lib/text!src/shaders/font.frag",
+            "lib/text!src/shaders/velocity.vert",
+            "lib/text!src/shaders/velocity.frag"
+        ], function(blurVS, blurFS, fontVS, fontFS, velocityVS, velocityFS) {
             // Post processing shader
             self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
                 ["position"],
@@ -113,6 +115,12 @@ define([
             self.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
                 ["position", "texture", "character"],
                 ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
+            );
+
+            // The velocity shader rendering the velocity map
+            self.velocityShader = glUtil.createShaderProgram(gl, velocityVS, velocityFS,
+                ["position", "character"],
+                ["viewMat", "projectionMat", "timing", "prevTiming", "numCharacters"]
             );
         });
 
@@ -140,15 +148,18 @@ define([
           , frameTime = timing.frameTime
           , board = this.board
           , quad = this.quad
+          , prevTiming = this.board.timing
           , shader;
 
         this.camera.update(frameTime);
         board.update(frameTime, gl);
 
         // First pass - rendered the textured solari board
-        var shader = this.fontShader;
+        //var shader = this.fontShader;
+        var shader = this.velocityShader;
         gl.useProgram(shader);
-        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
+        //board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
+        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.projectionMat);
@@ -157,6 +168,7 @@ define([
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform1f(shader.uniform.timing, board.timing);
+        gl.uniform1f(shader.uniform.prevTiming, prevTiming);
         gl.uniform1f(shader.uniform.numCharacters, board.chars.length);
 
         gl.activeTexture(gl.TEXTURE0);
