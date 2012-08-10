@@ -22,13 +22,11 @@
  */
 
 define([
-    "lib/text!src/shaders/font.vert",
-    "lib/text!src/shaders/font.frag",
     "lib/camera",
     "lib/gl-util",
     "src/solari",
     "lib/gl-matrix.js",
-], function(fontVS, fontFS, camera, glUtil, SolariBoard) {
+], function(camera, glUtil, SolariBoard) {
     "use strict";
 
     function Buffer(gl, width, height) {
@@ -88,13 +86,16 @@ define([
         });
 
         // The basic shader rendering the textured board
-
-        // FIXME: change this to requirejs require() so shaders are requested
-        // where theyre needed
-        this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
-            ["position", "texture", "character"],
-            ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
-        );
+        var self = this;
+        require([
+            "lib/text!src/shaders/font.vert",
+            "lib/text!src/shaders/font.frag"
+        ], function(vert, frag) {
+            self.fontShader = glUtil.createShaderProgram(gl, vert, frag,
+                ["position", "texture", "character"],
+                ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
+            );
+        });
 
         // The color buffer when we render the textured solari board. It's
         // than used as a source texture for the motion blur pass
