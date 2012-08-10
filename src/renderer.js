@@ -71,11 +71,15 @@ define([
 
     function Buffer(gl, width, height) {
         // A framebuffer that can be used as a render target
+        var min2pow = function(x) { var i = 1; while (i*=2) { if (i>=x) return i; }}
+          , realW = min2pow(width)
+          , realH = min2pow(height);
         this.width = width;
         this.height = height;
+        this.imageScale = [1.0 / realW, 1.0 / realH];
+
         this.id = gl.createFramebuffer();
         this.texture = gl.createTexture();
-
         var renderbuffer = gl.createRenderbuffer();
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.id);
@@ -85,10 +89,10 @@ define([
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); //_MIPMAP_NEAREST);
         //gl.generateMipmap(gl.TEXTURE_2D);
 
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.width, this.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, realW, realH, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
         gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
-        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, this.width, this.height);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, realW, realH);
 
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
         gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
@@ -140,7 +144,7 @@ define([
             // Post processing shader
             self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
                 ["position"],
-                ["projectionMat", "imageTex"]
+                ["projectionMat", "imageScale", "imageTex"]
             );
 
             // The basic shader rendering the textured board
@@ -207,9 +211,8 @@ define([
         gl.useProgram(shader);
         quad.bindShaderAttribs(gl, shader.attribute.position);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoProjectionMat);
+        gl.uniform2fv(shader.uniform.imageScale, this.renderBuffer.imageScale);
 
-
-        //gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.renderBuffer.texture);
         //gl.bindTexture(gl.TEXTURE_2D, board.texture);
