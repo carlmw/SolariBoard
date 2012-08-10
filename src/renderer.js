@@ -42,15 +42,15 @@ define([
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-            0, 0, 0,    0, 0,
-            1, 0, 0,    1, 0,
-            1, 1, 0,    1, 1,
-            0, 1, 0,    0, 1
+           -1,-1, 0,    0, 1,
+            1,-1, 0,    1, 1,
+            1, 1, 0,    1, 0,
+           -1, 1, 0,    0, 0
         ]), gl.STATIC_DRAW);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
-            2, 3, 0, 2, 0, 1
+            1, 0, 2, 0, 3, 2
         ]), gl.STATIC_DRAW);
     };
 
@@ -58,6 +58,7 @@ define([
         /*
          * Point the shader attributes to the appropriate buffers.
          */
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.enableVertexAttribArray(position);
         gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 20, 0);
@@ -175,6 +176,7 @@ define([
         var viewMat = this.camera.getViewMat()
           , frameTime = timing.frameTime
           , board = this.board
+          , quad = this.quad
           , shader;
 
         this.camera.update(frameTime);
@@ -188,7 +190,7 @@ define([
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.projectionMat);
 
-        //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer.id);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform1f(shader.uniform.timing, board.timing);
@@ -200,17 +202,25 @@ define([
 
         board.draw(gl);
 
-
-
-
-        /*
+        // Second pass - a screen filling quad with the blur shader
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
+        var shader = this.blurShader;
+        gl.useProgram(shader);
+        quad.bindShaderAttribs(gl, shader.attribute.position, shader.attribute.texture);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoProjectionMat);
+
+
+        //gl.uniform2fv(shader.uniform.screenSize, this.screenSize);
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.frameBuffer.texture);
-        */
+        gl.bindTexture(gl.TEXTURE_2D, this.renderBuffer.texture);
+        //gl.bindTexture(gl.TEXTURE_2D, board.texture);
+        //gl.uniform1i(shader.uniform.imageTex, 0);
+
+        quad.draw(gl);
+        //board.draw(gl);
+
     };
 
     return Renderer;
