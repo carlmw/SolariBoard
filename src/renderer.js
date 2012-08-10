@@ -25,48 +25,10 @@ define([
     "lib/camera",
     "lib/gl-util",
     "src/solari",
+    "src/quad",
     "lib/gl-matrix.js",
-], function(camera, glUtil, SolariBoard) {
+], function(camera, glUtil, SolariBoard, ScreenQuad) {
     "use strict";
-
-    var ScreenQuad = function (gl, options) {
-        /*
-         * A quad covering the screen for post ptocessing effects
-         */
-        //this.width = options.width;
-        //this.height = options.height;
-
-        this.vertexBuffer = gl.createBuffer();
-        this.indexBuffer = gl.createBuffer();
-        this.numIndices = 6;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-           -1,-1, 0,
-            1,-1, 0,
-            1, 1, 0,
-           -1, 1, 0
-        ]), gl.STATIC_DRAW);
-
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
-            1, 0, 2, 0, 3, 2
-        ]), gl.STATIC_DRAW);
-    };
-
-    ScreenQuad.prototype.bindShaderAttribs = function(gl, position) {
-        /*
-         * Point the shader attributes to the appropriate buffers.
-         */
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.enableVertexAttribArray(position);
-        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 0, 0);
-    };
-
-    ScreenQuad.prototype.draw = function(gl) {
-        gl.drawElements(gl.TRIANGLES, this.numIndices, gl.UNSIGNED_SHORT, 0);
-    };
 
 
     function Buffer(gl, width, height) {
