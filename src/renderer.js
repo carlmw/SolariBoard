@@ -33,8 +33,8 @@ define([
         /*
          * A quad covering the screen for post ptocessing effects
          */
-        this.width = options.width;
-        this.height = options.height;
+        //this.width = options.width;
+        //this.height = options.height;
 
         this.vertexBuffer = gl.createBuffer();
         this.indexBuffer = gl.createBuffer();
@@ -110,6 +110,8 @@ define([
         this.projectionMat = mat4.create();
         mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.projectionMat);
 
+        this.orthoProjectionMat = mat4.ortho(-1, 1, 1, -1, -1, 1);
+
         gl.clearColor(0, 0, 0, 1);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
@@ -127,13 +129,24 @@ define([
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
         });
 
-        // The basic shader rendering the textured board
+        this.quad = new ScreenQuad(gl);
+
         var self = this;
+
         require([
+            "lib/text!src/shaders/blur.vert",
+            "lib/text!src/shaders/blur.frag",
             "lib/text!src/shaders/font.vert",
             "lib/text!src/shaders/font.frag"
-        ], function(vert, frag) {
-            self.fontShader = glUtil.createShaderProgram(gl, vert, frag,
+        ], function(blurVS, blurFS, fontVS, fontFS) {
+            // Post processing shader
+            self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
+                ["position", "texture"],
+                ["projectionMat", "imageTex"]
+            );
+
+            // The basic shader rendering the textured board
+            self.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
                 ["position", "texture", "character"],
                 ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
             );
@@ -161,7 +174,6 @@ define([
          */
         var viewMat = this.camera.getViewMat()
           , frameTime = timing.frameTime
-          , projectionMat = this.projectionMat
           , board = this.board
           , shader;
 
@@ -174,7 +186,7 @@ define([
         board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
-        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, projectionMat);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.projectionMat);
 
         //gl.bindFramebuffer(gl.FRAMEBUFFER, this.frameBuffer.id);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

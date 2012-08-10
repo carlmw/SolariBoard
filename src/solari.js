@@ -75,6 +75,7 @@ define([
         /*
          * Point the shader attributes to the appropriate buffers.
          */
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
         gl.enableVertexAttribArray(character);
         gl.vertexAttribPointer(character, 1, gl.FLOAT, false, 4, 0);
