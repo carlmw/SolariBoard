@@ -42,10 +42,10 @@ define([
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-           -1,-1, 0,    0, 1,
-            1,-1, 0,    1, 1,
-            1, 1, 0,    1, 0,
-           -1, 1, 0,    0, 0
+           -1,-1, 0,
+            1,-1, 0,
+            1, 1, 0,
+           -1, 1, 0
         ]), gl.STATIC_DRAW);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -54,17 +54,14 @@ define([
         ]), gl.STATIC_DRAW);
     };
 
-    ScreenQuad.prototype.bindShaderAttribs = function(gl, position, texture) {
+    ScreenQuad.prototype.bindShaderAttribs = function(gl, position) {
         /*
          * Point the shader attributes to the appropriate buffers.
          */
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.enableVertexAttribArray(position);
-        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 20, 0);
-
-        gl.enableVertexAttribArray(texture);
-        gl.vertexAttribPointer(texture, 2, gl.FLOAT, false, 20, 12);
+        gl.vertexAttribPointer(position, 3, gl.FLOAT, false, 0, 0);
     };
 
     ScreenQuad.prototype.draw = function(gl) {
@@ -142,7 +139,7 @@ define([
         ], function(blurVS, blurFS, fontVS, fontFS) {
             // Post processing shader
             self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
-                ["position", "texture"],
+                ["position"],
                 ["projectionMat", "imageTex"]
             );
 
@@ -208,7 +205,7 @@ define([
 
         var shader = this.blurShader;
         gl.useProgram(shader);
-        quad.bindShaderAttribs(gl, shader.attribute.position, shader.attribute.texture);
+        quad.bindShaderAttribs(gl, shader.attribute.position);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoProjectionMat);
 
 
