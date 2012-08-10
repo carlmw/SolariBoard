@@ -22,8 +22,8 @@
  */
 
 define([
-    "lib/text!src/shader_font.vert",
-    "lib/text!src/shader_font.frag",
+    "lib/text!src/shaders/font.vert",
+    "lib/text!src/shaders/font.frag",
     "lib/camera",
     "lib/gl-util",
     "src/solari",
