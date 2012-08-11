@@ -37,36 +37,40 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 
 
 void main(void) {
-    vec3 old, v = position;
+    // World space coordinates for the animated vertex
+    vec3 v1, v2, initial = position;
 
-    vec4 prev, current;
+    // Screen space projected coordinates
+    vec4 s1, s2;
+
     // We're abusing the z coord to mark whether we animate the vertex or not.
-    float animate = v.z;
-    v.z = 0.0;
-    vec3 base = v - vec3(0,1.0,0);
+    float animate = initial.z;
+    initial.z = 0.0;
+    vec3 base = initial - vec3(0,1.0,0);
 
     float char = floor(character + timing);
+    float prevAngle = fract(prevTiming) - 0.1;
     float angle = fract(timing);
-    float prevAngle = fract(prevTiming);
 
     // No texturing but still need to figure out it we're animating.
     //texCoord.s = (texCoord.s + char) / numCharacters;
 
     if (animate>0.0) {
-        v = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), v-base)+base;
+        v2 = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), initial-base)+base;
 
         if (angle > prevAngle) {
-          old = rotateAngleAxis(prevAngle * PI, vec3(1.0, 0.0, 0.0), old-base)+base;
+          v1 = rotateAngleAxis(prevAngle * PI, vec3(1.0, 0.0, 0.0), initial-base)+base;
         } else {
-          old = v;
+          v1 = v2;
         }
-        current = projectionMat * viewMat * vec4(v, 1.0);
-        prev = projectionMat * viewMat * vec4(old, 1.0);
-        velocity = current.xy / current.w - prev.xy / prev.w;
+
+        s2 = projectionMat * viewMat * vec4(v2, 1.0);
+        s1 = projectionMat * viewMat * vec4(v1, 1.0);
+        velocity = s2.xy / s2.w - s1.xy / s1.w;
     } else {
-        current = projectionMat * viewMat * vec4(v, 1.0);
+        s2 = projectionMat * viewMat * vec4(initial, 1.0);
         velocity = vec2(0.0);
     }
-    gl_Position = current;
+    gl_Position = s2;
 }
 
