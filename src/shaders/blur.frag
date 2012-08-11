@@ -6,15 +6,18 @@ uniform vec2 imageScale;
 
 
 void main(void) {
-	float w = 0.1;
+	float numSamples = 10.0;
+	float intensity = 0.5;
 
 	vec2 texCoord = gl_FragCoord.xy;
 	vec4 color = vec4(0.0);
 
-	for (int i=-1; i<2; i++) {
-		for (int j=-1; j<2; j++) {
-			color += texture2D(imageTex, (texCoord + vec2(i,j)) * imageScale ) * w;
-		}
-	}
+	vec2 velocity = (2.0* texture2D(velocityTex, texCoord * imageScale).xy -1.0) * 10.0;
+	float step = 1.0 / numSamples;
+
+	for (float i=0.0; i<10.0; i++) {
+		color += texture2D(imageTex, imageScale * (texCoord + (i*step-0.5)*velocity)) * step;
+	}		
+
     gl_FragColor = color;
 }
