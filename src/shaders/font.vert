@@ -45,7 +45,7 @@ void main(void) {
     vec3 base = v - vec3(0,1.0,0);
 
     float char = floor(character + timing);
-    float angle = fract(timing);
+    float angle = fract(character + timing);
 
     texCoord = texture;
     texCoord.s = (texCoord.s + char) / numCharacters;

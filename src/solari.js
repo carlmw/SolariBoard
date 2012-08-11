@@ -165,21 +165,23 @@ define([
          * Setting the message builds a new character buffer. It's pushed to
          * the gpu inside the draw call.
          */
-        msg = msg.toUpperCase();
-        var i, j, char, newBuffer = new Array(this.verticesPerChar * this.cols);
+        var i, j, k, char, msgRow, newBuffer = new Array(this.verticesPerChar * this.cols * this.rows);
 
-        for (i=0; i < this.cols; i++) {
-            // for each character find it's index in our texture
-            char = this.chars.length - 1;
+        for (j=0; j< this.rows; j++) {
+            msgRow = (msg[j] || "").toUpperCase();
+            for (i=0; i < this.cols; i++) {
+                // for each character find it's index in our texture
+                char = this.chars.length - 1 + Math.random() * 0.3;
 
-            if (i < msg.length) {
-                j = this.chars.indexOf(msg[i]);
-                if (j!=-1) char = j;
-            }
+                if (i < msgRow.length) {
+                    k = this.chars.indexOf(msgRow[i]);
+                    if (k!=-1) char = k;
+                }
 
-            // store the target value for each vertex rendering the char
-            for (j=0; j < this.verticesPerChar; j++) {
-                newBuffer[i*this.verticesPerChar+j] = char;
+                // store the target value for each vertex rendering the char
+                for (k=0; k < this.verticesPerChar; k++) {
+                    newBuffer[(this.cols*j+i)*this.verticesPerChar+k] = char;
+                }
             }
         }
         this.newPosBuffer = newBuffer;

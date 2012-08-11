@@ -87,8 +87,8 @@ define([
 
         this.board = new SolariBoard(gl, {
             rows: 10,
-            cols: 38,
-            speed: 0.0002,
+            cols: 58,
+            speed: 0.001,
             texture: glUtil.loadTexture(gl, "img/chars.png"),
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
         });
@@ -132,7 +132,7 @@ define([
         this.velocityBuffer = new Buffer(gl, canvas.width, canvas.height);
 
         window.board = this.board; // quick hack for board testing
-        this.board.setMessage("solari board");
+        this.board.setMessage(["solari board"]);
     };
 
     Renderer.prototype.resize = function (gl, canvas) {
