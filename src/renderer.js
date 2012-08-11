@@ -71,10 +71,10 @@ define([
         this.camera.distance = 15;
 
         this.fov = 45;
-        this.projectionMat = mat4.create();
-        mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.projectionMat);
+        this.perspectiveMat = mat4.create();
+        mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.perspectiveMat);
 
-        this.orthoProjectionMat = mat4.ortho(-1, 1, 1, -1, -1, 1);
+        this.orthoMat = mat4.ortho(-1, 1, 1, -1, -1, 1);
 
         gl.clearColor(0, 0, 0, 1);
         gl.clearDepth(1.0);
@@ -134,7 +134,7 @@ define([
 
     Renderer.prototype.resize = function (gl, canvas) {
         gl.viewport(0, 0, canvas.width, canvas.height);
-        mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.projectionMat);
+        mat4.perspective(this.fov, canvas.width/canvas.height, 1.0, 4096.0, this.perspectiveMat);
     };
 
     Renderer.prototype.drawFrame = function (gl, timing) {
@@ -162,7 +162,7 @@ define([
         board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
-        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.projectionMat);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.perspectiveMat);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer.id);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -184,7 +184,7 @@ define([
         var shader = this.blurShader;
         gl.useProgram(shader);
         quad.bindShaderAttribs(gl, shader.attribute.position);
-        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoProjectionMat);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoMat);
         gl.uniform2fv(shader.uniform.imageScale, this.renderBuffer.imageScale);
 
         gl.activeTexture(gl.TEXTURE0);
