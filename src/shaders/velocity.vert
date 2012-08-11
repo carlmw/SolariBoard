@@ -49,7 +49,7 @@ void main(void) {
     vec3 base = initial - vec3(0,1.0,0);
 
     float char = floor(character + timing);
-    float prevAngle = fract(prevTiming) - 0.1;
+    float prevAngle = fract(timing)-0.2;
     float angle = fract(timing);
 
     // No texturing but still need to figure out it we're animating.
