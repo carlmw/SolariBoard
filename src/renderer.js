@@ -76,7 +76,6 @@ define([
 
         this.orthoMat = mat4.ortho(-1, 1, 1, -1, -1, 1);
 
-        gl.clearColor(0, 0, 0, 1);
         gl.clearDepth(1.0);
         gl.enable(gl.DEPTH_TEST);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -108,7 +107,7 @@ define([
             // Post processing shader
             self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
                 ["position"],
-                ["projectionMat", "imageScale", "imageTex"]
+                ["projectionMat", "imageScale", "imageTex", "velocityTex"]
             );
 
             // The basic shader rendering the textured board
@@ -125,8 +124,11 @@ define([
         });
 
         // The color buffer where we render the textured solari board. It's
-        // than used as a source texture for the motion blur pass
+        // than used as a source texture for the motion blur pass.
         this.renderBuffer = new Buffer(gl, canvas.width, canvas.height);
+
+        // The velocity buffer used as an offset when bluring the rendered image.
+        this.velocityBuffer = new Buffer(gl, canvas.width, canvas.height);
 
         window.board = this.board; // quick hack for board testing
         this.board.setMessage("solari board");
@@ -154,17 +156,17 @@ define([
         this.camera.update(frameTime);
         board.update(frameTime, gl);
 
+        /*********************************************************************/
         // First pass - rendered the textured solari board
-        //var shader = this.fontShader;
-        var shader = this.velocityShader;
+        var shader = this.fontShader;
         gl.useProgram(shader);
-        //board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
-        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position);
+        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position, shader.attribute.texture);
 
         gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.perspectiveMat);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.renderBuffer.id);
+        gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         gl.uniform1f(shader.uniform.timing, board.timing);
@@ -177,24 +179,49 @@ define([
 
         board.draw(gl);
 
-        // Second pass - a screen filling quad with the blur shader
+        /*********************************************************************/
+        // Second pass - the velocity map
+        var shader = this.velocityShader;
+        gl.useProgram(shader);
+        board.bindShaderAttribs(gl, shader.attribute.character, shader.attribute.position);
+
+        gl.uniformMatrix4fv(shader.uniform.viewMat, false, viewMat);
+        gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.perspectiveMat);
+
+        gl.bindFramebuffer(gl.FRAMEBUFFER, this.velocityBuffer.id);
+        // The velocity shader uses the color's rg channels for the xy velocity.
+        // The color 0,1 range is mapped to a (-1, 1) velocity, so 0.5, 0.5 represents (0,0)
+        gl.clearColor(0.5, 0.5, 0, 1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.uniform1f(shader.uniform.timing, board.timing);
+        gl.uniform1f(shader.uniform.prevTiming, prevTiming);
+        gl.uniform1f(shader.uniform.numCharacters, board.chars.length);
+
+        board.draw(gl);
+
+        /*********************************************************************/
+        // Third pass - a screen filling quad with the blur shader
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         var shader = this.blurShader;
         gl.useProgram(shader);
         quad.bindShaderAttribs(gl, shader.attribute.position);
+
         gl.uniformMatrix4fv(shader.uniform.projectionMat, false, this.orthoMat);
         gl.uniform2fv(shader.uniform.imageScale, this.renderBuffer.imageScale);
 
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.renderBuffer.texture);
-        //gl.bindTexture(gl.TEXTURE_2D, board.texture);
-        //gl.uniform1i(shader.uniform.imageTex, 0);
+        gl.uniform1i(shader.uniform.imageTex, 0);
+
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.velocityBuffer.texture);
+        gl.uniform1i(shader.uniform.velocityTex, 1);
 
         quad.draw(gl);
-        //board.draw(gl);
-
     };
 
     return Renderer;

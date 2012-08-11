@@ -1,5 +1,7 @@
 uniform sampler2D imageTex;
+uniform sampler2D velocityTex;
 // The FragCoord has a (0, screen x) range we need to convert into (0,1)
+// The passed in imageScale is roughly 1/screenx
 uniform vec2 imageScale;
 
 
