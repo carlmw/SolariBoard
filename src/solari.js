@@ -40,6 +40,7 @@ define([
         this.chars = options.chars.split('');
         this.rows = options.rows;
         this.cols = options.cols;
+        this.speed = options.speed || 0.005;
 
         // A single variable passed into the animating shaders defining the
         // animation timeframe. The char buffer allows a unique offset for
@@ -179,7 +180,7 @@ define([
 
 
     SolariBoard.prototype.update = function(time, gl) {
-        this.timing += time * 0.0005; // this should be scaled to increment at 1.0 for each flap rotation
+        this.timing += time * this.speed;
         if (this.timing > this.chars.length) this.timing = 0;
 
         if (this.newPosBuffer) {
