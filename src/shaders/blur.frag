@@ -4,20 +4,26 @@ uniform sampler2D velocityTex;
 // The passed in imageScale is roughly 1/screenx
 uniform vec2 imageScale;
 
+const float numSamples = 20.0;
+
+vec4 sample(vec2 uv) {
+	// Sampling the rendered image using velocity as a filter. 
+	vec2 velocity = (2.0* texture2D(velocityTex, uv).rg -1.0);
+	float v = abs(velocity.y) + abs(velocity.x) * 2.0;
+	vec4 mult = vec4(v, v, v, 1);
+
+	return mult * texture2D(imageTex, uv);
+}
 
 void main(void) {
-	float numSamples = 10.0;
-	float intensity = 0.5;
+	vec2 uv = gl_FragCoord.xy * imageScale;
+	vec4 color = vec4(0);
 
-	vec2 texCoord = gl_FragCoord.xy;
-	vec4 color = vec4(0.0);
+	float step = 10.0 / numSamples;
 
-	vec2 velocity = (2.0* texture2D(velocityTex, texCoord * imageScale).xy -1.0) * 10.0;
-	float step = 1.0 / numSamples;
-
-	for (float i=0.0; i<10.0; i++) {
-		color += texture2D(imageTex, imageScale * (texCoord + (i*step-0.5)*velocity)) * step;
-	}		
-
-    gl_FragColor = color;
+	for (float i=0.0; i<numSamples; i++) {
+		color += sample(uv + imageScale * vec2(0, i*1.0)) * step;
+		color += sample(uv + imageScale * vec2(i*1.0, 0)) * step;
+	}
+    gl_FragColor = texture2D(imageTex, uv) + color;
 }
