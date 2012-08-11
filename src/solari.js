@@ -56,7 +56,7 @@ define([
 
         var indexBuffer = []
           , vertexBuffer = []
-          , charBuffer = new Array(this.verticesPerChar * this.cols);
+          , charBuffer = new Array(this.verticesPerChar * this.cols * this.rows);
 
         // Setup an interlaced buffer with vertices and tex coords
         this._buildBuffers(indexBuffer, vertexBuffer, charBuffer);
@@ -95,11 +95,11 @@ define([
     SolariBoard.prototype._buildBuffers = function(indexBuffer, vertexBuffer, charBuffer) {
         var extend = function(a1, a2) { a1.push.apply(a1, a2); }
           , addFaceIndices = function(arr, a, b, c, d) { arr.push(c, d, a, c, a, b); }
-          , i
+          , i, j
           , index
           , x, y, z
           , charWidth = 1.0, charHeight = 1.0 // !charHeight is assumed to be 1.0 in the shaders!
-          , offsetX = 0.1, offsetY;
+          , offsetX = 0.1, spacing = 0.1;
 
         // Fill the char buffer with the "space" character
         for (i=0; i<charBuffer.length; i++) {
@@ -138,17 +138,24 @@ define([
             }
         };
 
-        x = (-this.cols/2) * (charWidth + offsetX);
-        y = 1.5;
-        for(index=0; index < this.cols; index++) {
-            i = this.verticesPerChar * index;
-            setupCharHalf(x, y-1, 0,   0, i);           // botom half of current character
-            setupCharHalf(x, y,   1, 0.5, i+4);         // top half of next character
+        offsetX = (-this.cols/2) * (charWidth + spacing);
+        y = ( this.rows/2 - 0.5) * (2*charHeight + spacing);
+        index = 0;
+        for (j=0; j < this.rows; j++) {
+            x = offsetX;
 
-            setupCharHalf(x, y,   0, 0.5, i+8, true);   // animated flap with current character
-            setupCharHalf(x, y,   1, 0.5, i+12, true, true);   // animated flap with the bottom of the next (backfacing)
+            for (i=0; i < this.cols; i++) {
+                setupCharHalf(x, y-1, 0,   0, index);           // botom half of current character
+                setupCharHalf(x, y,   1, 0.5, index+4);         // top half of next character
 
-            x += offsetX + charWidth;
+                setupCharHalf(x, y,   0, 0.5, index+8, true);   // animated flap with current character
+                setupCharHalf(x, y,   1, 0.5, index+12, true, true);   // animated flap with the bottom of the next (backfacing)
+
+                index += this.verticesPerChar;
+                x += spacing + charWidth;
+            }
+
+            y -= spacing + 2 * charHeight;
         }
     };
 
