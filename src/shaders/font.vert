@@ -48,7 +48,7 @@ void main(void) {
     float characterFrom = character.x;
     float characterTo = character.y;
 
-    float char = min(characterFrom + timing, characterTo);
+    float char = min(characterFrom + timing, floor(characterTo));
     float angle = fract(char);
 
     texCoord = texture;
