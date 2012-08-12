@@ -171,10 +171,10 @@ define([
           , self = this
           , bufIndex = 0
           , buffer = this.charBuffer
-          , fillCharBuffer = function(from, to) {
+          , fillCharBuffer = function(to) {
                 // Repeat the from to character info for each vertex rendering that character
                 for (var i=0; i < self.verticesPerChar; i++) {
-                    buffer[bufIndex + 2*i] = from;
+                    buffer[bufIndex + 2*i] = buffer[bufIndex + 2*i+1];
                     buffer[bufIndex + 2*i+1] = to;
                 }
                 bufIndex += 2 * self.verticesPerChar;
@@ -191,8 +191,7 @@ define([
                     if (k!=-1) char = k;
                 }
 
-                var rand = Math.random() * 0.3;
-                fillCharBuffer(-1 + rand, char + rand);
+                fillCharBuffer(char + Math.random() * 0.1);
            }
         }
         this.charBufferDirty = true;
