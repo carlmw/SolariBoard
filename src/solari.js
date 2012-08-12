@@ -172,9 +172,11 @@ define([
           , bufIndex = 0
           , buffer = this.charBuffer
           , fillCharBuffer = function(to) {
+                var i, from;
                 // Repeat the from to character info for each vertex rendering that character
-                for (var i=0; i < self.verticesPerChar; i++) {
-                    buffer[bufIndex + 2*i] = buffer[bufIndex + 2*i+1];
+                for (i=0; i < self.verticesPerChar; i++) {
+                    from = buffer[bufIndex + 2*i+1];
+                    buffer[bufIndex + 2*i] = (Math.floor(to) < Math.floor(from)) ? from - self.chars.length : from;
                     buffer[bufIndex + 2*i+1] = to;
                 }
                 bufIndex += 2 * self.verticesPerChar;
