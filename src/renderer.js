@@ -68,7 +68,7 @@ define([
         // To get a camera that gives you a flying first-person perspective, use camera.FlyingCamera
         // To get a camera that rotates around a fixed point, use camera.ModelCamera
         this.camera = new camera.ModelCamera(canvas);
-        this.camera.distance = 30;
+        this.camera.distance = 45;
 
         this.fov = 45;
         this.perspectiveMat = mat4.create();
@@ -86,8 +86,8 @@ define([
         gl.cullFace(gl.BACK);
 
         this.board = new SolariBoard(gl, {
-            rows: 10,
-            cols: 58,
+            rows: 18,
+            cols: 60,
             speed: 0.001,
             texture: glUtil.loadTexture(gl, "img/chars.png"),
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
