@@ -56,7 +56,7 @@ define([
 
         var indexBuffer = []
           , vertexBuffer = []
-          , charBuffer = new Array(this.verticesPerChar * this.cols * this.rows);
+          , charBuffer = new Array(2 * this.verticesPerChar * this.cols * this.rows);
 
         // Setup an interlaced buffer with vertices and tex coords
         this._buildBuffers(indexBuffer, vertexBuffer, charBuffer);
@@ -79,7 +79,7 @@ define([
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
         gl.enableVertexAttribArray(character);
-        gl.vertexAttribPointer(character, 1, gl.FLOAT, false, 4, 0);
+        gl.vertexAttribPointer(character, 2, gl.FLOAT, false, 8, 0);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.enableVertexAttribArray(position);
@@ -172,9 +172,10 @@ define([
           , fillCharBuffer = function(from, to) {
                 // Repeat the from to character info for each vertex rendering that character
                 for (var i=0; i < self.verticesPerChar; i++) {
-                    newBuffer[bufIndex + i] = char;
+                    newBuffer[bufIndex + 2*i] = from;
+                    newBuffer[bufIndex + 2*i+1] = to;
                 }
-                bufIndex += self.verticesPerChar;
+                bufIndex += 2 * self.verticesPerChar;
 
           };
 

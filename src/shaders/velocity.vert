@@ -1,5 +1,5 @@
 attribute vec3 position;
-attribute float character;
+attribute vec2 character;
 
 uniform mat4 viewMat;
 uniform mat4 projectionMat;
@@ -48,9 +48,9 @@ void main(void) {
     initial.z = 0.0;
     vec3 base = initial - vec3(0,1.0,0);
 
-    float char = floor(character + timing);
-    float prevAngle = fract(timing)-0.2;
-    float angle = fract(timing);
+    float char = floor(character.x + timing);
+    float prevAngle = fract(character.x + timing)-0.2;
+    float angle = fract(character.x + timing);
 
     // No texturing but still need to figure out it we're animating.
     //texCoord.s = (texCoord.s + char) / numCharacters;

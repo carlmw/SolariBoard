@@ -1,6 +1,6 @@
 attribute vec3 position;
 attribute vec2 texture;
-attribute float character;
+attribute vec2 character;
 
 uniform mat4 viewMat;
 uniform mat4 projectionMat;
@@ -44,8 +44,8 @@ void main(void) {
     v.z = 0.0;
     vec3 base = v - vec3(0,1.0,0);
 
-    float char = floor(character + timing);
-    float angle = fract(character + timing);
+    float char = floor(character.x + timing);
+    float angle = fract(character.x + timing);
 
     texCoord = texture;
     texCoord.s = (texCoord.s + char) / numCharacters;
