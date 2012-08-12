@@ -167,16 +167,14 @@ define([
          * Setting the message builds a new character buffer. It's pushed to
          * the gpu inside the draw call.
          */
-        var i, j, k, char, msgRow
+        var i, j, k, from, char, msgRow
           , self = this
           , bufIndex = 0
           , buffer = this.charBuffer
-          , fillCharBuffer = function(to) {
-                var i, from;
+          , fillCharBuffer = function(from, to) {
                 // Repeat the from to character info for each vertex rendering that character
-                for (i=0; i < self.verticesPerChar; i++) {
-                    from = buffer[bufIndex + 2*i+1];
-                    buffer[bufIndex + 2*i] = (Math.floor(to) < Math.floor(from)) ? from - self.chars.length : from;
+                for (var i=0; i < self.verticesPerChar; i++) {
+                    buffer[bufIndex + 2*i] = from;
                     buffer[bufIndex + 2*i+1] = to;
                 }
                 bufIndex += 2 * self.verticesPerChar;
@@ -193,7 +191,21 @@ define([
                     if (k!=-1) char = k;
                 }
 
-                fillCharBuffer(char + Math.random() * 0.1);
+
+                // The source character for the next transition is determined exactly like
+                // the target char in the shader: it's whatever we're upto until it's over
+                // the target char
+                from = Math.min(buffer[bufIndex] + this.timing, buffer[bufIndex + 1]);
+
+                // While that is the current char it might be offset back (explained in the next comment)
+                // and we need it positive for the next comparison to make sense
+                from = (from < 0) ? from + this.chars.length : from;
+
+                // If we're already past our target character we rotate the source character a phase
+                // back - it looks the same since texcoords wrap but we can increment towards it
+                from = (Math.floor(char) < Math.floor(from)) ? from - this.chars.length : from;
+
+                fillCharBuffer(from, char + Math.random() * 0.1);
            }
         }
         this.charBufferDirty = true;
@@ -209,6 +221,7 @@ define([
             gl.bindBuffer(gl.ARRAY_BUFFER, this.charBufferObject);
             gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.charBuffer));
             this.charBufferDirty = false;
+            this.timing = 0;
         }
     };
 
