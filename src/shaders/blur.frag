@@ -4,7 +4,7 @@ uniform sampler2D velocityTex;
 // The passed in imageScale is roughly 1/screenx
 uniform vec2 imageScale;
 
-const float numSamples = 6.0;
+#define numSamples 6.0
 
 vec4 sample(vec2 uv) {
 	// Sampling the rendered image using velocity as a filter. 
