@@ -48,14 +48,17 @@ void main(void) {
     initial.z = 0.0;
     vec3 base = initial - vec3(0,1.0,0);
 
-    float char = floor(character.x + timing);
-    float prevAngle = fract(character.x + timing)-0.2;
-    float angle = fract(character.x + timing);
+    float characterFrom = character.x;
+    float characterTo = character.y;
+
+    float char = min(characterFrom + timing, characterTo);
+    float angle = fract(char);
+    float prevAngle = angle - 0.2;
 
     // No texturing but still need to figure out it we're animating.
     //texCoord.s = (texCoord.s + char) / numCharacters;
 
-    if (animate>0.0) {
+    if ((animate>0.0) && (char < characterTo)) {
         v2 = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), initial-base)+base;
 
         if (angle > prevAngle) {

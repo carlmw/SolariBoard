@@ -39,18 +39,22 @@ vec3 rotateAngleAxis(float angle, vec3 axis, vec3 v) {
 void main(void) {
     vec3 v = position;
 
-    // We're abusing the z coord to mark whether we animate the vertex or not.
-    float animate = v.z;
-    v.z = 0.0;
+    // We're abusing the z coord to mark whether we animate the vertex or not. We
+    // keep it above 0 for the animation check and so it renders in front when it
+    // stops moving
+    v.z *= 0.01;
     vec3 base = v - vec3(0,1.0,0);
 
-    float char = floor(character.x + timing);
-    float angle = fract(character.x + timing);
+    float characterFrom = character.x;
+    float characterTo = character.y;
+
+    float char = min(characterFrom + timing, characterTo);
+    float angle = fract(char);
 
     texCoord = texture;
-    texCoord.s = (texCoord.s + char) / numCharacters;
+    texCoord.s = (texCoord.s + floor(char)) / numCharacters;
 
-    if (animate>0.0) {
+    if ((v.z>0.0) && (char < characterTo)) {
         v = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), v-base)+base;
     }
 

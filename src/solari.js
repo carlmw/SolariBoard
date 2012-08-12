@@ -176,21 +176,21 @@ define([
                     newBuffer[bufIndex + 2*i+1] = to;
                 }
                 bufIndex += 2 * self.verticesPerChar;
-
           };
 
         for (j=0; j< this.rows; j++) {
             msgRow = (msg[j] || "").toUpperCase();
             for (i=0; i < this.cols; i++) {
                 // for each character find it's index in our texture
-                char = this.chars.length - 1 + Math.random() * 0.3;
+                char = this.chars.length - 1;
 
                 if (i < msgRow.length) {
                     k = this.chars.indexOf(msgRow[i]);
                     if (k!=-1) char = k;
                 }
 
-                fillCharBuffer(char, char);
+                var rand = Math.random() * 0.3;
+                fillCharBuffer(-1 + rand, char + rand);
            }
         }
         this.newCharacterBuffer = newBuffer;
@@ -198,8 +198,9 @@ define([
 
 
     SolariBoard.prototype.update = function(time, gl) {
-        this.timing += time * this.speed;
-        if (this.timing > this.chars.length) this.timing = 0;
+        if (this.timing < this.chars.length) {
+            this.timing += time * this.speed;
+        }
 
         if (this.newCharacterBuffer) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
