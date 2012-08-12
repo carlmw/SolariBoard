@@ -165,7 +165,18 @@ define([
          * Setting the message builds a new character buffer. It's pushed to
          * the gpu inside the draw call.
          */
-        var i, j, k, char, msgRow, newBuffer = new Array(this.verticesPerChar * this.cols * this.rows);
+        var i, j, k, char, msgRow
+          , self = this
+          , bufIndex = 0
+          , newBuffer = new Array(this.verticesPerChar * this.cols * this.rows)
+          , fillCharBuffer = function(from, to) {
+                // Repeat the from to character info for each vertex rendering that character
+                for (var i=0; i < self.verticesPerChar; i++) {
+                    newBuffer[bufIndex + i] = char;
+                }
+                bufIndex += self.verticesPerChar;
+
+          };
 
         for (j=0; j< this.rows; j++) {
             msgRow = (msg[j] || "").toUpperCase();
@@ -178,13 +189,10 @@ define([
                     if (k!=-1) char = k;
                 }
 
-                // store the target value for each vertex rendering the char
-                for (k=0; k < this.verticesPerChar; k++) {
-                    newBuffer[(this.cols*j+i)*this.verticesPerChar+k] = char;
-                }
-            }
+                fillCharBuffer(char, char);
+           }
         }
-        this.newPosBuffer = newBuffer;
+        this.newCharacterBuffer = newBuffer;
     };
 
 
@@ -192,10 +200,10 @@ define([
         this.timing += time * this.speed;
         if (this.timing > this.chars.length) this.timing = 0;
 
-        if (this.newPosBuffer) {
+        if (this.newCharacterBuffer) {
             gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.newPosBuffer));
-            this.newPosBuffer = null;
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.newCharacterBuffer));
+            this.newCharacterBuffer = null;
         }
     };
 
