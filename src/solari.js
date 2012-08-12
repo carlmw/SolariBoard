@@ -52,18 +52,18 @@ define([
 
         this.vertexBuffer = gl.createBuffer();
         this.indexBuffer = gl.createBuffer();
-        this.charBuffer = gl.createBuffer();
+        this.charBufferObject = gl.createBuffer();
 
         var indexBuffer = []
-          , vertexBuffer = []
-          , charBuffer = new Array(2 * this.verticesPerChar * this.cols * this.rows);
+          , vertexBuffer = [];
+
 
         // Setup an interlaced buffer with vertices and tex coords
-        this._buildBuffers(indexBuffer, vertexBuffer, charBuffer);
+        this._buildBuffers(indexBuffer, vertexBuffer);
         this.numIndices = indexBuffer.length;
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(charBuffer), gl.DYNAMIC_DRAW);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBufferObject);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.charBuffer), gl.DYNAMIC_DRAW);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexBuffer), gl.STATIC_DRAW);
@@ -77,7 +77,7 @@ define([
          * Point the shader attributes to the appropriate buffers.
          */
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.charBufferObject);
         gl.enableVertexAttribArray(character);
         gl.vertexAttribPointer(character, 2, gl.FLOAT, false, 8, 0);
 
@@ -101,9 +101,11 @@ define([
           , charWidth = 1.0, charHeight = 1.0 // !charHeight is assumed to be 1.0 in the shaders!
           , offsetX = 0.1, spacing = 0.1;
 
+        this.charBuffer = new Array(2 * this.verticesPerChar * this.cols * this.rows);
+        this.charBufferDirty = false;
         // Fill the char buffer with the "space" character
-        for (i=0; i<charBuffer.length; i++) {
-            charBuffer[i] = this.chars.length - 1;
+        for (i=0; i<this.charBuffer.length; i++) {
+            this.charBuffer[i] = this.chars.length - 1;
         }
 
         // Add 4 vertices, texture coords and indices for each "flap"
@@ -168,12 +170,12 @@ define([
         var i, j, k, char, msgRow
           , self = this
           , bufIndex = 0
-          , newBuffer = new Array(this.verticesPerChar * this.cols * this.rows)
+          , buffer = this.charBuffer
           , fillCharBuffer = function(from, to) {
                 // Repeat the from to character info for each vertex rendering that character
                 for (var i=0; i < self.verticesPerChar; i++) {
-                    newBuffer[bufIndex + 2*i] = from;
-                    newBuffer[bufIndex + 2*i+1] = to;
+                    buffer[bufIndex + 2*i] = from;
+                    buffer[bufIndex + 2*i+1] = to;
                 }
                 bufIndex += 2 * self.verticesPerChar;
           };
@@ -193,7 +195,7 @@ define([
                 fillCharBuffer(-1 + rand, char + rand);
            }
         }
-        this.newCharacterBuffer = newBuffer;
+        this.charBufferDirty = true;
     };
 
 
@@ -202,10 +204,10 @@ define([
             this.timing += time * this.speed;
         }
 
-        if (this.newCharacterBuffer) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.charBuffer);
-            gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.newCharacterBuffer));
-            this.newCharacterBuffer = null;
+        if (this.charBufferDirty) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.charBufferObject);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(this.charBuffer));
+            this.charBufferDirty = false;
         }
     };
 
