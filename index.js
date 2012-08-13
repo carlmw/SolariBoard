@@ -33,6 +33,7 @@ require(["lib/domReady!", // Waits for page load
     });
 
     setTimeout(function () {
+
         Board.setMessage([
             'THUNDERCATS',
             'ARE ON THE MOVE',
@@ -42,9 +43,9 @@ require(["lib/domReady!", // Waits for page load
             'THUNDERCATS ARE LOOSE',
             'THUNDER THUNDER THUNDER',
             'THUNDERCATS HO'
-            ])
+            ], true) // centered
         }, 2000);
     setTimeout(function() {
-        Board.setMessage([(new Date().toGMTString())]);
+        Board.setMessage([(new Date().toGMTString())], true);
     }, 10000);
 });
