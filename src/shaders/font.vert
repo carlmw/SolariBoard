@@ -52,9 +52,18 @@ void main(void) {
     float angle = fract(char);
 
     texCoord = texture;
-    // Since non power of two textures don't support wrap around
-    //we make sure the texture offset is positive
-    texCoord.s = (texCoord.s + mod(floor(char), numCharacters)) / numCharacters;
+    // Since non power of two textures don't support wrap around, we roll our own wrap around
+    float offset = (texCoord.s + floor(char)) / numCharacters;
+    // Fract wraps values > 1.0 and substracting -1 wraps everything < 0.0
+    offset = fract( offset - min(0.0, sign(offset)));
+
+    // Because we can't figure out if 1.0 is the right edge of the last character or
+    // the left of the next one, we pass them in as 0.99, so if the original coord was a right edge
+    // we can always clamp it to 1.0 and not 0.0.
+    if ((fract(texCoord.x) > 0.9) && (offset < 0.001)) {
+      offset = 1.0;
+    }
+    texCoord.s = offset;
 
     if ((v.z>0.0) && (char < characterTo)) {
         v = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), v-base)+base;

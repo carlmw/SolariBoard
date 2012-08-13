@@ -119,16 +119,17 @@ define([
             // z for this.
             animated = (animated) ? 1.0 : 0.0;
             z = 0;
-            var topUV = (flipped) ? -0.5 : 0.5;
+            var topUV = (flipped) ? -0.5 : 0.5
+              , rightUV = 0.9999; // Allows detecting a right edge in our wrap around shader code
 
             extend(vertexBuffer, [x, y, z]);
             extend(vertexBuffer, [u, v]);
 
             extend(vertexBuffer, [x+charWidth, y, z]);
-            extend(vertexBuffer, [u+1, v]);
+            extend(vertexBuffer, [u+rightUV, v]);
 
             extend(vertexBuffer, [x+charWidth, y+charHeight, z+animated]);
-            extend(vertexBuffer, [u+1, v+topUV]);
+            extend(vertexBuffer, [u+rightUV, v+topUV]);
 
             extend(vertexBuffer, [x, y+charHeight, z+animated]);
             extend(vertexBuffer, [u,   v+topUV]);
@@ -215,6 +216,8 @@ define([
     SolariBoard.prototype.update = function(time, gl) {
         if (this.timing < this.chars.length) {
             this.timing += time * this.speed;
+        } else {
+            this.timing = this.chars.length;
         }
 
         if (this.charBufferDirty) {
