@@ -4,7 +4,7 @@ uniform sampler2D velocityTex;
 // The passed in imageScale is roughly 1/screenx
 uniform vec2 imageScale;
 
-#define numSamples 24.0
+#define numSamples 16.0
 
 vec2 sampleVelocity(vec2 uv) {
 	vec3 encodedVelocity = texture2D(velocityTex, uv).rgb;
@@ -33,7 +33,7 @@ void main(void) {
 		vec2 ySample = uv + imageScale * vec2(0, i);
 
 		velocity = vec2(sampleVelocity(xSample).x, sampleVelocity(ySample).y) * sign(i);
-		velocity = clamp(velocity, 0.0, 100.0);
+		velocity = clamp(velocity, 0.0, 100.0) * 10.0;
 
 		//velocity *= abs(i) / numSamples;
 		color += texture2D(imageTex, xSample).rgb * velocity.x;
