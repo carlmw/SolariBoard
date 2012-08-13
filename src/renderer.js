@@ -64,11 +64,11 @@ define([
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     };
 
-    var Renderer = function (gl, canvas) {
+    var Renderer = function (gl, canvas, options) {
         // To get a camera that gives you a flying first-person perspective, use camera.FlyingCamera
         // To get a camera that rotates around a fixed point, use camera.ModelCamera
         this.camera = new camera.ModelCamera(canvas);
-        this.camera.distance = 45;
+        this.camera.distance = options.distance;
 
         this.fov = 45;
         this.perspectiveMat = mat4.create();
@@ -86,9 +86,9 @@ define([
         gl.cullFace(gl.BACK);
 
         this.board = new SolariBoard(gl, {
-            rows: 18,
-            cols: 60,
-            speed: 0.001,
+            rows: options.rows,
+            cols: options.cols,
+            speed: options.speed,
             texture: glUtil.loadTexture(gl, "img/chars.png"),
             chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '
         });
@@ -130,9 +130,6 @@ define([
 
         // The velocity buffer used as an offset when bluring the rendered image.
         this.velocityBuffer = new Buffer(gl, canvas.width, canvas.height);
-
-        window.board = this.board; // quick hack for board testing
-        this.board.setMessage(["solari board"]);
     };
 
     Renderer.prototype.resize = function (gl, canvas) {

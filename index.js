@@ -21,33 +21,30 @@
  *    distribution.
  */
 
-require(["lib/domReady", // Waits for page load
-    "lib/gl-util",
-    "src/renderer",
-], function(doc, glUtil, Renderer) {
+require(["lib/domReady!", // Waits for page load
+    "src/SolariBoard",
+], function(doc, SolariBoard) {
     "use strict";
-    //
-    // Create gl context and start the render loop
-    //
-    var canvas = document.getElementById("canvas");
-    var gl = glUtil.getContext(canvas);
-    var renderer;
 
-    if(!gl) {
-        // Replace the canvas with a message that instructs them on how to get a WebGL enabled browser
-        //glUtil.showGLFailed(frame);
-        console.log('webgl initialization failed');
-        return;
-    }
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    renderer = new Renderer(gl, canvas);
-    renderer.resize(gl, canvas);
-
-    glUtil.startRenderLoop(gl, canvas, function(gl, timing) {
-        renderer.drawFrame(gl, timing);
+    var Board = window.Board = new SolariBoard({
+        rows: 18,
+        cols: 60,
+        speed: 0.004,
     });
 
+    setTimeout(function () {
+        Board.setMessage([
+            'THUNDERCATS',
+            'ARE ON THE MOVE',
+            'THUNDERCATS ARE LOOSE',
+            'FEEL THE MAGIC',
+            'HEAR THE ROAR',
+            'THUNDERCATS ARE LOOSE',
+            'THUNDER THUNDER THUNDER',
+            'THUNDERCATS HO'
+            ])
+        }, 2000);
+    setTimeout(function() {
+        Board.setMessage([(new Date().toGMTString())]);
+    }, 10000);
 });
