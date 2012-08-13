@@ -4,7 +4,7 @@ uniform sampler2D velocityTex;
 // The passed in imageScale is roughly 1/screenx
 uniform vec2 imageScale;
 
-#define numSamples 16.0
+#define numSamples 6.0
 
 vec2 sampleVelocity(vec2 uv) {
 	vec3 encodedVelocity = texture2D(velocityTex, uv).rgb;
@@ -15,8 +15,8 @@ void main(void) {
 	vec2 uv = gl_FragCoord.xy * imageScale;
 	vec3 color = texture2D(imageTex, uv).rgb;
 
-	vec2 xSample, ySample;
-	vec2 velocity;
+	vec2 ySample;
+	float velocity;
 
 	// This is a multisampling n^2 attempt at solving the lack of trails.
 	// It looks reasonably well up close but it's very inefficient and really should be 2 passes.
@@ -29,15 +29,12 @@ void main(void) {
 	// So what is done here is we blur in 2 directions for every fragment, but only include a sample
 	// if it hits the velocity map.
 	for (float i=-numSamples/2.0; i<numSamples/2.0; i++) {
-		vec2 xSample = uv + imageScale * vec2(i, 0);
 		vec2 ySample = uv + imageScale * vec2(0, i);
 
-		velocity = vec2(sampleVelocity(xSample).x, sampleVelocity(ySample).y) * sign(i);
-		velocity = clamp(velocity, 0.0, 100.0) * 10.0;
+		velocity = clamp(sampleVelocity(ySample).y * sign(i), 0.0, 100.0) * 5.0;
 
-		//velocity *= abs(i) / numSamples;
-		color += texture2D(imageTex, xSample).rgb * velocity.x;
-		color += texture2D(imageTex, ySample).rgb * velocity.y;
+		velocity *= abs(i) / numSamples;
+		color += texture2D(imageTex, ySample).rgb * velocity;
 	}
     gl_FragColor = vec4(color, 1.0);
 }
