@@ -10,7 +10,7 @@ uniform float numCharacters;
 
 varying vec2 texCoord;
 
-float PI = 3.14159265358979323846264;
+#define PI 3.14159265358979323846264
 
 // Matrix rotation code copied from http://www.html5rocks.com/en/tutorials/webgl/million_letters/
 
