@@ -99,7 +99,7 @@ define([
 
         require([
             "lib/text!src/shaders/blur.vert",
-            "lib/text!src/shaders/blur.frag",
+            "lib/text!src/shaders/motionblur.frag",
             "lib/text!src/shaders/font.vert",
             "lib/text!src/shaders/font.frag",
             "lib/text!src/shaders/velocity.vert",
