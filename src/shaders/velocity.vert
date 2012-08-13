@@ -8,7 +8,7 @@ uniform float timing;
 uniform float prevTiming;
 uniform float numCharacters;
 
-varying vec2  velocity;
+varying vec3  velocity;
 
 float PI = 3.14159265358979323846264;
 
@@ -55,6 +55,7 @@ void main(void) {
     float angle = fract(char);
     float prevAngle = angle - 0.2;
 
+    vec2 rawVelocity;
     // No texturing but still need to figure out it we're animating.
     //texCoord.s = (texCoord.s + char) / numCharacters;
 
@@ -69,10 +70,11 @@ void main(void) {
 
         s2 = projectionMat * viewMat * vec4(v2, 1.0);
         s1 = projectionMat * viewMat * vec4(v1, 1.0);
-        velocity = s2.xy / s2.w - s1.xy / s1.w;
+        rawVelocity = s2.xy / s2.w - s1.xy / s1.w;
+        velocity = vec3(normalize(rawVelocity), length(rawVelocity));
     } else {
         s2 = projectionMat * viewMat * vec4(initial, 1.0);
-        velocity = vec2(0.0);
+        velocity = vec3(0.0);
     }
     gl_Position = s2;
 }

@@ -8,7 +8,11 @@ uniform vec2 imageScale;
 
 vec4 sample(vec2 uv) {
 	// Sampling the rendered image using velocity as a filter. 
-	vec2 velocity = (2.0* texture2D(velocityTex, uv).rg -1.0);
+
+	// The velocity is encoded as a normalized vec2, and a log scaling factor
+	vec3 encodedVelocity = texture2D(velocityTex, uv).rgb;
+	vec2 velocity = (2.0* encodedVelocity.xy - 1.0) * pow(encodedVelocity.z, 2.0);
+
 	float v = abs(velocity.y) + abs(velocity.x) * 2.0;
 	vec4 mult = vec4(v, v, v, 1);
 
@@ -22,7 +26,7 @@ void main(void) {
 	float step = 20.0 / numSamples;
 
 	for (float i=0.0; i<numSamples; i++) {
-		color += sample(uv + imageScale * vec2(0, i*1.0)) * step;
+		color += sample(uv + imageScale * vec2(0, i*-1.0)) * step;
 		color += sample(uv + imageScale * vec2(i*1.0, 0)) * step;
 	}
     gl_FragColor = texture2D(imageTex, uv)*0.5 + color;
