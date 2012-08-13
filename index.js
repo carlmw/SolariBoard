@@ -50,31 +50,4 @@ require(["lib/domReady", // Waits for page load
         renderer.drawFrame(gl, timing);
     });
 
-    //
-    // Wire up the Fullscreen button
-    //
-    var fullscreenBtn = document.getElementById("fullscreen");
-
-    document.cancelFullScreen = document.webkitCancelFullScreen || document.mozCancelFullScreen;
-
-    var canvasOriginalWidth = canvas.width;
-    var canvasOriginalHeight = canvas.height;
-    /*fullscreenBtn.addEventListener("click", function() {
-        if(frame.webkitRequestFullScreen) {
-            frame.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-        } else if(frame.mozRequestFullScreen) {
-            frame.mozRequestFullScreen();
-        }
-    }, false);
-    */
-    function fullscreenchange() {
-        if(document.webkitIsFullScreen || document.mozFullScreen) {
-            canvas.width = screen.width;
-            canvas.height = screen.height;
-        } else {
-            canvas.width = canvasOriginalWidth;
-            canvas.height = canvasOriginalHeight;
-        }
-        renderer.resize(gl, canvas);
-    }
 });
