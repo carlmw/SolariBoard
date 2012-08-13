@@ -206,7 +206,8 @@ define([
                 // back - it looks the same since texcoords wrap but we can increment towards it
                 from = (Math.floor(char) < Math.floor(from)) ? from - this.chars.length : from;
 
-                fillCharBuffer(from, char + Math.random() * 0.1);
+                var offset = Math.random() * 0.1;
+                fillCharBuffer(from + offset, char + offset);
            }
         }
         this.charBufferDirty = true;
