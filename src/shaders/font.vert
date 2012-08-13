@@ -52,7 +52,9 @@ void main(void) {
     float angle = fract(char);
 
     texCoord = texture;
-    texCoord.s = (texCoord.s + floor(char)) / numCharacters;
+    // Since non power of two textures don't support wrap around
+    //we make sure the texture offset is positive
+    texCoord.s = (texCoord.s + mod(floor(char), numCharacters)) / numCharacters;
 
     if ((v.z>0.0) && (char < characterTo)) {
         v = rotateAngleAxis(angle * PI, vec3(1.0, 0.0, 0.0), v-base)+base;
