@@ -26,8 +26,14 @@ define([
     "lib/gl-util",
     "src/solari",
     "src/quad",
-    "lib/gl-matrix.js",
-], function(camera, glUtil, SolariBoard, ScreenQuad) {
+    "lib/text!src/shaders/blur.vert",
+    "lib/text!src/shaders/motionblur.frag",
+    "lib/text!src/shaders/font.vert",
+    "lib/text!src/shaders/font.frag",
+    "lib/text!src/shaders/velocity.vert",
+    "lib/text!src/shaders/velocity.frag",
+    "lib/gl-matrix.js"
+], function(camera, glUtil, SolariBoard, ScreenQuad, blurVS, blurFS, fontVS, fontFS, velocityVS, velocityFS) {
     "use strict";
 
 
@@ -94,35 +100,23 @@ define([
         });
 
         this.quad = new ScreenQuad(gl);
+        // Post processing shader
+        this.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
+            ["position"],
+            ["projectionMat", "imageScale", "imageTex", "velocityTex"]
+        );
 
-        var self = this;
+        // The basic shader rendering the textured board
+        this.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
+            ["position", "texture", "character"],
+            ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
+        );
 
-        require([
-            "lib/text!src/shaders/blur.vert",
-            "lib/text!src/shaders/motionblur.frag",
-            "lib/text!src/shaders/font.vert",
-            "lib/text!src/shaders/font.frag",
-            "lib/text!src/shaders/velocity.vert",
-            "lib/text!src/shaders/velocity.frag"
-        ], function(blurVS, blurFS, fontVS, fontFS, velocityVS, velocityFS) {
-            // Post processing shader
-            self.blurShader = glUtil.createShaderProgram(gl, blurVS, blurFS,
-                ["position"],
-                ["projectionMat", "imageScale", "imageTex", "velocityTex"]
-            );
-
-            // The basic shader rendering the textured board
-            self.fontShader = glUtil.createShaderProgram(gl, fontVS, fontFS,
-                ["position", "texture", "character"],
-                ["viewMat", "projectionMat", "timing", "numCharacters", "fontTex"]
-            );
-
-            // The velocity shader rendering the velocity map
-            self.velocityShader = glUtil.createShaderProgram(gl, velocityVS, velocityFS,
-                ["position", "character"],
-                ["viewMat", "projectionMat", "timing", "prevTiming", "numCharacters"]
-            );
-        });
+        // The velocity shader rendering the velocity map
+        this.velocityShader = glUtil.createShaderProgram(gl, velocityVS, velocityFS,
+            ["position", "character"],
+            ["viewMat", "projectionMat", "timing", "prevTiming", "numCharacters"]
+        );
 
         // The color buffer where we render the textured solari board. It's
         // than used as a source texture for the motion blur pass.
