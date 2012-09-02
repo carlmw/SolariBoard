@@ -1,10 +1,11 @@
-var SolariRow = Backbone.View.extend({
-  initialize: function (y, scene) {
-    this.flaps = [];
-    this.y = y||0;
-    this.x = 0;
-    this.height = 0;
-  },
+var SolariRow = function (y, scene) {
+  this.flaps = [];
+  this.y = y||0;
+  this.x = 0;
+  this.height = 0;
+};
+
+SolariRow.prototype = {
   add: function (textureSet) {
     var flap = new SolariFlap(textureSet, this.x + (textureSet.faceWidth / 2), -this.y);
     this.height = Math.max(this.height, textureSet.faceHeight * 2);
@@ -18,4 +19,4 @@ var SolariRow = Backbone.View.extend({
       flap.setChar(chars[i] ? chars[i] : ' ');
     });
   }
-});
+};

@@ -1,4 +1,5 @@
-var SolariTexture = function(src, chars, faceWidth, faceHeight){};
+var SolariTexture = function(src, chars, faceWidth, faceHeight) {};
+
 SolariTexture.prototype = _.extend({
   loaded: false,
   chars: [],
@@ -56,4 +57,4 @@ SolariTexture.prototype = _.extend({
     });
     return UV;
   }
-}, Backbone.Events);
+}, Events);

@@ -1,7 +1,48 @@
 var DEG2RAD =  Math.PI / 180,
-    SPEED = 1400.0;
+    SPEED = 1400.0,
+    SolariFlap;
 
-var SolariFlap = Backbone.View.extend({
+SolariFlap = function (textureSet, x, y) {
+  var flapWidth = textureSet.faceWidth,
+      flapHeight = textureSet.faceHeight,
+      top = new THREE.Mesh(
+        new THREE.PlaneGeometry(flapWidth, flapHeight),
+        textureSet.spriteMaterial),
+      bottom = new THREE.Mesh(
+        new THREE.PlaneGeometry(flapWidth, flapHeight),
+        textureSet.spriteMaterial),
+      flap = new THREE.Mesh(
+        new THREE.CubeGeometry(flapWidth, flapHeight, 0, 1, 1, 1, [
+            null, null, null, null,
+            textureSet.spriteMaterial,
+            textureSet.spriteMaterial
+        ]),
+        new THREE.MeshFaceMaterial()),
+      varia = 1.1 - Math.random() * 0.2;
+
+  this.SPEED = SPEED * DEG2RAD / 1000.0 * varia;
+
+  this.textureSet = textureSet;
+  this.top_g = top.geometry;
+  this.bottom_g = bottom.geometry;
+  this.flap_g = flap.geometry;
+  this.top_g.dynamic = this.bottom_g.dynamic = this.flap_g.dynamic = true;
+
+  bottom.position = new THREE.Vector3(x, y, 0);
+  top.position = new THREE.Vector3(x, y + flapHeight, 0);
+  flap.position = new THREE.Vector3(0, flapHeight/2, 0);
+
+  this.flapWrapper = new THREE.Object3D();
+  this.flapWrapper.position = new THREE.Vector3(x, y + flapHeight/2, 2);
+  this.flapWrapper.add(flap);
+
+  this.objToRender = [top, bottom, this.flapWrapper];
+
+  this.i = 0;
+  this.setUpTextures(0, 1);
+};
+
+SolariFlap.prototype = {
   MAX_X: 180 * DEG2RAD,
   initialize: function (textureSet, x, y) {
     var flapWidth = textureSet.faceWidth,
@@ -87,4 +128,4 @@ var SolariFlap = Backbone.View.extend({
     }
     return false;
   }
-});
+};

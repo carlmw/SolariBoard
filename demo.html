@@ -1,35 +1,40 @@
 <!doctype html>
 <html>
 <head>
-	<script src="lib/jquery.js"></script>
-	<script src="lib/underscore.js"></script>
-	<script src="lib/backbone.js"></script>
-	<script src="lib/Three.js"></script>
-	<script src="lib/stats.js"></script>
-	<script src="src/SolariTexture.js"></script>
-	<script src="src/SolariRow.js"></script>
-	<script src="src/SolariFlap.js"></script>
-	<script src="src/Solari.js"></script>
-	<script>
-	(function () {
-	var board = window.Board = new Solari;
-	new SolariTexture().bind('load', function () {
-		var alphaSet = this,
+  <title>Solari</title>
+</head>
+<body>
+	<div id="container"></div>
+  <script src="lib/underscore.js"></script>
+  <script src="lib/Three.js"></script>
+  <script src="lib/stats.js"></script>
+  <script src="lib/events.js"></script>
+  <script src="src/SolariTexture.js"></script>
+  <script src="src/SolariRow.js"></script>
+  <script src="src/SolariFlap.js"></script>
+  <script src="src/Solari.js"></script>
+  <script>
+  (function () {
+  var board = window.Board = new Solari;
+  new SolariTexture().bind('load', function () {
+    var alphaSet = this,
         row;
 
-		$('#container').append(board.el);
+    document.getElementById('container').appendChild(board.el);
 
-		_(8).times(function () {
-			row = new SolariRow(board.y);
+    // Set up the board
+    _(8).times(function () {
+      row = new SolariRow(board.y);
 
-			_(24).times(function () {
-				row.add(alphaSet);
-			});
-			board.add(row);
-		});
+      _(24).times(function () {
+        row.add(alphaSet);
+      });
+      board.add(row);
+    });
 
-		Board.start();
+    Board.start();
 
+    // Set a message
     setTimeout(function () {
       Board.setMessage([
         'THUNDERCATS',
@@ -44,21 +49,17 @@
     }, 2000);
   }).load('img/chars.png', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-.# '.split(''), 70, 63);
 
-	})();
-	</script>
-	<style>
-	*{
-		margin:0;
-		padding:0;
-		overflow:hidden;
-	}
-	body{
-		background:#000;
-		background-image:-webkit-linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0)), url('img/bg.png');
-	}
-	</style>
-</head>
-<body>
-	<div id="container"></div>
+  })();
+  </script>
+  <style>
+  *{
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  body{
+    background:#111;
+  }
+  </style>
 </body>
 </html>

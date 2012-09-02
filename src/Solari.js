@@ -5,6 +5,7 @@ String.prototype.rpad = function (padString, length) {
   }
   return str;
 };
+
 String.prototype.truncate = function (length) {
 	this.length = length;
   return this;
@@ -21,47 +22,48 @@ window.requestAnimFrame = (function (callback) {
   };
 })();
 
-var Solari = Backbone.View.extend({
+var Solari = function () {
+  this.animate = false;
+  this.flaps = [];
+  this.rows = [];
+  this.y = 0;
+  this.width = window.innerWidth;
+  this.height = window.innerHeight;
+  this.aspect = this.width / this.height;
+  this.renderer = new THREE.WebGLRenderer();
+  this.renderer.sortObjects = false;
+
+  this.camera = new THREE.PerspectiveCamera(
+    20.0,
+    window.innerWidth / innerHeight,
+    this.NEAR,
+    this.FAR
+  );
+  this.scene = new THREE.Scene();
+
+  this.renderer.setSize(this.width, this.height);
+
+  this.pointLight = new THREE.PointLight(0xFFFFFF);
+  this.ambientLight = new THREE.AmbientLight(0x333333);
+
+  this.pointLight.position.x = 1000;
+  this.pointLight.position.y = -800;
+  this.pointLight.position.z = 300;
+
+  this.scene.add(this.pointLight);
+  this.scene.add(this.ambientLight);
+
+  // Pull the camera back
+  this.camera.position.z = 3200;
+  this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+
+  this.el = this.renderer.domElement;
+};
+
+Solari.prototype = _.extend({
   VIEW_ANGLE: 45,
   NEAR: 1,
   FAR: 10000,
-  initialize: function () {
-    this.animate = false;
-    this.flaps = [];
-    this.rows = [];
-    this.y = 0;
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.aspect = this.width / this.height;
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.sortObjects = false;
-
-    this.camera = new THREE.PerspectiveCamera(
-      20.0,
-      window.innerWidth / innerHeight,
-      this.NEAR,
-      this.FAR
-    );
-    this.scene = new THREE.Scene();
-
-    this.renderer.setSize(this.width, this.height);
-
-    this.pointLight = new THREE.PointLight(0xFFFFFF);
-    this.ambientLight = new THREE.AmbientLight(0x333333);
-
-    this.pointLight.position.x = 1000;
-    this.pointLight.position.y = -800;
-    this.pointLight.position.z = 300;
-
-    this.scene.add(this.pointLight);
-    this.scene.add(this.ambientLight);
-
-    // Pull the camera back
-    this.camera.position.z = 3200;
-    this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    this.el = this.renderer.domElement;
-  },
   render: function () {
     this.renderer.render(this.scene, this.camera);
     if(this.showStats) this.stats.update();
@@ -136,4 +138,4 @@ var Solari = Backbone.View.extend({
     });
     return this;
   }
-});
+}, Events);
