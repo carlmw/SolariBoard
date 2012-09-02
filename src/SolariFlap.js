@@ -1,3 +1,4 @@
+/*global THREE */
 var DEG2RAD =  Math.PI / 180,
     SPEED = 1400.0,
     SolariFlap;
@@ -97,13 +98,13 @@ SolariFlap.prototype = {
   },
   setChar: function (ch) {
     var i = this.textureSet.chars.indexOf(ch);
-    this.currentChar = i != -1 ? i : this.textureSet.max;
-    this.wedged = this.currentChar == this.i;
+    this.currentChar = i !== -1 ? i : this.textureSet.max;
+    this.wedged = this.currentChar === this.i;
     return this;
   },
   next: function () {
     this.i = this.i >= this.textureSet.max ? 0 : this.i + 1;
-    var next = (this.i+1>this.textureSet.max) ? 0 : this.i + 1;
+    var next = (this.i + 1 > this.textureSet.max) ? 0 : this.i + 1;
     this.setUpTextures(this.i, next);
 
     if (this.currentChar === this.i) {

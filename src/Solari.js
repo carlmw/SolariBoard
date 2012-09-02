@@ -1,3 +1,4 @@
+/*global THREE,Stats,_,requestAnimFrame,Events */
 String.prototype.rpad = function (padString, length) {
   var str = this;
   while (str.length < length) {
@@ -20,7 +21,7 @@ window.requestAnimFrame = (function (callback) {
   function (callback) {
     window.setTimeout(callback, 1000 / 60);
   };
-})();
+}());
 
 var Solari = function () {
   this.animate = false;
@@ -35,7 +36,7 @@ var Solari = function () {
 
   this.camera = new THREE.PerspectiveCamera(
     20.0,
-    window.innerWidth / innerHeight,
+    window.innerWidth / window.innerHeight,
     this.NEAR,
     this.FAR
   );
@@ -117,10 +118,10 @@ Solari.prototype = _.extend({
       self.render();
 
       // request new frame
-      if (self.anim) { 
+      if (self.anim) {
         requestAnimFrame(function () {
           animate(lastTime);
-        }); 
+        });
       } else {
         setTimeout(function () {
           animate((new Date().getTime()));

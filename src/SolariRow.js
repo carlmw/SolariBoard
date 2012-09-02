@@ -1,6 +1,7 @@
+/*global SolariFlap,_ */
 var SolariRow = function (y, scene) {
   this.flaps = [];
-  this.y = y||0;
+  this.y = y || 0;
   this.x = 0;
   this.height = 0;
 };
