@@ -107,7 +107,7 @@ Solari.prototype = _.extend({
     var self = this,
         lastTime = new Date().getTime();
 
-    function animate (lastTime) {
+    function animate () {
       // update
       var time = new Date().getTime();
       var timeDiff = time - lastTime;
@@ -119,9 +119,7 @@ Solari.prototype = _.extend({
 
       // request new frame
       if (self.anim) {
-        requestAnimFrame(function () {
-          animate(lastTime);
-        });
+        requestAnimFrame(animate);
       } else {
         setTimeout(function () {
           animate((new Date().getTime()));
@@ -129,7 +127,7 @@ Solari.prototype = _.extend({
       }
 
     }
-    animate(lastTime);
+    animate();
 
     this.trigger('start');
   },
