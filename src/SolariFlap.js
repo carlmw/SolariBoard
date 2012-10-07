@@ -123,9 +123,6 @@ SolariFlap.prototype = {
     if (x > this.MAX_X) {
       this.flapWrapper.rotation.x = 0;
       this.next();
-      if (this.wedged && (Math.random() > 0.995)) {
-        this.next(); this.wedged=false;
-      }
     }
     return false;
   }
