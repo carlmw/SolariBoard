@@ -107,16 +107,12 @@ SolariFlap.prototype = {
     var next = (this.i + 1 > this.textureSet.max) ? 0 : this.i + 1;
     this.setUpTextures(this.i, next);
 
-    if (this.currentChar === this.i) {
-      this.wedged = true;
-    }else{
-      this.wedged = false;
-    }
+    this.wedged = (this.currentChar === this.i);
   },
   update: function (diff) {
-    var x = this.flapWrapper.rotation.x;
     if (this.wedged) return true;
-
+    var x = this.flapWrapper.rotation.x;
+    
     x += diff * this.SPEED;
 
     this.flapWrapper.rotation.x = x;
