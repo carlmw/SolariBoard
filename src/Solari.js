@@ -84,6 +84,8 @@ Solari.prototype = _.extend({
     this.camera.position.x = (row.x - 10) / 2;
     this.camera.position.y = -((row.y - (row.height/2)) / 2);
 
+    window.addEventListener('resize', _.bind(this.resizeHandler, this));
+
     return this;
   },
   displayStats: function () {
@@ -136,5 +138,14 @@ Solari.prototype = _.extend({
       row.setChars(msg[i] ? msg[i] : ' ');
     });
     return this;
+  },
+  resizeHandler: function () {
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+
+    this.render();
   }
 }, Events);
