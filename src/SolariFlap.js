@@ -110,11 +110,13 @@ SolariFlap.prototype = {
     this.wedged = (this.currentChar === this.i);
   },
   update: function (diff) {
-    if (this.wedged) return true;
+    if (this.wedged) {
+      this.flapWrapper.rotation.x = 0;
+      return true;
+    }
     var x = this.flapWrapper.rotation.x;
-    
     x += diff * this.SPEED;
-
+    
     this.flapWrapper.rotation.x = x;
     if (x > this.MAX_X) {
       this.flapWrapper.rotation.x = 0;
